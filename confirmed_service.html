@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>eBook · Booking Success</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --olive: #aebf7b;
+      --olive-dark: #8ca35e;
+      --navy: #1f2638;
+      --bg: #f5f5f7;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #22c55e;
+      --success-bg: #dcffe6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    /* TOP BAR */
+
+    .top-bar {
+      background: var(--olive);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .burger {
+      width: 18px;
+      height: 2px;
+      background: #111827;
+      border-radius: 999px;
+      position: relative;
+    }
+
+    .burger::before,
+    .burger::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 18px;
+      height: 2px;
+      background: #111827;
+      border-radius: 999px;
+    }
+
+    .burger::before { top: -5px; }
+    .burger::after { top: 5px; }
+
+    .globe {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid #111827;
+      position: relative;
+    }
+
+    .globe::before,
+    .globe::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      border: 1px solid #111827;
+      opacity: 0.6;
+    }
+
+    .globe::before { inset: 3px 5px; }
+    .globe::after  { inset: 5px 3px; }
+
+    .logo-mark {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 2px solid #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    /* HEADER */
+
+    .header-navy {
+      background: var(--navy);
+      color: #fff;
+      text-align: center;
+      padding: 18px 16px 16px;
+    }
+
+    .header-navy h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.04em;
+    }
+
+    /* SHARED LAYOUT */
+
+    .screen {
+      padding: 16px;
+      padding-bottom: 32px;
+      border-bottom: 12px solid #e5e7eb55;
+      background: #fff;
+    }
+
+    .screen-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .title-main {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle-main {
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .business-card {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      margin-bottom: 14px;
+    }
+
+    .business-photo {
+      width: 64px;
+      height: 64px;
+      border-radius: 10px;
+      background: #d1d5db;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+
+    .business-text h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .business-text p {
+      margin: 3px 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .highlight {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* SUCCESS ICON */
+
+    .success-badge {
+      margin: 14px auto 8px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: var(--success-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .success-text {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .pill-info {
+      margin: 0 auto 16px;
+      max-width: 260px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    /* BUTTONS */
+
+    .btn-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--olive);
+      color: #111827;
+    }
+
+    .btn-primary:active { background: var(--olive-dark); }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* MAP + CONTACT */
+
+    .section-label {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      margin-top: 4px;
+    }
+
+    .map {
+      width: 100%;
+      height: 150px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #e5e7eb;
+      background-size: cover;
+      background-position: center;
+      margin-bottom: 14px;
+    }
+
+    .contact {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .hours {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .social-row {
+      display: flex;
+      justify-content: flex-end; /* иконки вправо */
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .social-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1.5px solid #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .divider {
+      margin: 24px 0 8px;
+      height: 1px;
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOP + HEADER -->
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="burger"></div>
+      <div class="globe"></div>
+    </div>
+    <div class="logo-mark">e</div>
+  </div>
+  <div class="header-navy">
+    <h1>eBook</h1>
+  </div>
+
+  <!-- ============ SCREEN 1: BARBERSHOP ============ -->
+  <section class="screen">
+    <div class="screen-label">Screen 1</div>
+    <div class="title-main">Booking Confirmed</div>
+    <div class="subtitle-main">
+      Your visit is booked. The team is waiting for you.
+    </div>
+
+    <div class="business-card">
+      <div class="business-photo"
+           style="background-image:url('https://images.pexels.com/photos/897262/pexels-photo-897262.jpeg?auto=compress&cs=tinysrgb&w=600');">
+      </div>
+      <div class="business-text">
+        <h2>Big Bro</h2>
+        <p><span class="highlight">Master:</span> Zohid Jalolov</p>
+        <p><span class="highlight">Date/Time:</span> 13 November, 14:00</p>
+        <p><span class="highlight">Service:</span> Haircut + beard</p>
+      </div>
+    </div>
+
+    <div class="success-badge">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="11" fill="#22C55E" opacity="0"></circle>
+        <path d="M6 12.5L10 16.5L18 8.5"
+              stroke="#22C55E"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="success-title">You’re all set!</div>
+    <div class="success-text">
+      Please arrive 5–10 minutes earlier and bring your phone to show the booking.
+    </div>
+
+    <div class="pill-info">
+      We’ll send a reminder 2 hours before your visit.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary">Add to calendar</button>
+      <button class="btn btn-outline">Back to home</button>
+    </div>
+
+    <div class="section-label">Location:</div>
+    <div class="map"></div>
+
+    <div class="section-label">Contact &amp; Business hours</div>
+    <div class="contact">
+      +998 00 000-00-00
+    </div>
+    <!-- часы поднял сразу под телефон -->
+    <div class="hours">
+      Mo 07:00 – 17:00<br/>
+      Tu 07:00 – 17:00<br/>
+      We 07:00 – 17:00<br/>
+      Th 07:00 – 17:00<br/>
+      Fr 07:00 – 17:00<br/>
+      Sa 07:00 – 17:00<br/>
+      Su Closed
+    </div>
+    <!-- иконки вправо -->
+    <div class="social-row">
+      <div class="social-icon">IG</div>
+      <div class="social-icon">FB</div>
+    </div>
+
+    <div class="divider"></div>
+  </section>
+
+  <!-- ============ SCREEN 2: RESTAURANT ============ -->
+  <section class="screen">
+    <div class="screen-label">Screen 2</div>
+    <div class="title-main">Table Reserved</div>
+    <div class="subtitle-main">
+      Your table is booked. The restaurant is waiting for you.
+    </div>
+
+    <div class="business-card">
+      <div class="business-photo"
+           style="background-image:url('https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=600');">
+      </div>
+      <div class="business-text">
+        <h2>Kamolon Osh Labzak</h2>
+        <p><span class="highlight">Guests:</span> 3 people</p>
+        <p><span class="highlight">Date/Time:</span> 20 November, 19:30</p>
+        <p><span class="highlight">Area:</span> Main hall · non-smoking</p>
+      </div>
+    </div>
+
+    <div class="success-badge">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="11" fill="#22C55E" opacity="0"></circle>
+        <path d="M6 12.5L10 16.5L18 8.5"
+              stroke="#22C55E"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="success-title">Reservation confirmed</div>
+    <div class="success-text">
+      Please come on time; your table will be held for 20 minutes after the booking time.
+    </div>
+
+    <div class="pill-info">
+      Need to change time or number of guests? You can manage this booking from “My bookings”.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary">View in My bookings</button>
+      <button class="btn btn-outline">Open in map</button>
+    </div>
+
+    <div class="section-label">Location:</div>
+    <div class="map"></div>
+
+    <div class="section-label">Contact &amp; Business hours</div>
+    <div class="contact">
+      +998 90 123-45-67
+    </div>
+    <div class="hours">
+      Mo–Fr 10:00 – 23:00<br/>
+      Sa–Su 09:00 – 23:30
+    </div>
+    <div class="social-row">
+      <div class="social-icon">IG</div>
+      <div class="social-icon">FB</div>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

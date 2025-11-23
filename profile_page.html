@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>eBook Business · Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-dark: #1f2638;
+      --bg-light: #f5f5f7;
+      --bg-card: #ffffff;
+      --accent: #aebf7b;
+      --accent-dark: #8ca35e;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --border-subtle: #e5e7eb;
+      --danger: #ef4444;
+      --success: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg-light);
+      color: var(--text-main);
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg-light);
+    }
+
+    /* Top bar */
+
+    .app-header {
+      background: #aebf7b;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .app-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .burger {
+      width: 18px;
+      height: 2px;
+      background: #111827;
+      position: relative;
+      border-radius: 999px;
+    }
+
+    .burger::before,
+    .burger::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 18px;
+      height: 2px;
+      background: #111827;
+      border-radius: 999px;
+    }
+
+    .burger::before {
+      top: -5px;
+    }
+
+    .burger::after {
+      top: 5px;
+    }
+
+    .lang-pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #dbe4b6;
+      font-size: 12px;
+    }
+
+    .logo-mark {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 2px solid #111827;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .hero {
+      background: var(--bg-dark);
+      color: #fff;
+      padding: 16px;
+      text-align: left;
+    }
+
+    .hero-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #ffffff11;
+      border: 1px solid #ffffff33;
+      font-size: 11px;
+    }
+
+    .hero-search-row {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .hero-input {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: none;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .hero-input::placeholder {
+      color: #9ca3af;
+    }
+
+    .top-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding: 10px 16px 2px;
+      background: var(--bg-dark);
+      color: #e5e7eb;
+      font-size: 13px;
+    }
+
+    .top-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .top-tab {
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #ffffff11;
+      border: 1px solid #ffffff22;
+      white-space: nowrap;
+    }
+
+    .top-tab.active {
+      background: #ffffff;
+      color: #111827;
+      border-color: #ffffff;
+    }
+
+    /* Shared blocks */
+
+    .screen {
+      padding: 16px;
+      padding-bottom: 32px;
+      border-bottom: 12px solid #e5e7eb55;
+    }
+
+    .screen-label {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .screen-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .screen-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .screen-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #111827;
+    }
+
+    .btn-primary:active {
+      background: var(--accent-dark);
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #eef2ff;
+      font-size: 12px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+      margin-top: 10px;
+    }
+
+    .card-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .kpi-card {
+      background: #f9fafb;
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .kpi-value {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .kpi-trend {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .kpi-trend span {
+      font-weight: 500;
+    }
+
+    .up {
+      color: var(--success);
+    }
+
+    .down {
+      color: var(--danger);
+    }
+
+    .badge {
+      padding: 3px 7px;
+      font-size: 11px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .badge-success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-neutral {
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .input,
+    .select,
+    textarea {
+      width: 100%;
+      padding: 8px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .filters-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .filters-row .input,
+    .filters-row .select {
+      flex: 1 1 calc(50% - 4px);
+      min-width: 0;
+    }
+
+    .small-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    /* Dashboard lists */
+
+    .calendar-list {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .calendar-slot {
+      padding: 8px 9px;
+      border-radius: 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .slot-main {
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .slot-time {
+      font-weight: 500;
+    }
+
+    .slot-service {
+      color: var(--text-muted);
+    }
+
+    .slot-meta {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .booking-list {
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .booking-item {
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      padding: 8px 9px;
+      font-size: 12px;
+    }
+
+    .booking-item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 2px;
+    }
+
+    .booking-item-title {
+      font-weight: 500;
+    }
+
+    .booking-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+    }
+
+    .list-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .list-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .list-row:last-child {
+      border-bottom: none;
+    }
+
+    .list-main {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .list-title {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .list-sub {
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .list-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Bookings cards */
+
+    .booking-table {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .booking-card {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 10px 11px;
+      font-size: 12px;
+    }
+
+    .booking-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .booking-card-time {
+      font-weight: 600;
+    }
+
+    .booking-card-client {
+      font-size: 12px;
+    }
+
+    .booking-card-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--text-muted);
+    }
+
+    /* Profile */
+
+    .field-group {
+      margin-bottom: 10px;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .tag {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+
+    .hours-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .hours-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: #f9fafb;
+      border: 1px solid #f3f4f6;
+    }
+
+    .map-placeholder {
+      margin-top: 6px;
+      border-radius: 16px;
+      height: 160px;
+      background: linear-gradient(135deg, #e5e7eb, #cbd5f5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Bottom nav */
+
+    .bottom-nav {
+      position: sticky;
+      bottom: 0;
+      background: #ffffff;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      font-size: 11px;
+    }
+
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: #9ca3af;
+    }
+
+    .bottom-nav-item.active {
+      color: #111827;
+    }
+
+    .bottom-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #9ca3af;
+    }
+
+    .bottom-nav-item.active .bottom-dot {
+      background: var(--accent);
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER + HERO -->
+  <header>
+    <div class="app-header">
+      <div class="app-header-left">
+        <div class="burger"></div>
+        <div class="lang-pill">EN · UZ</div>
+      </div>
+      <div class="logo-mark">e</div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-title">eBook Business</div>
+      <div class="hero-sub">
+        Keep all bookings, staff and schedules for your barbershop, restaurant or PC club in one app.
+      </div>
+      <div class="hero-pill">
+        <span>Big Bro Barbershop · Tashkent</span>
+      </div>
+      <div class="hero-search-row">
+        <input class="hero-input" placeholder="Search booking, client, or service…" />
+      </div>
+    </div>
+
+    <div class="top-tabs">
+      <div class="top-tab active">Dashboard</div>
+      <div class="top-tab">Bookings</div>
+      <div class="top-tab">Calendar</div>
+      <div class="top-tab">Services</div>
+      <div class="top-tab">Staff</div>
+      <div class="top-tab">Profile</div>
+    </div>
+  </header>
+
+  <!-- ============== SCREEN 1: DASHBOARD ============== -->
+  <section class="screen" id="dashboard">
+    <div class="screen-label">Screen 1</div>
+    <div class="screen-title-row">
+      <div class="screen-title">Today overview</div>
+      <button class="btn btn-outline btn-sm">+ Booking</button>
+    </div>
+    <div class="screen-sub">
+      Quick view of today’s numbers, upcoming clients and who is working.
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Bookings today</div>
+        <div class="kpi-value">18</div>
+        <div class="kpi-trend"><span class="up">+4</span> vs yesterday</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">This week</div>
+        <div class="kpi-value">92</div>
+        <div class="kpi-trend"><span class="up">+12%</span> vs last week</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">No-shows</div>
+        <div class="kpi-value">1</div>
+        <div class="kpi-trend"><span class="down">-2</span> vs avg day</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Revenue today</div>
+        <div class="kpi-value">1 450 000</div>
+        <div class="kpi-trend"><span class="up">+230 000</span> UZS</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <div>
+          <div class="card-title">Today in calendar</div>
+          <div class="card-sub">Tap a booking to edit or reschedule.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">View week</button>
+      </div>
+
+      <div class="small-label">Friday · 15 November</div>
+      <div class="calendar-list">
+        <div class="calendar-slot">
+          <div class="slot-main">
+            <div class="slot-time">09:30 – 10:00</div>
+            <div class="slot-service">Male haircut · Aziz</div>
+            <div class="slot-meta">Jamshid · Paid online</div>
+          </div>
+          <span class="badge badge-success">Confirmed</span>
+        </div>
+        <div class="calendar-slot">
+          <div class="slot-main">
+            <div class="slot-time">10:00 – 10:45</div>
+            <div class="slot-service">Haircut + beard · Madina</div>
+            <div class="slot-meta">Timur · Pay at shop</div>
+          </div>
+          <span class="badge badge-neutral">Pending</span>
+        </div>
+        <div class="calendar-slot">
+          <div class="slot-main">
+            <div class="slot-time">11:15 – 11:45</div>
+            <div class="slot-service">Beard trim · Otabek</div>
+            <div class="slot-meta">Ali · Rebooking</div>
+          </div>
+          <span class="badge badge-danger">No-show</span>
+        </div>
+        <div class="calendar-slot">
+          <div class="slot-main">
+            <div class="slot-time">13:00 – 13:30</div>
+            <div class="slot-service">Free slot · Aziz</div>
+            <div class="slot-meta">Tap to add walk-in client</div>
+          </div>
+          <button class="btn btn-outline btn-sm">+ Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <div>
+          <div class="card-title">Next clients</div>
+          <div class="card-sub">Coming in the next few hours.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">See all</button>
+      </div>
+
+      <ul class="booking-list">
+        <li class="booking-item">
+          <div class="booking-item-header">
+            <div class="booking-item-title">10:00 · Haircut + beard</div>
+            <span class="badge badge-success">Confirmed</span>
+          </div>
+          <div class="booking-row">
+            <span>Client: Timur</span>
+            <span>Madina</span>
+          </div>
+          <div class="booking-row">
+            <span>100 000 UZS</span>
+            <span>Pay at shop</span>
+          </div>
+        </li>
+        <li class="booking-item">
+          <div class="booking-item-header">
+            <div class="booking-item-title">11:30 · Beard trim</div>
+            <span class="badge badge-neutral">Pending</span>
+          </div>
+          <div class="booking-row">
+            <span>Client: Ali</span>
+            <span>Otabek</span>
+          </div>
+          <div class="booking-row">
+            <span>60 000 UZS</span>
+            <span>Online</span>
+          </div>
+        </li>
+      </ul>
+
+      <div class="small-label" style="margin-top: 10px;">Quick actions</div>
+      <div class="chip-row">
+        <div class="chip">+ Walk-in client</div>
+        <div class="chip">Close day</div>
+        <div class="chip">Send SMS reminders</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <div>
+          <div class="card-title">Services & staff</div>
+          <div class="card-sub">Which services are most booked today.</div>
+        </div>
+      </div>
+
+      <div class="list-items">
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Male haircut</div>
+            <div class="list-sub">30 min · 80 000 UZS</div>
+          </div>
+          <div class="list-meta">7 today</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Haircut + beard</div>
+            <div class="list-sub">45 min · 100 000 UZS</div>
+          </div>
+          <div class="list-meta">5 today</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Beard trim</div>
+            <div class="list-sub">20 min · 50 000 UZS</div>
+          </div>
+          <div class="list-meta">3 today</div>
+        </div>
+      </div>
+
+      <div class="small-label" style="margin-top: 10px;">Staff occupancy</div>
+      <div class="list-items">
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Aziz</div>
+            <div class="list-sub">10:00 – 19:00</div>
+          </div>
+          <div class="list-meta">80% booked</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Madina</div>
+            <div class="list-sub">10:00 – 18:00</div>
+          </div>
+          <div class="list-meta">65% booked</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Otabek</div>
+            <div class="list-sub">11:00 – 20:00</div>
+          </div>
+          <div class="list-meta">40% booked</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN 2: BOOKINGS LIST ============== -->
+  <section class="screen" id="bookings">
+    <div class="screen-label">Screen 2</div>
+    <div class="screen-title-row">
+      <div class="screen-title">Bookings</div>
+      <button class="btn btn-outline btn-sm">+ Manual</button>
+    </div>
+    <div class="screen-sub">
+      Filter by date, service, staff or status. Works for barbershops, restaurants or PC clubs.
+    </div>
+
+    <div class="filters-row">
+      <input class="input" type="date" value="2025-11-15" />
+      <select class="select">
+        <option>All services</option>
+        <option>Haircut</option>
+        <option>Table booking</option>
+        <option>PC seat</option>
+      </select>
+      <select class="select">
+        <option>All staff / zones</option>
+        <option>Aziz</option>
+        <option>Hall 1</option>
+        <option>VIP room</option>
+      </select>
+      <select class="select">
+        <option>Status: All</option>
+        <option>Confirmed</option>
+        <option>Pending</option>
+        <option>Cancelled</option>
+        <option>No-show</option>
+      </select>
+      <input class="input" type="text" placeholder="Search by name or phone" />
+    </div>
+
+    <div class="booking-table">
+      <div class="booking-card">
+        <div class="booking-card-top">
+          <div>
+            <div class="booking-card-time">09:30</div>
+            <div class="booking-card-client">Jamshid · +998 90 000 00 00</div>
+          </div>
+          <span class="badge badge-success">Confirmed</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Male haircut (30 min) · Aziz</span>
+          <span>80 000 UZS</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Source: Mobile app</span>
+          <span>Pay online</span>
+        </div>
+      </div>
+
+      <div class="booking-card">
+        <div class="booking-card-top">
+          <div>
+            <div class="booking-card-time">10:00</div>
+            <div class="booking-card-client">Timur · +998 90 111 11 11</div>
+          </div>
+          <span class="badge badge-neutral">Pending</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Haircut + beard (45 min) · Madina</span>
+          <span>100 000 UZS</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Source: Web</span>
+          <span>Pay at shop</span>
+        </div>
+      </div>
+
+      <div class="booking-card">
+        <div class="booking-card-top">
+          <div>
+            <div class="booking-card-time">11:15</div>
+            <div class="booking-card-client">Ali · +998 90 222 22 22</div>
+          </div>
+          <span class="badge badge-danger">No-show</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Beard trim (20 min) · Otabek</span>
+          <span>60 000 UZS</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Source: Mobile app</span>
+          <span>Pay online</span>
+        </div>
+      </div>
+
+      <div class="booking-card">
+        <div class="booking-card-top">
+          <div>
+            <div class="booking-card-time">13:00</div>
+            <div class="booking-card-client">Walk-in client</div>
+          </div>
+          <span class="badge badge-neutral">Staff only</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Male haircut (30 min) · Aziz</span>
+          <span>80 000 UZS</span>
+        </div>
+        <div class="booking-card-line">
+          <span>Source: Walk-in</span>
+          <span>Cash</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="small-label">Bulk actions</div>
+      <div class="chip-row">
+        <div class="chip">Export CSV</div>
+        <div class="chip">Send reminders</div>
+        <div class="chip">Mark no-shows</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== SCREEN 3: PROFILE ============== -->
+  <section class="screen" id="profile">
+    <div class="screen-label">Screen 3</div>
+    <div class="screen-title-row">
+      <div class="screen-title">Business profile</div>
+      <button class="btn btn-primary btn-sm">Save</button>
+    </div>
+    <div class="screen-sub">
+      This is how your place looks in the client app: name, description, address, hours, services and staff.
+    </div>
+
+    <div class="card">
+      <div class="field-group">
+        <div class="small-label">Business name</div>
+        <input class="input" type="text" value="Big Bro Barbershop" />
+      </div>
+
+      <div class="field-group">
+        <div class="small-label">Short description</div>
+        <textarea class="input">Modern barbershop and tattoo studio in Tashkent. Clean fades, custom ink and coffee in one creative space.</textarea>
+      </div>
+
+      <div class="field-group">
+        <div class="small-label">Categories</div>
+        <div class="tag-row">
+          <div class="tag">Barber</div>
+          <div class="tag">Tattoo</div>
+          <div class="tag">Men’s grooming</div>
+          <div class="tag">Wi-Fi</div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="small-label">Address</div>
+        <input class="input" type="text" value="Sayilgoh street 3/1, Mirabad district, Tashkent" />
+      </div>
+
+      <div class="field-group">
+        <div class="small-label">Map location</div>
+        <div class="map-placeholder">Static map preview · tap to set pin</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="small-label">Opening hours</div>
+      <div class="hours-list">
+        <div class="hours-row"><span>Mon</span><span>09:00 – 19:00</span></div>
+        <div class="hours-row"><span>Tue</span><span>09:00 – 19:00</span></div>
+        <div class="hours-row"><span>Wed</span><span>09:00 – 19:00</span></div>
+        <div class="hours-row"><span>Thu</span><span>09:00 – 19:00</span></div>
+        <div class="hours-row"><span>Fri</span><span>09:00 – 20:00</span></div>
+        <div class="hours-row"><span>Sat</span><span>10:00 – 18:00</span></div>
+        <div class="hours-row"><span>Sun</span><span>Closed</span></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top: 6px;">Edit hours</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <div class="card-title">Services</div>
+        <button class="btn btn-ghost btn-sm">+ Add</button>
+      </div>
+
+      <div class="list-items">
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Male haircut</div>
+            <div class="list-sub">30 min · 80 000 UZS</div>
+          </div>
+          <div class="list-meta">Shown</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Haircut + beard</div>
+            <div class="list-sub">45 min · 100 000 UZS</div>
+          </div>
+          <div class="list-meta">Shown</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">VIP package</div>
+            <div class="list-sub">60 min · 150 000 UZS</div>
+          </div>
+          <div class="list-meta">Hidden</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <div class="card-title">Staff</div>
+        <button class="btn btn-ghost btn-sm">+ Add</button>
+      </div>
+
+      <div class="list-items">
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Aziz</div>
+            <div class="list-sub">Haircut, Beard, VIP</div>
+          </div>
+          <div class="list-meta">Shown</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Madina</div>
+            <div class="list-sub">Haircut, Coloring</div>
+          </div>
+          <div class="list-meta">Shown</div>
+        </div>
+        <div class="list-row">
+          <div class="list-main">
+            <div class="list-title">Otabek</div>
+            <div class="list-sub">Beard, Haircut</div>
+          </div>
+          <div class="list-meta">Hidden</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== BUSINESS PROMO / PRICING CARD ============== -->
+  <section style="
+    background:#1f2638;
+    color:#fff;
+    padding:32px 20px;
+    text-align:center;
+    border-bottom:16px solid #e5e7eb33;
+  ">
+    <h2 style="margin:0; font-size:22px; font-weight:700;">
+      eBook For Your Business
+    </h2>
+
+    <p style="
+      margin-top:8px;
+      font-size:14px;
+      line-height:1.4;
+      opacity:0.9;
+    ">
+      Get started with eBook to run your business better.
+      Calendar, Booking, Marketing, and Payments — all in one place.
+    </p>
+
+    <div style="
+      margin-top:20px;
+      background:#aebf7b;
+      border-radius:16px;
+      padding:24px 20px;
+      color:#111827;
+    ">
+      <h3 style="margin:0; font-size:20px; font-weight:700; text-align:center;">
+        Try for FREE
+      </h3>
+
+      <div style="margin-top:6px; text-align:center; font-size:14px; opacity:0.8;">
+        <s style="color:#374151;">149,000</s><br/>so'm/oyiga
+      </div>
+
+      <ul style="
+        margin-top:16px;
+        padding-left:18px;
+        font-size:14px;
+        line-height:1.6;
+      ">
+        <li>Unlimited bookings</li>
+        <li>Business profile</li>
+        <li>Online payments</li>
+        <li>Client reminders</li>
+      </ul>
+
+      <button style="
+        margin-top:18px;
+        width:100%;
+        padding:12px;
+        border:none;
+        border-radius:12px;
+        background:#1f2638;
+        color:#fff;
+        font-size:14px;
+        font-weight:600;
+      " onclick="goToBusinessSetup()">
+        Start your free Month
+      </button>
+    </div>
+  </section>
+
+  <!-- ============== BUSINESS HISTORY ============== -->
+  <section style="padding:24px 20px;">
+    <div style="font-size:11px; text-transform:uppercase; color:#9ca3af; letter-spacing:0.1em;">
+      Business History
+    </div>
+
+    <h3 style="margin:6px 0 4px; font-size:18px; font-weight:600;">
+      Your Performance
+    </h3>
+
+    <p style="margin:0; font-size:13px; color:#6b7280;">
+      Track how your business grows with bookings and revenue.
+    </p>
+
+    <div style="
+      margin-top:16px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    ">
+      <div style="background:#fff; border-radius:14px; padding:12px;">
+        <div style="font-size:12px; color:#6b7280;">This Month</div>
+        <div style="font-size:20px; font-weight:700;">142 bookings</div>
+        <div style="font-size:12px; color:#16a34a;">+12% vs last month</div>
+      </div>
+
+      <div style="background:#fff; border-radius:14px; padding:12px;">
+        <div style="font-size:12px; color:#6b7280;">Revenue</div>
+        <div style="font-size:20px; font-weight:700;">12.4M UZS</div>
+        <div style="font-size:12px; color:#16a34a;">+1.9M ↑</div>
+      </div>
+
+      <div style="background:#fff; border-radius:14px; padding:12px;">
+        <div style="font-size:12px; color:#6b7280;">No-shows</div>
+        <div style="font-size:20px; font-weight:700;">6</div>
+        <div style="font-size:12px; color:#ef4444;">+2 vs last month</div>
+      </div>
+
+      <div style="background:#fff; border-radius:14px; padding:12px;">
+        <div style="font-size:12px; color:#6b7280;">Cancellations</div>
+        <div style="font-size:20px; font-weight:700;">11</div>
+        <div style="font-size:12px; color:#6b7280;">Stable</div>
+      </div>
+    </div>
+
+    <div style="
+      margin-top:20px;
+      background:#e5e7eb;
+      border-radius:14px;
+      height:160px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      color:#6b7280;
+      font-size:13px;
+    ">
+      Chart Placeholder (Revenue &amp; Bookings)
+    </div>
+  </section>
+
+  <!-- ============== ONBOARDING FLOW ============== -->
+  <section id="setup-flow" style="padding:28px 20px; background:#fff;">
+    <h2 style="margin:0; font-size:20px; font-weight:700;">
+      Get Started in Minutes
+    </h2>
+
+    <p style="margin-top:6px; font-size:13px; color:#6b7280;">
+      Follow these quick steps to create your business profile.
+    </p>
+
+    <!-- Step 1 -->
+    <div style="margin-top:20px;">
+      <div style="font-size:14px; font-weight:600;">Step 1 — Business Info</div>
+      <p style="font-size:13px; color:#6b7280;">
+        Enter your business name and category.
+      </p>
+
+      <input placeholder="Business Name" style="
+        width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:12px; margin-bottom:10px;
+      ">
+
+      <select style="
+        width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:12px;
+      ">
+        <option>Select category</option>
+        <option>Barber Shop</option>
+        <option>Restaurant</option>
+        <option>PC Club</option>
+        <option>Nail Salon</option>
+        <option>Massage</option>
+      </select>
+    </div>
+
+    <!-- Step 2 -->
+    <div style="margin-top:22px;">
+      <div style="font-size:14px; font-weight:600;">Step 2 — Contact &amp; Location</div>
+      <p style="font-size:13px; color:#6b7280;">
+        Mobile number, address &amp; map pin.
+      </p>
+
+      <input placeholder="+998 90 000 00 00" style="
+        width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:12px; margin-bottom:10px;
+      ">
+
+      <input placeholder="Address" style="
+        width:100%; padding:10px; border:1px solid #e5e7eb; border-radius:12px;
+      ">
+
+      <div style="
+        margin-top:10px; height:140px; background:#e5e7eb; border-radius:12px;
+        display:flex; justify-content:center; align-items:center; color:#6b7280; font-size:13px;
+      ">
+        Map Placeholder
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div style="margin-top:22px;">
+      <div style="font-size:14px; font-weight:600;">Step 3 — Opening Hours</div>
+      <div style="
+        margin-top:10px;
+        background:#f9fafb;
+        border-radius:12px;
+        border:1px solid #e5e7eb;
+        padding:12px;
+        font-size:13px;
+        color:#111827;
+      ">
+        Mo 09:00–19:00 <br>
+        Tu 09:00–19:00 <br>
+        We 09:00–19:00 <br>
+        Th 09:00–19:00 <br>
+        Fr 09:00–20:00 <br>
+        Sa 10:00–18:00 <br>
+        Su Closed
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div style="margin-top:22px;">
+      <div style="font-size:14px; font-weight:600;">Step 4 — Services</div>
+      <p style="font-size:13px; color:#6b7280;">Add your services or items.</p>
+
+      <button style="
+        width:100%; padding:10px; border-radius:12px;
+        border:1px solid #e5e7eb; background:#fff;
+      ">
+        + Add service
+      </button>
+    </div>
+
+    <!-- Step 5 -->
+    <div style="margin-top:22px;">
+      <div style="font-size:14px; font-weight:600;">Step 5 — Staff</div>
+      <p style="font-size:13px; color:#6b7280;">Add barbers, chefs, admins, etc.</p>
+
+      <button style="
+        width:100%; padding:10px; border-radius:12px;
+        border:1px solid #e5e7eb; background:#fff;
+      ">
+        + Add staff member
+      </button>
+    </div>
+
+    <!-- Step 6 -->
+    <div style="margin-top:24px; text-align:center;">
+      <button style="
+        margin-top:16px; width:100%; padding:12px;
+        background:#1f2638; color:#fff; border:none;
+        border-radius:12px; font-size:14px;
+      ">
+        Activate Free Month
+      </button>
+      <p style="margin-top:8px; font-size:12px; color:#6b7280;">
+        No credit card required
+      </p>
+    </div>
+  </section>
+
+  <!-- bottom nav -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-item active">
+      <div class="bottom-dot"></div>
+      <div>Dashboard</div>
+    </div>
+    <div class="bottom-nav-item">
+      <div class="bottom-dot"></div>
+      <div>Bookings</div>
+    </div>
+    <div class="bottom-nav-item">
+      <div class="bottom-dot"></div>
+      <div>Profile</div>
+    </div>
+  </nav>
+
+</div>
+
+<script>
+  function goToBusinessSetup() {
+    var el = document.getElementById("setup-flow");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  }
+</script>
+</body>
+</html>
