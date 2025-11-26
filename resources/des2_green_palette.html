@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Amigo Services — Discover & Book Nearby Services</title>
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --c-mint: #43D984;
+      --c-deep: #3A8C5D;
+      --c-soft: #62D995;
+      --c-brown: #59332A;
+      --c-light: #F2F2F2;
+      --c-white: #FFFFFF;
+      --c-text: #111827;
+      --c-muted: #6B7280;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      margin: 0;
+      color: var(--c-text);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(67, 217, 132, 0.24) 0, transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(98, 217, 149, 0.24) 0, transparent 55%),
+        radial-gradient(circle at 50% 120%, rgba(89, 51, 42, 0.18) 0, transparent 55%),
+        var(--c-light);
+      min-height: 100vh;
+    }
+
+    .page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NAVBAR */
+    .navbar-glass {
+      background: linear-gradient(90deg, var(--c-deep), var(--c-brown));
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.45);
+    }
+
+    .navbar-brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 0, var(--c-soft), var(--c-mint));
+      color: var(--c-white);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .navbar-brand-text {
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .navbar-glass .nav-link {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-inline: 0.35rem;
+      opacity: 0.85;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .navbar-glass .nav-link:hover,
+    .navbar-glass .nav-link.active {
+      opacity: 1;
+      transform: translateY(-1px);
+      color: #fff;
+    }
+
+    .btn-outline-light-soft {
+      border-radius: 999px;
+      border-width: 1px;
+      border-color: rgba(255, 255, 255, 0.7);
+      color: #fff;
+      font-size: 0.85rem;
+      padding-inline: 1.1rem;
+    }
+
+    .btn-outline-light-soft:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .btn-mint {
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--c-mint), var(--c-soft));
+      border: none;
+      color: var(--c-brown);
+      font-weight: 600;
+      box-shadow: 0 12px 36px rgba(67, 217, 132, 0.45);
+    }
+
+    .btn-mint:hover {
+      background: linear-gradient(135deg, var(--c-soft), var(--c-mint));
+      color: var(--c-brown);
+    }
+
+    /* HERO */
+    .hero-section {
+      padding: 5.5rem 0 3.5rem;
+    }
+
+    @media (min-width: 992px) {
+      .hero-section {
+        padding: 7rem 0 4.5rem;
+      }
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      background: rgba(242, 242, 242, 0.96);
+      border: 1px solid rgba(58, 140, 93, 0.22);
+      color: var(--c-brown);
+    }
+
+    .hero-pill-badge {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--c-deep);
+      color: var(--c-white);
+      font-size: 0.7rem;
+    }
+
+    .hero-title {
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-highlight {
+      color: var(--c-deep);
+    }
+
+    .hero-subtitle {
+      color: var(--c-muted);
+      max-width: 28rem;
+    }
+
+    .hero-search {
+      background: var(--c-white);
+      border-radius: 1.6rem;
+      padding: 0.5rem;
+      box-shadow: 0 20px 55px rgba(15, 23, 42, 0.22);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+
+    .hero-search .form-control,
+    .hero-search .form-select {
+      border: none;
+      box-shadow: none !important;
+      font-size: 0.9rem;
+    }
+
+    .hero-kpi-pill {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.9rem;
+      background: rgba(67, 217, 132, 0.09);
+      border: 1px solid rgba(67, 217, 132, 0.4);
+      font-size: 0.8rem;
+    }
+
+    .hero-kpi-pill span:first-child {
+      font-weight: 700;
+      color: var(--c-brown);
+    }
+
+    /* RIGHT PANEL */
+    .hero-card {
+      border-radius: 1.5rem;
+      background: radial-gradient(circle at 0 0, rgba(98, 217, 149, 0.4), transparent 65%),
+                  radial-gradient(circle at 100% 0, rgba(67, 217, 132, 0.12), transparent 65%),
+                  var(--c-white);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.3);
+      padding: 1.5rem;
+    }
+
+    .hero-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+
+    .avatar-stack {
+      display: flex;
+    }
+
+    .avatar-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 2px solid var(--c-white);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--c-white);
+      background: linear-gradient(135deg, var(--c-brown), var(--c-deep));
+    }
+
+    .avatar-circle + .avatar-circle {
+      margin-left: -0.6rem;
+    }
+
+    .avatar-circle.mint {
+      background: linear-gradient(135deg, var(--c-mint), var(--c-soft));
+      color: var(--c-brown);
+    }
+
+    .small-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(15, 23, 42, 0.6);
+      font-weight: 600;
+    }
+
+    .card-badge-soft {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: rgba(67, 217, 132, 0.15);
+      color: var(--c-deep);
+      font-weight: 600;
+    }
+
+    .service-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 0.8rem;
+      border-radius: 0.9rem;
+      background: rgba(242, 242, 242, 0.75);
+      margin-bottom: 0.4rem;
+    }
+
+    .service-list-item.active {
+      background: rgba(67, 217, 132, 0.12);
+      border: 1px solid rgba(67, 217, 132, 0.4);
+    }
+
+    .service-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(89, 51, 42, 0.12);
+      color: var(--c-brown);
+    }
+
+    .rating-pill {
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: rgba(89, 51, 42, 0.14);
+      color: var(--c-brown);
+      font-weight: 600;
+    }
+
+    .timeline-pill {
+      padding: 0.4rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(67, 217, 132, 0.12);
+      color: var(--c-deep);
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* CATEGORY STRIP */
+
+    .category-strip {
+      padding: 0.85rem 1.2rem;
+      border-radius: 999px;
+      background: rgba(242, 242, 242, 0.9);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .category-pill {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: var(--c-white);
+      color: var(--c-muted);
+    }
+
+    .category-pill.active {
+      border-color: rgba(67, 217, 132, 0.7);
+      background: rgba(67, 217, 132, 0.12);
+      color: var(--c-deep);
+      font-weight: 600;
+    }
+
+    /* FOOTER */
+
+    .footer-muted {
+      font-size: 0.78rem;
+      color: rgba(55, 65, 81, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-glass fixed-top">
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+          <span class="navbar-brand-mark">A</span>
+          <span class="navbar-brand-text">Amigo</span>
+        </a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Categories</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">For Businesses</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Help</a>
+            </li>
+            <li class="nav-item ms-lg-3">
+              <a class="btn btn-outline-light-soft btn-sm" href="#">Sign in</a>
+            </li>
+            <li class="nav-item ms-2">
+              <a class="btn btn-mint btn-sm" href="#">Join as Pro</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <main class="flex-grow-1">
+      <section class="hero-section">
+        <div class="container">
+          <div class="row align-items-center g-4">
+            <!-- LEFT -->
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <div class="hero-pill">
+                  <span class="hero-pill-badge">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                  </span>
+                  <span>Book trusted local services in minutes</span>
+                </div>
+              </div>
+
+              <h1 class="hero-title display-5 mb-3">
+                Discover &amp; book
+                <span class="hero-highlight">nearby services</span>
+                you’ll love.
+              </h1>
+
+              <p class="hero-subtitle mb-4">
+                From barbers and beauty salons to home cleaning and cafes,
+                Amigo makes it simple to browse, compare, and book verified
+                professionals around you.
+              </p>
+
+              <!-- SEARCH CARD -->
+              <div class="hero-search mb-3">
+                <div class="row g-2 align-items-center">
+                  <div class="col-12 col-md-5">
+                    <label class="small text-uppercase text-muted fw-semibold mb-1"
+                      >What do you need?</label
+                    >
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-transparent border-0 ps-1">
+                        <i class="bi bi-search text-muted"></i>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Haircut, manicure, cleaning..."
+                      />
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <label class="small text-uppercase text-muted fw-semibold mb-1"
+                      >Location</label
+                    >
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text bg-transparent border-0 ps-1">
+                        <i class="bi bi-geo-alt text-muted"></i>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Near me"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="small text-uppercase text-muted fw-semibold mb-1"
+                      >When</label
+                    >
+                    <select class="form-select form-select-sm">
+                      <option>Today</option>
+                      <option>Tomorrow</option>
+                      <option>This week</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-2 d-grid">
+                    <button class="btn btn-mint btn-sm mt-2 mt-md-3">
+                      Search
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- KPI -->
+              <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
+                <div class="hero-kpi-pill">
+                  <span>120k+</span>
+                  <span class="text-muted">Bookings completed safely</span>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-shield-check text-success me-2"></i>
+                    <span class="small text-muted">
+                      Verified reviews &amp; secure payments
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT -->
+            <div class="col-lg-6">
+              <div class="hero-card">
+                <div class="hero-card-header">
+                  <div>
+                    <div class="small-label mb-1">Popular in your area</div>
+                    <div class="fw-semibold">This week in Tashkent</div>
+                  </div>
+                  <div class="avatar-stack">
+                    <div class="avatar-circle">
+                      <i class="bi bi-scissors"></i>
+                    </div>
+                    <div class="avatar-circle mint">
+                      <i class="bi bi-brush"></i>
+                    </div>
+                    <div class="avatar-circle">
+                      <i class="bi bi-house-heart"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Category strip -->
+                <div class="category-strip mb-3">
+                  <span class="category-pill active">
+                    <i class="bi bi-stars me-1"></i>Top rated
+                  </span>
+                  <span class="category-pill">Barbers</span>
+                  <span class="category-pill">Beauty &amp; nails</span>
+                  <span class="category-pill">Spa &amp; massage</span>
+                  <span class="category-pill">Home services</span>
+                  <span class="category-pill">Cafes &amp; brunch</span>
+                </div>
+
+                <!-- Service items -->
+                <div class="service-list-item active">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="service-icon">
+                      <i class="bi bi-scissors"></i>
+                    </div>
+                    <div>
+                      <div class="fw-semibold">Brooklyn Fade Barbershop</div>
+                      <div class="small text-muted">
+                        Men’s haircut • Fade • Beard trim
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="rating-pill mb-1">
+                      <i class="bi bi-star-fill me-1"></i>4.9
+                    </div>
+                    <div class="small text-muted">from 320 reviews</div>
+                  </div>
+                </div>
+
+                <div class="service-list-item">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="service-icon">
+                      <i class="bi bi-brush"></i>
+                    </div>
+                    <div>
+                      <div class="fw-semibold">Glow Studio Nails &amp; Beauty</div>
+                      <div class="small text-muted">
+                        Manicure • Pedicure • Gel polish
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="rating-pill mb-1">
+                      <i class="bi bi-star-fill me-1"></i>4.8
+                    </div>
+                    <div class="small text-muted">Book from 09:00</div>
+                  </div>
+                </div>
+
+                <div class="service-list-item">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="service-icon">
+                      <i class="bi bi-house-heart"></i>
+                    </div>
+                    <div>
+                      <div class="fw-semibold">Fresh Home Cleaning</div>
+                      <div class="small text-muted">
+                        Deep cleaning • Apartments • Offices
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    <div class="rating-pill mb-1">
+                      <i class="bi bi-star-fill me-1"></i>4.7
+                    </div>
+                    <div class="small text-muted">Slots left today</div>
+                  </div>
+                </div>
+
+                <!-- Timeline / quick CTA -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                  <div class="timeline-pill">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Next available in 18 minutes</span>
+                  </div>
+                  <button class="btn btn-sm btn-outline-secondary border-0 text-muted">
+                    View all nearby <i class="bi bi-arrow-right-short"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom text -->
+          <div class="row mt-4">
+            <div class="col-lg-8">
+              <p class="footer-muted mb-0">
+                Amigo connects you with verified professionals and businesses.
+                Browse by category, compare reviews &amp; prices, and book
+                in a few taps — no calls, no waiting.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
