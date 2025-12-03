@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My bookings | ServiceFlow</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="assets/css/theme.css" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg sticky-top px-3 px-md-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html">
+        <span class="brand-mark">S</span> ServiceFlow
+      </a>
+      <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="nav">
+        <ul class="navbar-nav ms-auto gap-1 align-items-lg-center">
+          <li class="nav-item"><a class="nav-link" href="marketplace.html">Explore</a></li>
+          <li class="nav-item"><a class="nav-link active" href="dashboard-client.html">My bookings</a></li>
+          <li class="nav-item"><a class="nav-link" href="auth-login.html">Login</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-4 py-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+      <div>
+        <p class="eyebrow mb-1">Client hub</p>
+        <h3 class="section-title mb-0">Your bookings at a glance.</h3>
+      </div>
+      <div class="d-flex gap-2">
+        <a class="btn btn-outline-light" href="marketplace.html">Book new</a>
+        <a class="btn btn-primary" href="booking.html">Quick book</a>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="card glass p-3 mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Upcoming</h6>
+            <span class="pill">3 scheduled</span>
+          </div>
+          <div class="list-unstyled mb-0">
+            <div class="card card-muted p-3 mb-2">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="fw-semibold">Skin fade + beard</div>
+                  <div class="text-muted small">Axiom Barber Studio · Today 10:45</div>
+                </div>
+                <div class="badge-soft">Confirmed</div>
+              </div>
+              <div class="d-flex gap-2 mt-2">
+                <a class="btn btn-outline-light btn-sm" href="#">Reschedule</a>
+                <a class="btn btn-outline-light btn-sm" href="#">Cancel</a>
+              </div>
+            </div>
+            <div class="card card-muted p-3 mb-2">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="fw-semibold">Lash refill</div>
+                  <div class="text-muted small">Glow Beauty Loft · Tomorrow 12:15</div>
+                </div>
+                <div class="badge-soft">Reminder set</div>
+              </div>
+              <div class="d-flex gap-2 mt-2">
+                <a class="btn btn-outline-light btn-sm" href="#">Reschedule</a>
+                <a class="btn btn-outline-light btn-sm" href="#">Cancel</a>
+              </div>
+            </div>
+            <div class="card card-muted p-3">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <div class="fw-semibold">Home cleaning</div>
+                  <div class="text-muted small">UrbanClean · Fri 16:00</div>
+                </div>
+                <div class="badge-soft">Pending</div>
+              </div>
+              <div class="d-flex gap-2 mt-2">
+                <a class="btn btn-outline-light btn-sm" href="#">Message</a>
+                <a class="btn btn-outline-light btn-sm" href="#">Cancel</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card glass p-3">
+          <div class="d-flex justify-content-between mb-2">
+            <h6 class="mb-0">Past visits</h6>
+            <span class="text-muted small">Leave reviews</span>
+          </div>
+          <div class="list-unstyled mb-0">
+            <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-2">
+              <div>
+                <div class="fw-semibold">Deep tissue massage</div>
+                <div class="text-muted small">Pulse Recovery · Nov 17</div>
+              </div>
+              <a class="btn btn-outline-light btn-sm" href="#">Review</a>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold">Classic manicure</div>
+                <div class="text-muted small">Glow Beauty Loft · Oct 29</div>
+              </div>
+              <a class="btn btn-outline-light btn-sm" href="#">Review</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card glass p-3 mb-3">
+          <h6 class="mb-2">Profile</h6>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="avatar">A</div>
+            <div>
+              <div class="fw-semibold">Alex Rivera</div>
+              <div class="text-muted small">alex.r@email.com · +1 999 999 9999</div>
+            </div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="pill">SMS reminders</span>
+            <span class="pill">Card on file (placeholder)</span>
+          </div>
+        </div>
+
+        <div class="card glass p-3">
+          <h6 class="mb-2">Preferences</h6>
+          <form data-demo-form>
+            <div class="mb-2">
+              <label class="form-label text-muted small">Reminder timing</label>
+              <select class="form-select input-soft">
+                <option>3 hours before</option>
+                <option>1 day before</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label text-muted small">Notifications</label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" checked>
+                <label class="form-check-label text-muted small">Email + SMS</label>
+              </div>
+            </div>
+            <button class="btn btn-primary w-100 mt-2" type="submit">Save preferences</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer py-4">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="fw-semibold">ServiceFlow</div>
+      <a href="marketplace.html" class="text-muted">Book new</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

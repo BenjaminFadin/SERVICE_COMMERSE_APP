@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+  {% include 'include/navbar.html' %}
+
+  {% block content %}
+  <section class="mx-auto" style="max-width: 540px;">
+    <div class="card border-0 shadow-sm p-3 p-md-4">
+<p class="text-uppercase small text-muted mb-1">Signed out</p>
+<h1 class="h4 fw-semibold mb-1">You’ve been logged out</h1>
+<p class="small text-muted mb-3">
+  You have safely signed out of your eBook account. You can close this tab or sign in again.
+</p>
+
+<div class="d-grid gap-2 mb-3">
+  <a href="{% url 'accounts:login' %}" class="btn btn-olive">Sign in again</a>
+</div>
+
+<p class="small text-muted mb-0 text-center">
+  Want to switch account?
+  <a href="oauth_login.html">Sign in with another provider</a>
+</p>
+
+    </div>
+  </section>
+{% endblock content %}

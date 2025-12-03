@@ -1,0 +1,146 @@
+:root {
+  --olive: #aebf7b;
+  --olive-dark: #8ca35e;
+  --navy: #1f2638;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.navbar-brand span.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 2px solid #111827;
+  font-weight: 700;
+  margin-right: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.bg-olive {
+  background-color: var(--olive) !important;
+}
+
+.btn-olive {
+  background-color: var(--olive);
+  color: #111827;
+  border-color: var(--olive);
+}
+
+.btn-olive:hover,
+.btn-olive:focus {
+  background-color: var(--olive-dark);
+  border-color: var(--olive-dark);
+  color: #111827;
+}
+
+.hero-card {
+  background: linear-gradient(135deg, var(--navy), #111827);
+  color: #fff;
+  border-radius: 1.25rem;
+}
+
+.hero-card .badge {
+  background-color: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.35);
+  padding: 0.35rem 0.7rem;
+}
+
+.kpi-card {
+  border-radius: 1rem;
+}
+
+.kpi-card .kpi-label {
+  font-size: .8rem;
+  color: #6b7280;
+}
+
+.kpi-card .kpi-value {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  border-radius: 999px;
+  padding: 0.18rem 0.6rem;
+}
+
+.status-confirmed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-pending {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-noshow {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.booking-card {
+  border-radius: 1rem;
+}
+
+.booking-card small {
+  color: #6b7280;
+}
+
+/* profile */
+.tag-badge {
+  background-color: #f3f4f6;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+.hours-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.75rem;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+}
+
+.map-placeholder {
+  background: linear-gradient(135deg, #e5e7eb, #cbd5f5);
+  border-radius: 1rem;
+  height: 190px;
+}
+
+/* confirmation */
+.success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background-color: #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+}
+
+footer {
+  font-size: 0.8rem;
+}
+
+@media (min-width: 992px) {
+  .hero-card {
+    padding-inline: 3rem;
+  }
+}
+

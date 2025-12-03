@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booksy - Запись онлайн к парикмахерам, барберам и мастерам красоты</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Fonts: Poppins & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --booksy-teal: #00A3AD;
+            --booksy-dark: #101928;
+            --booksy-gray: #75767A;
+            --bg-light: #F7F7F9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--booksy-dark);
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            padding: 1rem 0;
+            background: #fff;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #000;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: var(--booksy-dark);
+            margin-left: 1.5rem;
+        }
+        
+        .nav-link:hover {
+            color: var(--booksy-teal);
+        }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative;
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover;
+            background-position: center;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* --- Search Bar --- */
+        .search-container {
+            background: #fff;
+            padding: 8px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .search-input-group {
+            flex: 1;
+            padding: 0 20px;
+            border-right: 1px solid #eee;
+            position: relative;
+        }
+
+        .search-input-group:last-of-type {
+            border-right: none;
+        }
+
+        .search-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--booksy-dark);
+            margin-bottom: 2px;
+            text-align: left;
+        }
+
+        .search-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            color: var(--booksy-gray);
+        }
+
+        .btn-hero-search {
+            background-color: var(--booksy-teal);
+            color: #fff;
+            font-weight: 700;
+            border: none;
+            border-radius: 40px;
+            padding: 12px 32px;
+            transition: background 0.2s;
+        }
+
+        .btn-hero-search:hover {
+            background-color: #008c95;
+            color: #fff;
+        }
+
+        /* --- Categories --- */
+        .category-item {
+            text-align: center;
+            padding: 20px;
+            transition: transform 0.2s;
+            cursor: pointer;
+            color: var(--booksy-dark);
+            text-decoration: none;
+            display: block;
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+            color: var(--booksy-teal);
+        }
+
+        .cat-icon-box {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--booksy-dark);
+            transition: color 0.2s;
+        }
+
+        .category-item:hover .cat-icon-box {
+            color: var(--booksy-teal);
+        }
+
+        .cat-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* --- Promo Sections --- */
+        .promo-section {
+            background-color: var(--bg-light);
+            padding: 80px 0;
+        }
+
+        .promo-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--booksy-teal);
+            margin-bottom: 1rem;
+        }
+
+        /* --- App Banner --- */
+        .app-banner {
+            background-color: #FDF4F7; /* Light pinkish tint used by Booksy sometimes, or just white */
+            background: linear-gradient(135deg, #fff 0%, #f0fbfc 100%);
+            padding: 80px 0;
+        }
+
+        .store-btn img {
+            height: 40px;
+            border-radius: 6px;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background-color: #fff;
+            border-top: 1px solid #eee;
+            padding: 60px 0 20px;
+            font-size: 0.9rem;
+        }
+
+        .footer-heading {
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-link {
+            color: var(--booksy-gray);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2rem; }
+            .search-container { flex-direction: column; border-radius: 12px; padding: 15px; }
+            .search-input-group { width: 100%; border-right: none; border-bottom: 1px solid #eee; padding: 10px 0; margin-bottom: 10px; }
+            .btn-hero-search { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">booksy</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Для бизнеса</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Войти / Регистрация</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">Будьте собой.<br>Записывайтесь к лучшим мастерам.</h1>
+            
+            <!-- Search Bar -->
+            <div class="search-container text-start">
+                <div class="search-input-group">
+                    <label class="search-label">ЧТО ВЫ ИЩЕТЕ?</label>
+                    <input type="text" class="search-input" placeholder="Напр. стрижка, маникюр, спа..." value="">
+                </div>
+                <div class="search-input-group">
+                    <label class="search-label">ГДЕ?</label>
+                    <input type="text" class="search-input" placeholder="Город или адрес" value="">
+                </div>
+                <button class="btn btn-hero-search">Найти</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. Categories Grid -->
+    <section class="container py-5">
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-scissors"></i></div>
+                    <div class="cat-title">Парикмахерские</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-person-badge"></i></div>
+                    <div class="cat-title">Барбершопы</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-palette"></i></div>
+                    <div class="cat-title">Ногтевой сервис</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-magic"></i></div>
+                    <div class="cat-title">Уход за кожей</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-eye"></i></div>
+                    <div class="cat-title">Брови и Ресницы</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-heart-pulse"></i></div>
+                    <div class="cat-title">Массаж</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-brush"></i></div>
+                    <div class="cat-title">Макияж</div>
+                </a>
+            </div>
+            <div class="col-6 col-md-3 col-lg-2">
+                <a href="#" class="category-item">
+                    <div class="cat-icon-box"><i class="bi bi-stars"></i></div>
+                    <div class="cat-title">Тату и Пирсинг</div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Value Proposition -->
+    <section class="promo-section">
+        <div class="container text-center">
+            <h2 class="promo-title mb-5">Почему Booksy?</h2>
+            <div class="row g-5">
+                <div class="col-md-4">
+                    <i class="bi bi-search feature-icon"></i>
+                    <h4 class="fw-bold mb-3">Находите</h4>
+                    <p class="text-muted">Booksy поможет найти лучших мастеров красоты и здоровья рядом с вами.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-calendar-check feature-icon"></i>
+                    <h4 class="fw-bold mb-3">Записывайтесь</h4>
+                    <p class="text-muted">Смотрите свободное время в календаре мастера и записывайтесь мгновенно 24/7.</p>
+                </div>
+                <div class="col-md-4">
+                    <i class="bi bi-bell feature-icon"></i>
+                    <h4 class="fw-bold mb-3">Управляйте</h4>
+                    <p class="text-muted">Переносите визиты, получайте напоминания и управляйте своим расписанием в приложении.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. App Promo -->
+    <section class="app-banner">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <h2 class="promo-title display-6">Записывайтесь еще быстрее в приложении Booksy</h2>
+                    <p class="lead text-muted mb-4">Доступно бесплатно для iOS и Android</p>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-dark d-flex align-items-center px-3 py-2 rounded-3">
+                            <i class="bi bi-apple fs-2 me-2"></i>
+                            <div class="text-start lh-1">
+                                <small style="font-size: 0.7rem;">Загрузите в</small><br>
+                                <span class="fw-bold">App Store</span>
+                            </div>
+                        </button>
+                        <button class="btn btn-dark d-flex align-items-center px-3 py-2 rounded-3">
+                            <i class="bi bi-google-play fs-2 me-2"></i>
+                            <div class="text-start lh-1">
+                                <small style="font-size: 0.7rem;">Доступно в</small><br>
+                                <span class="fw-bold">Google Play</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-center">
+                    <!-- Placeholder for App Image -->
+                    <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=400" alt="App Preview" class="img-fluid rounded-4 shadow-lg" style="max-height: 400px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <a href="#" class="navbar-brand mb-3 d-block">booksy</a>
+                    <p class="text-muted small">&copy; 2024 Booksy Inc. Все права защищены.</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="footer-heading">О Booksy</h6>
+                    <a href="#" class="footer-link">О нас</a>
+                    <a href="#" class="footer-link">Карьера</a>
+                    <a href="#" class="footer-link">Пресса</a>
+                    <a href="#" class="footer-link">Контакты</a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="footer-heading">Пользователям</h6>
+                    <a href="#" class="footer-link">Блог</a>
+                    <a href="#" class="footer-link">Помощь</a>
+                    <a href="#" class="footer-link">Конфиденциальность</a>
+                    <a href="#" class="footer-link">Условия использования</a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6 class="footer-heading">Бизнесу</h6>
+                    <a href="#" class="footer-link">Booksy для бизнеса</a>
+                    <a href="#" class="footer-link">Тарифы</a>
+                    <a href="#" class="footer-link">Истории успеха</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
+

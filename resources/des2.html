@@ -1,687 +1,147 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>eBook Business · Multi-type dashboard</title>
-<style>
-  /* --- ТЕМА: используй свои переменные (можно менять) --- */
-  :root{
-    --bg-dark:#1f2638;
-    --bg-light:#f5f5f7;
-    --bg-card:#ffffff;
-    --accent:#aebf7b;
-    --accent-dark:#8ca35e;
-    --text-main:#111827;
-    --text-muted:#6b7280;
-    --border-subtle:#e5e7eb;
-    --success:#22c55e;
-    --danger:#ef4444;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;background:var(--bg-light);color:var(--text-main);-webkit-font-smoothing:antialiased}
-  .container{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg-light)}
-  /* header/hero (подобно твоему) */
-  .app-header{background:var(--accent);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;color:#fff}
-  .header-left{display:flex;align-items:center;gap:10px}
-  .burger{width:18px;height:2px;background:#111;border-radius:999px;position:relative}
-  .burger::before,.burger::after{content:"";position:absolute;left:0;width:18px;height:2px;background:#111;border-radius:999px}
-  .burger::before{top:-5px}.burger::after{top:5px}
-  .lang-pill{padding:4px 10px;border-radius:999px;background:#dbe4b6;color:#071}
-  .logo-mark{width:28px;height:28px;border-radius:999px;border:2px solid #111;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.18)}
-  .hero{background:var(--bg-dark);color:#fff;padding:16px}
-  .hero-title{font-size:22px;margin:0 0 6px;font-weight:700}
-  .hero-sub{font-size:13px;opacity:.9;margin-bottom:10px}
-  .hero-pill{display:inline-flex;padding:6px 10px;border-radius:999px;background:#ffffff11;border:1px solid #ffffff22;font-size:12px}
-  .hero-search{margin-top:12px}
-  .hero-search input{width:100%;padding:10px;border-radius:999px;border:none;font-size:14px}
-  .top-tabs{display:flex;gap:8px;padding:10px 12px;background:var(--bg-dark);overflow-x:auto}
-  .top-tab{padding:6px 12px;border-radius:999px;background:#ffffff11;color:#e5e7eb;white-space:nowrap;border:1px solid #ffffff22}
-  .top-tab.active{background:#fff;color:var(--text-main);border-color:#fff}
-
-  /* business selector + view controls */
-  .biz-controls{display:flex;gap:8px;padding:12px 16px;align-items:center;flex-wrap:wrap}
-  .biz-btn{padding:8px 12px;border-radius:999px;border:1px solid var(--border-subtle);background:var(--bg-card);font-weight:600;font-size:13px;cursor:pointer}
-  .biz-btn.active{background:var(--accent);color:#081;font-weight:700}
-  .view-toggle{margin-left:auto;display:flex;gap:6px}
-  .view-toggle .btn{padding:6px 10px;border-radius:8px;border:1px solid var(--border-subtle);background:#fff;font-size:13px;cursor:pointer}
-
-  /* Add booking button */
-  .add-booking-btn{margin-left:8px;padding:8px 10px;border-radius:10px;background:var(--accent-dark);color:#fff;border:none;cursor:pointer;font-weight:600}
-
-  /* main screen area */
-  .main{padding:12px 16px;flex:1 0 auto}
-  .kpi-row{display:flex;gap:8px;margin-bottom:12px}
-  .kpi{flex:1;background:var(--bg-card);padding:10px;border-radius:12px;box-shadow:0 6px 14px rgba(15,23,42,0.05)}
-  .kpi .label{font-size:11px;color:var(--text-muted)}
-  .kpi .value{font-size:18px;font-weight:700;margin-top:6px}
-
-  /* SEARCH / FILTER ROW */
-  .controls-row{display:flex;gap:8px;margin-bottom:12px}
-  .controls-row input,.controls-row select{flex:1;padding:8px;border-radius:10px;border:1px solid var(--border-subtle);font-size:13px}
-
-  /* Notion-like list */
-  .appointments-list{display:flex;flex-direction:column;gap:8px}
-  .apt-card{background:var(--bg-card);padding:10px;border-radius:12px;border:1px solid var(--border-subtle);display:flex;justify-content:space-between;gap:8px;align-items:center}
-  .apt-left{display:flex;gap:8px;align-items:center}
-  .time-pill{min-width:64px;padding:6px 8px;border-radius:10px;background:#f3f4f6;text-align:center;font-weight:700}
-  .apt-meta{display:flex;flex-direction:column;gap:2px}
-  .apt-client{font-weight:600}
-  .apt-sub{font-size:12px;color:var(--text-muted)}
-
-  /* staff-columns / timeline (barbershop) */
-  .staff-columns{display:grid;gap:8px;margin-bottom:12px}
-  .staff-col{background:var(--bg-card);border-radius:10px;padding:8px;border:1px solid var(--border-subtle);display:flex;flex-direction:column;min-height:120px}
-  .staff-header{font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-  .apt-mini{background:#f8fafb;padding:8px;border-radius:8px;margin-bottom:8px;border:1px solid #eef2f7;font-size:13px}
-
-  /* table/map for restaurants & billiards */
-  .table-map{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .table{background:var(--bg-card);padding:12px;border-radius:12px;text-align:center;border:1px solid var(--border-subtle);position:relative}
-  .table.small{padding:8px;font-size:13px}
-  .table .num{font-weight:700;margin-bottom:6px}
-  .table.available{background:#f9fff6}
-  .table.reserved{background:#fff7e6;border:1px solid #ffd8a8}
-  .table.occupied{background:#ffeef0;border:1px solid #ffc9d0}
-  .table.vip{box-shadow:0 6px 12px rgba(174,191,123,0.14);border:2px solid var(--accent-dark)}
-
-  /* stations grid for PC club */
-  .stations{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .station{background:var(--bg-card);padding:12px;border-radius:12px;border:1px solid var(--border-subtle);text-align:center}
-  .station.free{background:#f3fff9}
-  .station.busy{background:#fff3f8}
-
-  /* actions */
-  .actions{display:flex;gap:6px}
-  .btn-action{padding:6px 8px;border-radius:8px;border:1px solid var(--border-subtle);background:#fff;font-size:12px;cursor:pointer}
-  .btn-primary{background:var(--accent);border:none;color:#111;font-weight:600}
-
-  /* modal add booking */
-  .modal-backdrop{position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center;padding:12px;z-index:1200}
-  .modal-backdrop.open{display:flex}
-  .modal{width:100%;max-width:460px;background:var(--bg-card);border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,0.2)}
-  .modal h3{margin:0 0 10px;font-size:18px}
-  .modal .row{display:flex;gap:8px;margin-bottom:8px}
-  .modal label{font-size:13px;color:var(--text-muted);margin-bottom:6px;display:block}
-  .modal input,.modal select,.modal textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border-subtle);font-size:14px;background:#fff}
-  .modal textarea{min-height:70px;resize:vertical}
-  .modal .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}
-  .modal .btn{padding:8px 12px;border-radius:8px;border:none;cursor:pointer}
-  .modal .btn.secondary{background:#f3f4f6}
-  .modal .btn.primary{background:var(--accent-dark);color:#fff}
-
-  /* small responsive tweaks */
-  @media (min-width:420px){
-    .staff-columns{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
-  }
-
-  /* tiny helpers */
-  .muted{color:var(--text-muted);font-size:12px}
-  .row{display:flex;gap:8px;align-items:center}
-</style>
+  <meta charset="utf-8">
+  <title>eBook Business · Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/css/styles.css" rel="stylesheet">
 </head>
-<body>
-<div class="container" id="app">
-  <!-- header/hero -->
-  <div class="app-header">
-    <div class="header-left">
-      <div class="burger" aria-hidden="true"></div>
-      <div class="lang-pill">EN · UZ</div>
-    </div>
-    <div class="logo-mark">e</div>
-  </div>
-
-  <div class="hero">
-    <div class="hero-title">eBook Business</div>
-    <div class="hero-sub">Keep bookings, staff and schedules for your barbershop, restaurant or PC club in one app.</div>
-    <div class="hero-pill">Big Bro Barbershop · Tashkent</div>
-    <div class="hero-search" style="margin-top:10px">
-      <input id="globalSearch" placeholder="Search booking, client, service…" />
-    </div>
-  </div>
-
-  <div class="top-tabs" role="tablist" aria-label="Sections">
-    <div class="top-tab active">Dashboard</div>
-    <div class="top-tab">Bookings</div>
-    <div class="top-tab">Calendar</div>
-    <div class="top-tab">Services</div>
-    <div class="top-tab">Staff</div>
-    <div class="top-tab">Profile</div>
-  </div>
-
-  <!-- business type selector + view toggles -->
-  <div class="biz-controls">
-    <button class="biz-btn active" data-biz="barber">Барбершоп / Салон</button>
-    <button class="biz-btn" data-biz="restaurant">Ресторан</button>
-    <button class="biz-btn" data-biz="billiards">Бильярд</button>
-    <button class="biz-btn" data-biz="pcclub">PC/PS клуб</button>
-
-    <div class="view-toggle" style="margin-left:auto">
-      <button class="btn" id="toggleView1" data-view="list">List</button>
-      <button class="btn" id="toggleView2" data-view="timeline">Timeline</button>
-    </div>
-
-    <!-- Admin add booking button -->
-    <button class="add-booking-btn" id="adminAddBtn">+ Add booking</button>
-  </div>
-
-  <!-- main content -->
-  <main class="main" id="mainArea">
-
-    <!-- KPI row -->
-    <div class="kpi-row" id="kpiRow">
-      <div class="kpi"><div class="label">Bookings today</div><div class="value" id="kpiBookings">—</div></div>
-      <div class="kpi"><div class="label">Occupancy</div><div class="value" id="kpiOccupancy">—</div></div>
-    </div>
-
-    <!-- filters -->
-    <div class="controls-row">
-      <input id="filterDate" type="date" />
-      <select id="filterStaff"><option value="">All staff / zones</option></select>
-    </div>
-
-    <!-- render container -->
-    <div id="bizView"></div>
-
-  </main>
-
-  <!-- bottom nav -->
-  <nav style="border-top:1px solid var(--border-subtle);background:var(--bg-card);padding:8px 12px;display:flex;justify-content:space-around">
-    <div class="muted">Dashboard</div>
-    <div class="muted">Bookings</div>
-    <div class="muted">Profile</div>
-  </nav>
-</div>
-
-<!-- Add booking modal (admin) -->
-<div class="modal-backdrop" id="addModalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
-  <div class="modal" role="document" id="addModal">
-    <h3>Добавить бронь (админ)</h3>
-
-    <!-- dynamic form area -->
-    <div id="addFormArea">
-      <!-- fields are injected by JS depending on currentBiz -->
-    </div>
-
-    <div class="actions">
-      <button class="btn secondary" id="addCancelBtn">Отмена</button>
-      <button class="btn primary" id="addSaveBtn">Сохранить бронь</button>
+<body class="bg-light" data-page="dashboard">
+<nav class="navbar navbar-expand-lg navbar-light bg-olive">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-semibold" href="des2.html">
+      <span class="brand-mark">e</span> eBook Business
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse mt-2 mt-lg-0" id="mainNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small">
+        <li class="nav-item"><a class="nav-link active" href="des2.html">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#bookingsSection">Bookings</a></li>
+        <li class="nav-item"><a class="nav-link" href="profile_page.html">Profile</a></li>
+        <li class="nav-item"><a class="nav-link" href="confirmed_service.html">Client view</a></li>
+      </ul>
     </div>
   </div>
-</div>
+</nav>
 
-<script>
-/* ---------------- Sample dataset ---------------- */
-const DATA = {
-  barber: {
-    staff: ["Aziz","Madina","Otabek"],
-    appointments: [
-      {id:1,time:"09:30",client:"Jamshid",service:"Male haircut",duration:30,staff:"Aziz",status:"confirmed",note:"Online paid"},
-      {id:2,time:"10:00",client:"Timur",service:"Haircut + beard",duration:45,staff:"Madina",status:"pending",note:"Pay at shop"},
-      {id:3,time:"11:15",client:"Ali",service:"Beard trim",duration:20,staff:"Otabek",status:"no-show",note:"Rebooking"},
-      {id:4,time:"13:00",client:"Walkin",service:"Male haircut",duration:30,staff:"Aziz",status:"staff-only",note:""}
-    ]
-  },
-  restaurant: {
-    capacity: 40,
-    reservations: [
-      {id:10,time:"18:30",client:"Sardor",guests:3,area:"Main Hall",table:5,status:"confirmed"},
-      {id:11,time:"19:00",client:"Gulbahor",guests:2,area:"VIP",table:1,status:"pending"},
-      {id:12,time:"20:00",client:"Olim",guests:6,area:"Main Hall",table:8,status:"confirmed"}
-    ]
-    // removed: tables section as requested
-  },
-  billiards: {
-    tables: [
-      {num:1,status:"available"},
-      {num:2,status:"reserved",time:"18:00",duration:60,client:"Rustam"},
-      {num:3,status:"occupied",time:"17:30",duration:60,client:"Dilorom"},
-      {num:4,status:"available"},
-      {num:5,status:"vip",time:"19:00",client:"VIP guest"}
-    ]
-  },
-  pcclub: {
-    // removed: stations section as requested
-  }
-}
-
-/* ---------------- Helpers ---------------- */
-const $ = sel => document.querySelector(sel)
-const $$ = sel => Array.from(document.querySelectorAll(sel))
-const fmt = s => s // placeholder for formatting time if needed
-const newId = (() => { let c=1000; return ()=> ++c })()
-
-/* ---------------- Rendering ---------------- */
-let currentBiz = 'barber'
-let currentView = 'list' // list | timeline
-
-function setActiveBiz(btn){
-  $$('.biz-btn').forEach(b=>b.classList.remove('active'))
-  btn.classList.add('active')
-  currentBiz = btn.dataset.biz
-  render()
-}
-
-$$('.biz-btn').forEach(b=>b.addEventListener('click', ()=>setActiveBiz(b)))
-
-$$('.view-toggle .btn').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    $$('.view-toggle .btn').forEach(x=>x.style.opacity=1)
-    b.style.opacity = .8
-    currentView = b.dataset.view
-    render()
-  })
-})
-// default highlight
-document.querySelector('.view-toggle .btn[data-view="list"]').style.opacity = .8
-
-// search & filter
-$('#globalSearch').addEventListener('input', ()=>render())
-$('#filterDate').value = new Date().toISOString().slice(0,10)
-$('#filterDate').addEventListener('change', render)
-
-/* render main UI depending on currentBiz */
-function render(){
-  const view = document.getElementById('bizView')
-  view.innerHTML = '' // clear
-  // update KPIs
-  updateKPIs()
-  // fill staff filter
-  fillStaffFilter()
-
-  if(currentBiz === 'barber') renderBarber(view)
-  if(currentBiz === 'restaurant') renderRestaurant(view)
-  if(currentBiz === 'billiards') renderBilliards(view)
-  if(currentBiz === 'pcclub') renderPcClub(view)
-}
-
-/* KPI update */
-function updateKPIs(){
-  const kBookings = $('#kpiBookings')
-  const kOcc = $('#kpiOccupancy')
-  if(currentBiz==='barber'){
-    const today = DATA.barber.appointments.length
-    kBookings.textContent = today
-    kOcc.textContent = DATA.barber.appointments.filter(a=>a.status==='confirmed' || a.status==='occupied').length + ' active'
-  } else if(currentBiz==='restaurant'){
-    const res = DATA.restaurant.reservations.length
-    kBookings.textContent = res
-    const seats = DATA.restaurant.reservations.reduce((s,r)=>s+r.guests,0)
-    kOcc.textContent = seats + ' / ' + DATA.restaurant.capacity + ' seats'
-  } else if(currentBiz==='billiards'){
-    const booked = DATA.billiards.tables.filter(t=>t.status!=='available').length
-    kBookings.textContent = booked
-    kOcc.textContent = booked + ' / ' + DATA.billiards.tables.length
-  } else if(currentBiz==='pcclub'){
-    // stations removed — show zeros if missing
-    const busy = 0
-    kBookings.textContent = busy
-    kOcc.textContent = busy + ' / ' + 0 + ' stations'
-  }
-}
-
-/* staff filter */
-function fillStaffFilter(){
-  const sel = $('#filterStaff')
-  sel.innerHTML = '<option value="">All staff / zones</option>'
-  if(currentBiz==='barber'){
-    DATA.barber.staff.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o) })
-  } else if(currentBiz==='restaurant'){
-    const areas = Array.from(new Set(DATA.restaurant.reservations.map(r=>r.area)))
-    areas.forEach(a=>{const o=document.createElement('option');o.value=a;o.textContent=a;sel.appendChild(o)})
-  } else if(currentBiz==='billiards'){
-    DATA.billiards.tables.forEach(t=>{const o=document.createElement('option');o.value=t.num;o.textContent='Table '+t.num;sel.appendChild(o)})
-  } else if(currentBiz==='pcclub'){
-    // stations removed — keep only default option
-  }
-}
-
-/* ------------- BARBER views ------------- */
-function renderBarber(container){
-  const data = DATA.barber.appointments.slice()
-  const q = $('#globalSearch').value.toLowerCase()
-  const staffFilter = $('#filterStaff').value
-  const filtered = data.filter(a=>{
-    if(staffFilter && a.staff!==staffFilter) return false
-    if(q && !(`${a.client} ${a.service} ${a.staff}`.toLowerCase().includes(q))) return false
-    return true
-  })
-
-  // view toggle: list or timeline
-  if(currentView === 'list'){
-    const div = document.createElement('div')
-    div.className = 'appointments-list'
-    filtered.sort((x,y)=>x.time.localeCompare(y.time)).forEach(a=>{
-      const card = document.createElement('div'); card.className='apt-card'
-      card.innerHTML = `
-        <div class="apt-left">
-          <div class="time-pill">${a.time}</div>
-          <div class="apt-meta">
-            <div class="apt-client">${a.client} · ${a.service}</div>
-            <div class="apt-sub">${a.staff} · ${a.duration} min · ${a.note || ''}</div>
-          </div>
-        </div>
-        <div class="row">
-          ${renderStatusBadge(a.status)}
-          <div class="actions">
-            <button class="btn-action" onclick="onCheckin('barber',${a.id})">Check-in</button>
-            <button class="btn-action" onclick="onReschedule('barber',${a.id})">Reschedule</button>
-            <button class="btn-action" onclick="onCancel('barber',${a.id})">Cancel</button>
-          </div>
-        </div>
-      `
-      div.appendChild(card)
-    })
-    container.appendChild(div)
-  } else { // timeline / staff columns
-    const cols = document.createElement('div'); cols.className='staff-columns'
-    // grid columns equal to staff count
-    cols.style.gridTemplateColumns = `repeat(${DATA.barber.staff.length},1fr)`
-    DATA.barber.staff.forEach(st=>{
-      const col = document.createElement('div'); col.className='staff-col'
-      const head = document.createElement('div'); head.className='staff-header'
-      head.innerHTML = `<div>${st}</div><div class="muted">${filtered.filter(a=>a.staff===st).length}</div>`
-      col.appendChild(head)
-      filtered.filter(a=>a.staff===st).sort((x,y)=>x.time.localeCompare(y.time)).forEach(a=>{
-        const ap = document.createElement('div'); ap.className='apt-mini'
-        ap.innerHTML = `<div style="font-weight:700">${a.time} — ${a.client}</div><div class="muted">${a.service} · ${a.duration} min</div>`
-        col.appendChild(ap)
-      })
-      cols.appendChild(col)
-    })
-    container.appendChild(cols)
-    // below list for quick actions
-    const listWrap = document.createElement('div'); listWrap.className='appointments-list'; listWrap.style.marginTop='8px'
-    filtered.sort((x,y)=>x.time.localeCompare(y.time)).forEach(a=>{
-      const li = document.createElement('div'); li.className='apt-card'
-      li.innerHTML = `<div class="apt-left"><div class="time-pill">${a.time}</div><div class="apt-meta"><div class="apt-client">${a.client}</div><div class="apt-sub">${a.service} · ${a.staff}</div></div></div>
-      <div class="actions">${renderStatusBadge(a.status)} <button class="btn-action" onclick="onCheckin('barber',${a.id})">Check-in</button></div>`
-      listWrap.appendChild(li)
-    })
-    container.appendChild(listWrap)
-  }
-}
-
-/* ------------- RESTAURANT view ------------- */
-function renderRestaurant(container){
-  // summary + reservation list (table map removed)
-  const res = DATA.restaurant.reservations.slice()
-  const q = $('#globalSearch').value.toLowerCase()
-  const areaFilter = $('#filterStaff').value
-  const filtered = res.filter(r=> {
-    if(areaFilter && r.area!==areaFilter) return false
-    if(q && !(`${r.client} ${r.area} ${r.table}`.toLowerCase().includes(q))) return false
-    return true
-  })
-  // seats KPI / summary
-  const summary = document.createElement('div'); summary.className='kpi-row'; summary.style.marginBottom='12px'
-  const seatsUsed = res.reduce((s,r)=>s+r.guests,0)
-  summary.innerHTML = `<div class="kpi"><div class="label">Reserved parties</div><div class="value">${res.length}</div></div><div class="kpi"><div class="label">Seats reserved</div><div class="value">${seatsUsed} / ${DATA.restaurant.capacity}</div></div>`
-  container.appendChild(summary)
-
-  // NOTE: table-map section removed as requested
-
-  // reservation list
-  const listTitle = document.createElement('h4'); listTitle.textContent='Reservations'
-  listTitle.style.marginTop='12px'
-  container.appendChild(listTitle)
-  const list = document.createElement('div'); list.className='appointments-list'
-  filtered.sort((a,b)=>a.time.localeCompare(b.time)).forEach(r=>{
-    const card = document.createElement('div'); card.className='apt-card'
-    card.innerHTML = `<div style="display:flex;gap:10px;align-items:center">
-        <div style="min-width:64px;font-weight:700">${r.time}</div>
+<main class="container py-3 py-md-4">
+  <!-- Hero -->
+  <section class="mb-4">
+    <div class="hero-card p-3 p-md-4">
+      <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
         <div>
-          <div style="font-weight:700">${r.client} · ${r.guests} guests</div>
-          <div class="muted">${r.area}${r.table ? ' · Table ' + r.table : ''}</div>
+          <p class="mb-1 text-uppercase small text-white-50">Admin dashboard</p>
+          <h1 class="h4 fw-semibold mb-2">Today in your business</h1>
+          <p class="mb-3 small text-white-50">
+            Keep bookings, staff and schedules for your barbershop, restaurant or PC club in one mobile‑first dashboard.
+          </p>
+          <span class="badge rounded-pill me-2">Big Bro Barbershop · Tashkent</span>
+          <span class="badge rounded-pill">Demo environment</span>
+        </div>
+        <div class="w-100 w-md-50" style="max-width: 320px;">
+          <label for="searchInput" class="form-label small mb-1 text-white-50">Search</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white border-0"><i class="bi bi-search"></i></span>
+            <input id="searchInput" class="form-control border-0" placeholder="Search booking, client or service">
+          </div>
         </div>
       </div>
-      <div class="actions">${renderStatusBadge(r.status)} <button class="btn-action" onclick="onSeat('${r.id||r.table}','restaurant')">Seating</button></div>`
-    list.appendChild(card)
-  })
-  container.appendChild(list)
-}
+    </div>
+  </section>
 
-/* ------------- BILLIARDS view ------------- */
-function renderBilliards(container){
-  // show table grid and bookings list
-  const grid = document.createElement('div'); grid.className='table-map'
-  DATA.billiards.tables.forEach(t=>{
-    const el = document.createElement('div'); el.className='table small '+(t.status||'available')
-    el.innerHTML = `<div class="num">Table ${t.num}</div>
-      ${t.status && t.status!=='available' ? `<div class="muted">${t.client || ''}</div><div style="font-weight:700;margin-top:6px">${t.time||''} ${t.duration?('· '+t.duration+'min'):''}</div>` : '<div class="muted" style="margin-top:6px">Available</div>'}`
-    grid.appendChild(el)
-  })
-  container.appendChild(grid)
+  <!-- KPIs -->
+  <section class="mb-4">
+    <div class="row g-2 g-md-3">
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card card border-0 shadow-sm p-3 h-100">
+          <div class="kpi-label">Bookings today</div>
+          <div class="kpi-value" id="kpiBookingsToday">–</div>
+          <small class="text-muted">All sources</small>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card card border-0 shadow-sm p-3 h-100">
+          <div class="kpi-label">Revenue / guests</div>
+          <div class="kpi-value" id="kpiRevenueToday">–</div>
+          <small class="text-muted">Confirmed bookings</small>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card card border-0 shadow-sm p-3 h-100">
+          <div class="kpi-label">No‑shows</div>
+          <div class="kpi-value">1</div>
+          <small class="text-muted">vs avg day −2</small>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="kpi-card card border-0 shadow-sm p-3 h-100">
+          <div class="kpi-label">Staff on shift</div>
+          <div class="kpi-value">3</div>
+          <small class="text-muted">Aziz · Madina · Otabek</small>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  const title = document.createElement('h4'); title.textContent='Bookings'
-  title.style.marginTop='12px'
-  container.appendChild(title)
-  const list = document.createElement('div'); list.className='appointments-list'
-  DATA.billiards.tables.filter(t=>t.status && t.status!=='available').forEach(t=>{
-    const c = document.createElement('div'); c.className='apt-card'
-    c.innerHTML = `<div class="apt-left"><div class="time-pill">${t.time||'—'}</div><div class="apt-meta"><div class="apt-client">${t.client||'—'}</div><div class="apt-sub">Table ${t.num} · ${t.duration? t.duration+' min':''}</div></div></div>
-      <div class="actions">${t.status==='vip'?'<span class="muted">VIP</span>':''} <button class="btn-action" onclick="onCancel('billiards',${t.num})">Cancel</button></div>`
-    list.appendChild(c)
-  })
-  container.appendChild(list)
-}
+  <!-- Filters + business switch -->
+  <section class="mb-4">
+    <div class="card border-0 shadow-sm p-3">
+      <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-3">
+        <div class="flex-grow-1">
+          <label class="form-label small mb-1" for="dateInput">Date</label>
+          <input id="dateInput" type="date" class="form-control form-control-sm">
+        </div>
+        <div class="flex-grow-1">
+          <label class="form-label small mb-1" for="staffSelect">Staff / zone</label>
+          <select id="staffSelect" class="form-select form-select-sm">
+            <option>All staff / zones</option>
+          </select>
+        </div>
+        <div class="flex-grow-1">
+          <label class="form-label small mb-1">Business type</label>
+          <div class="btn-group w-100" role="group">
+            <button type="button" class="btn btn-sm btn-outline-secondary active" data-biz-tab="barber">Barbershop</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-biz-tab="restaurant">Restaurant</button>
+          </div>
+        </div>
+        <div class="flex-grow-0">
+          <label class="form-label small mb-1 d-none d-lg-block">&nbsp;</label>
+          <a href="profile_page.html" class="btn btn-sm btn-outline-secondary w-100">Business profile</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-/* ------------- PC Club view ------------- */
-function renderPcClub(container){
-  // stations section removed — show a simple placeholder / bookings area
-  const note = document.createElement('div'); note.className='apt-card'
-  note.innerHTML = `<div style="font-weight:700">Stations view removed</div><div class="muted" style="margin-top:6px">Admin can add bookings via "+ Add booking".</div>`
-  container.appendChild(note)
+  <!-- Bookings list -->
+  <section class="mb-5" id="bookingsSection">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <p class="text-uppercase small text-muted mb-0">Bookings</p>
+        <h2 class="h6 mb-0"><span id="currentBizTitle">Barbershop</span> · today</h2>
+      </div>
+      <a href="confirmed_service.html" class="btn btn-sm btn-olive">Preview client success</a>
+    </div>
+    <div id="bookingList"></div>
+  </section>
+</main>
 
-  const title = document.createElement('h4'); title.textContent='Active bookings'
-  title.style.marginTop='12px'
-  container.appendChild(title)
-  const list = document.createElement('div'); list.className='appointments-list'
-  // no stations data — keep list empty for now
-  const empty = document.createElement('div'); empty.className='apt-card'; empty.innerHTML = '<div class="muted">No active station bookings (stations removed)</div>'
-  list.appendChild(empty)
-  container.appendChild(list)
-}
+<footer class="border-top bg-white py-3 mt-auto">
+  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <span class="text-muted">© eBook Business · demo UI</span>
+    <nav class="nav nav-pills small">
+      <a class="nav-link px-2 active" href="des2.html">Dashboard</a>
+      <a class="nav-link px-2" href="#bookingsSection">Bookings</a>
+      <a class="nav-link px-2" href="profile_page.html">Profile</a>
+    </nav>
+  </div>
+</footer>
 
-/* ------------- Actions (modify data) ------------- */
-function findAndUpdate(biz,id,fn){
-  if(biz==='barber'){
-    const idx = DATA.barber.appointments.findIndex(a=>a.id===id)
-    if(idx>=0){ fn(DATA.barber.appointments[idx],idx) }
-  } else if(biz==='restaurant'){
-    const idx = DATA.restaurant.reservations.findIndex(r=>r.id===id || r.table===id)
-    if(idx>=0){ fn(DATA.restaurant.reservations[idx],idx) }
-  } else if(biz==='billiards'){
-    const idx = DATA.billiards.tables.findIndex(t=>t.num===id)
-    if(idx>=0){ fn(DATA.billiards.tables[idx],idx) }
-  } else if(biz==='pcclub'){
-    // stations removed — no-op
-  }
-  render()
-}
-function onCheckin(biz,id){
-  if(biz==='barber'){
-    findAndUpdate('barber',id,(a)=> a.status='occupied')
-  }
-}
-function onReschedule(biz,id){
-  // simple demo: push appointment 30 minutes later (not robust)
-  if(biz==='barber'){
-    findAndUpdate('barber',id,(a)=>{
-      const [hh,mm]=a.time.split(':').map(Number)
-      let mm2 = mm+30, hh2 = hh
-      if(mm2>=60){ mm2-=60; hh2+=1 }
-      a.time = String(hh2).padStart(2,'0')+':'+String(mm2).padStart(2,'0')
-      a.note = (a.note? a.note+' · ':'') + 'Rescheduled'
-    })
-  }
-}
-function onCancel(biz,id){
-  if(biz==='barber'){
-    const idx = DATA.barber.appointments.findIndex(a=>a.id===id)
-    if(idx>=0) DATA.barber.appointments.splice(idx,1)
-  } else if(biz==='billiards'){
-    const t = DATA.billiards.tables.find(x=>x.num===id); if(t){ t.status='available'; delete t.time; delete t.client; delete t.duration}
-  } else if(biz==='restaurant'){
-    const idx = DATA.restaurant.reservations.findIndex(x=>x.id===id); if(idx>=0) DATA.restaurant.reservations.splice(idx,1)
-  } else if(biz==='pcclub'){
-    // stations removed — no-op
-  }
-  render()
-}
-function onSeat(id,biz){
-  // placeholder - mark restaurant reservation confirmed -> seated
-  const r = DATA.restaurant.reservations.find(x=>x.id===id || x.table===id)
-  if(r) r.status='confirmed'
-  render()
-}
-function onEnd(biz, num){
-  // stations removed — no-op
-  render()
-}
-
-/* status badges html */
-function renderStatusBadge(status){
-  if(!status) return ''
-  if(status==='confirmed' || status==='occupied') return `<span class="muted" style="font-weight:700;color:var(--success)">${status}</span>`
-  if(status==='pending') return `<span class="muted" style="color:var(--text-muted)">${status}</span>`
-  if(status==='no-show') return `<span class="muted" style="color:var(--danger)">${status}</span>`
-  if(status==='vip') return `<span style="font-weight:700;color:var(--accent-dark)">VIP</span>`
-  return `<span class="muted">${status}</span>`
-}
-
-/* ---------- ADMIN: Add booking modal logic ---------- */
-const addBtn = document.getElementById('adminAddBtn')
-const addBackdrop = document.getElementById('addModalBackdrop')
-const addFormArea = document.getElementById('addFormArea')
-const addCancelBtn = document.getElementById('addCancelBtn')
-const addSaveBtn = document.getElementById('addSaveBtn')
-
-addBtn.addEventListener('click', ()=> openAddModal())
-addCancelBtn.addEventListener('click', ()=> closeAddModal())
-addBackdrop.addEventListener('click', (e)=>{ if(e.target===addBackdrop) closeAddModal() })
-addSaveBtn.addEventListener('click', ()=> saveAdminBooking())
-
-function openAddModal(){
-  // open modal and render form for currentBiz
-  renderAddForm(currentBiz)
-  addBackdrop.classList.add('open')
-  addBackdrop.setAttribute('aria-hidden','false')
-}
-function closeAddModal(){
-  addBackdrop.classList.remove('open')
-  addBackdrop.setAttribute('aria-hidden','true')
-  addFormArea.innerHTML = ''
-}
-
-function renderAddForm(biz){
-  // create fields according to biz
-  addFormArea.innerHTML = '' // clear
-  if(biz === 'barber'){
-    addFormArea.innerHTML = `
-      <div class="row"><div style="flex:1"><label>Клиент</label><input id="add_client" placeholder="Имя клиента"></div><div style="width:110px"><label>Время</label><input id="add_time" type="time"></div></div>
-      <div class="row"><div style="flex:1"><label>Услуга</label><input id="add_service" placeholder="Haircut, beard..."></div><div style="width:110px"><label>Длительность (мин)</label><input id="add_duration" type="number" value="30"></div></div>
-      <div class="row"><div style="flex:1"><label>Сотрудник</label><select id="add_staff">${DATA.barber.staff.map(s=>`<option value="${s}">${s}</option>`).join('')}</select></div><div style="width:110px"><label>Статус</label><select id="add_status"><option value="pending">pending</option><option value="confirmed">confirmed</option></select></div></div>
-      <div><label>Примечание</label><textarea id="add_note" placeholder="Комментарий"></textarea></div>
-    `
-  } else if(biz === 'restaurant'){
-    addFormArea.innerHTML = `
-      <div class="row"><div style="flex:1"><label>Клиент</label><input id="add_client" placeholder="Имя клиента"></div><div style="width:110px"><label>Время</label><input id="add_time" type="time"></div></div>
-      <div class="row"><div style="flex:1"><label>Зал / зона</label><input id="add_area" placeholder="Main Hall / VIP"></div><div style="width:110px"><label>Гостей</label><input id="add_guests" type="number" value="2"></div></div>
-      <div class="row"><div style="flex:1"><label>Table (номер)</label><input id="add_table" type="number" placeholder="5"></div><div style="width:110px"><label>Статус</label><select id="add_status"><option value="pending">pending</option><option value="confirmed">confirmed</option></select></div></div>
-      <div><label>Комментарий</label><textarea id="add_note" placeholder="Комментарий для кухни/зала"></textarea></div>
-    `
-  } else if(biz === 'billiards'){
-    // choose table number and time/duration
-    const tableOptions = DATA.billiards.tables.map(t=>`<option value="${t.num}">Table ${t.num}</option>`).join('')
-    addFormArea.innerHTML = `
-      <div class="row"><div style="flex:1"><label>Клиент</label><input id="add_client" placeholder="Имя клиента"></div><div style="width:110px"><label>Время</label><input id="add_time" type="time"></div></div>
-      <div class="row"><div style="flex:1"><label>Стол</label><select id="add_table">${tableOptions}</select></div><div style="width:110px"><label>Минут</label><input id="add_duration" type="number" value="60"></div></div>
-      <div><label>Комментарий</label><textarea id="add_note" placeholder="Комментарий"></textarea></div>
-    `
-  } else if(biz === 'pcclub'){
-    addFormArea.innerHTML = `
-      <div class="row"><div style="flex:1"><label>Клиент</label><input id="add_client" placeholder="Имя клиента"></div><div style="width:110px"><label>Дата</label><input id="add_date" type="date" value="${new Date().toISOString().slice(0,10)}"></div></div>
-      <div class="row"><div style="flex:1"><label>Notes</label><input id="add_notes" placeholder="Описание брони"></div><div style="width:110px"><label>Время</label><input id="add_time" type="time"></div></div>
-      <div class="row"><div style="flex:1"><label>Спотов</label><input id="add_spots" type="number" value="1"></div><div style="width:110px"><label>Минут</label><input id="add_duration" type="number" value="60"></div></div>
-      <div><label>Комментарий</label><textarea id="add_note" placeholder="Комментарий"></textarea></div>
-    `
-  }
-}
-
-/* Save admin booking into DATA and re-render */
-function saveAdminBooking(){
-  // gather inputs depending on currentBiz
-  if(currentBiz === 'barber'){
-    const client = (document.getElementById('add_client')||{}).value || 'Guest'
-    const time = (document.getElementById('add_time')||{}).value || '12:00'
-    const service = (document.getElementById('add_service')||{}).value || 'Service'
-    const duration = parseInt((document.getElementById('add_duration')||{}).value || 30,10)
-    const staff = (document.getElementById('add_staff')||{}).value || DATA.barber.staff[0]
-    const status = (document.getElementById('add_status')||{}).value || 'pending'
-    const note = (document.getElementById('add_note')||{}).value || ''
-    const id = newId()
-    DATA.barber.appointments.push({id,time,client,service,duration,staff,status,note})
-  } else if(currentBiz === 'restaurant'){
-    const client = (document.getElementById('add_client')||{}).value || 'Guest'
-    const time = (document.getElementById('add_time')||{}).value || '19:00'
-    const area = (document.getElementById('add_area')||{}).value || 'Main Hall'
-    const guests = parseInt((document.getElementById('add_guests')||{}).value || 2,10)
-    const table = parseInt((document.getElementById('add_table')||{}).value || NaN,10)
-    const status = (document.getElementById('add_status')||{}).value || 'pending'
-    const note = (document.getElementById('add_note')||{}).value || ''
-    const id = newId()
-    DATA.restaurant.reservations.push({id,time,client,guests,area,table: isNaN(table)? null: table,status,comment:note})
-  } else if(currentBiz === 'billiards'){
-    const client = (document.getElementById('add_client')||{}).value || 'Guest'
-    const time = (document.getElementById('add_time')||{}).value || '18:00'
-    const tableNum = parseInt((document.getElementById('add_table')||{}).value,10)
-    const duration = parseInt((document.getElementById('add_duration')||{}).value || 60,10)
-    const note = (document.getElementById('add_note')||{}).value || ''
-    // find table in DATA.billiards.tables and set status + meta
-    const t = DATA.billiards.tables.find(x=>x.num===tableNum)
-    if(t){
-      t.status = 'reserved'
-      t.time = time
-      t.duration = duration
-      t.client = client
-      t.comment = note
-    } else {
-      // if can't find, create new table entry
-      DATA.billiards.tables.push({num:tableNum,status:'reserved',time,duration,client,comment:note})
-    }
-  } else if(currentBiz === 'pcclub'){
-    // stations removed — save a simple admin note inside pcclub.bookings (create if missing)
-    if(!Array.isArray(DATA.pcclub.bookings)) DATA.pcclub.bookings = []
-    const client = (document.getElementById('add_client')||{}).value || 'Guest'
-    const date = (document.getElementById('add_date')||{}).value || new Date().toISOString().slice(0,10)
-    const time = (document.getElementById('add_time')||{}).value || '12:00'
-    const duration = parseInt((document.getElementById('add_duration')||{}).value || 60,10)
-    const spots = parseInt((document.getElementById('add_spots')||{}).value || 1,10)
-    const note = (document.getElementById('add_note')||{}).value || ''
-    const id = newId()
-    DATA.pcclub.bookings.push({id,client,date,time,duration,spots,comment:note})
-  }
-
-  closeAddModal()
-  render()
-}
-
-/* small util to add minutes to HH:MM */
-function addMinutesToTime(timeStr, minutes){
-  const [hh,mm] = timeStr.split(':').map(n=>parseInt(n,10))
-  if(isNaN(hh) || isNaN(mm)) return timeStr
-  let total = hh*60 + mm + minutes
-  total = total % (24*60)
-  const nh = Math.floor(total/60), nm = total%60
-  return String(nh).padStart(2,'0') + ':' + String(nm).padStart(2,'0')
-}
-
-/* initial render */
-render()
-
-/* Optional: keep filter re-render on staff select */
-$('#filterStaff').addEventListener('change', render)
-</script>
+<!-- Bootstrap JS bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/app.js"></script>
 </body>
 </html>
