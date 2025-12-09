@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход и Регистрация - ebook</title>
+
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+
+    <div class="container-fluid auth-container">
+        <div class="row h-100">
+
+            <div class="col-md-6 auth-image-col">
+                <div class="auth-overlay">
+                    <p class="testimonial-text">"ebook изменил мой бизнес. Теперь у меня больше времени на клиентов и
+                        меньше хлопот с телефоном."</p>
+                    <p class="mb-0 text-white-50">— Елена, Владелица салона</p>
+                </div>
+            </div>
+
+            <div class="col-md-6 auth-form-col">
+                <a href="{% url 'services:home' %}" class="auth-logo">ebook</a>
+
+                <div id="loginSection">
+                    <h1 class="auth-title">С возвращением</h1>
+                    <p class="auth-subtitle">Войдите, чтобы управлять бронированиями.</p>
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if login_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ login_form.non_field_errors|join:", " }}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Email / Имя пользователя</label>
+                            {{ login_form.username }}
+                            <script>document.getElementsByName('username')[0].classList.add('form-control');</script>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <label class="form-label">Пароль</label>
+                                <a href="#" class="text-muted small text-decoration-none">Забыли пароль?</a>
+                            </div>
+                            {{ login_form.password }}
+                            <script>document.getElementsByName('password')[0].classList.add('form-control');</script>
+                        </div>
+
+                        <button type="submit" name="login_submit" class="btn btn-auth">Войти</button>
+                    </form>
+
+                    <div class="divider">Или войдите через</div>
+
+                    <button class="btn btn-social">
+                        <i class="bi bi-google me-2"></i> Google
+                    </button>
+                    <button class="btn btn-social">
+                        <i class="bi bi-facebook me-2 text-primary"></i> Facebook
+                    </button>
+
+                    <div class="switch-auth">
+                        Нет аккаунта? <a href="javascript:void(0);" onclick="showRegister()">Зарегистрироваться</a>
+                    </div>
+                </div>
+
+                <div id="registerSection" class="d-none-custom">
+                    <h1 class="auth-title">Создать аккаунт</h1>
+                    <p class="auth-subtitle">Записывайтесь к мастерам онлайн 24/7.</p>
+
+                    {% if register_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ register_form.non_field_errors|join:", " }}
+                    </div>
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ register_form.full_name.label }}</label>
+                            {{ register_form.full_name }}
+                            <div class="text-danger small">{{ register_form.full_name.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ register_form.email.label }}</label>
+                            {{ register_form.email }}
+                            <div class="text-danger small">{{ register_form.email.errors }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ register_form.password1.label }}</label>
+                            {{ register_form.password1 }}
+                            <div class="text-danger small">{{ register_form.password1.errors }}</div>
+                            <small class="text-muted">{{ register_form.password1.help_text }}</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ register_form.password2.label }}</label>
+                            {{ register_form.password2 }}
+                            <div class="text-danger small">{{ register_form.password2.errors }}</div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            {{ register_form.accept_terms }}
+                            <label class="form-check-label small text-muted" for="termsCheck">
+                                Я соглашаюсь с <a href="#" class="text-dark fw-semibold">Условиями использования</a> и
+                                <a href="#" class="text-dark fw-semibold">Политикой конфиденциальности</a>.
+                            </label>
+                            <div class="text-danger small">{{ register_form.accept_terms.errors }}</div>
+                        </div>
+
+                        <button type="submit" name="register_submit" class="btn btn-auth">Создать аккаунт</button>
+                    </form>
+
+                    <div class="divider">Или через соцсети</div>
+
+                    <button class="btn btn-social">
+                        <i class="bi bi-google me-2"></i> Google
+                    </button>
+                    <button class="btn btn-social">
+                        <i class="bi bi-facebook me-2 text-primary"></i> Facebook
+                    </button>
+
+                    <div class="switch-auth">
+                        Уже есть аккаунт? <a href="javascript:void(0);" onclick="showLogin()">Войти</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Get the active section from Django context
+        // If the view says 'register' (due to error), we start there.
+        const initialSection = "{{ active_section }}";
+
+        const loginSection = document.getElementById('loginSection');
+        const registerSection = document.getElementById('registerSection');
+
+        function showLogin() {
+            loginSection.classList.remove('d-none-custom');
+            registerSection.classList.add('d-none-custom');
+            document.title = "Вход - ebook";
+        }
+
+        function showRegister() {
+            loginSection.classList.add('d-none-custom');
+            registerSection.classList.remove('d-none-custom');
+            document.title = "Регистрация - ebook";
+        }
+
+        // 2. On Load, set the correct section
+        document.addEventListener("DOMContentLoaded", function () {
+            if (initialSection === 'register') {
+                showRegister();
+            } else {
+                showLogin();
+            }
+        });
+    </script>
+</body>
+
+</html>

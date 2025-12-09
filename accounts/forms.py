@@ -4,14 +4,15 @@ from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
-class BusinessSignUpForm(forms.Form):
-    business_name = forms.CharField(
-        label="Business name",
+class UserSignUpForm(forms.Form):
+    # CHANGED: Replaced business_name with full_name
+    full_name = forms.CharField(
+        label="Full Name",
         max_length=150,
         widget=forms.TextInput(
             attrs={
                 "class": "form-control form-control-sm",
-                "placeholder": "Big Bro Barbershop",
+                "placeholder": "John Doe",
             }
         ),
     )
@@ -79,27 +80,26 @@ class BusinessSignUpForm(forms.Form):
 
     def save(self):
         """
-        Creates a User, uses email as username,
-        and optionally updates Profile.company_name if you use Profile.
+        Creates a User (customer) and updates Profile.full_name.
         """
         email = self.cleaned_data["email"].lower()
         password = self.cleaned_data["password1"]
-        business_name = self.cleaned_data["business_name"]
+        full_name = self.cleaned_data["full_name"]
 
+        # 1. Create the User
         user = User.objects.create_user(
-            username=email,  # username = email
+            username=email,  # username is the email
             email=email,
             password=password,
         )
 
-        # If you have Profile model with company_name & role:
+        # 2. Update the Profile (created via signals)
         try:
             profile = user.profile
-            profile.company_name = business_name
-            profile.role = "provider"
+            profile.full_name = full_name
+            profile.role = "customer"  # CHANGED: Set role to customer
             profile.save()
         except Exception:
-            # if no profile model or signal yet, just ignore
             pass
 
         return user

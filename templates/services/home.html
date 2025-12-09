@@ -1,19 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booksy - Запись онлайн к парикмахерам, барберам и мастерам красоты</title>
-    
-    <!-- Bootstrap 5 CSS -->
+    <title>Booksy - Запись онлайн</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <!-- Fonts: Poppins & Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-
+    
     <style>
         :root {
             --booksy-teal: #00A3AD;
@@ -27,10 +26,11 @@
             color: var(--booksy-dark);
         }
 
-        /* --- Navbar --- */
+        /* --- Navbar Styles --- */
         .navbar {
-            padding: 1rem 0;
+            padding: 0.75rem 0;
             background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .navbar-brand {
@@ -43,17 +43,64 @@
         .nav-link {
             font-weight: 600;
             color: var(--booksy-dark);
-            margin-left: 1.5rem;
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.show {
+            color: var(--booksy-teal);
+        }
+
+        /* --- Avatar & Hover Dropdown Logic (Desktop Only) --- */
+        .nav-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--booksy-dark);
+            font-size: 1.4rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .nav-avatar:hover, .dropdown-hover:hover .nav-avatar {
+            background-color: #e4e6eb;
+            border-color: var(--booksy-teal);
+            color: var(--booksy-teal);
+        }
+
+        /* Desktop Hover Effect */
+        @media (min-width: 992px) {
+            .dropdown-hover { position: relative; }
+            
+            .dropdown-hover .dropdown-menu {
+                top: 100% !important;
+                right: 0 !important;
+                left: auto !important;
+                margin-top: 10px !important;
+                display: none; 
+            }
+
+            .dropdown-hover:hover .dropdown-menu,
+            .dropdown-hover .dropdown-menu.show {
+                display: block;
+                animation: fadeIn 0.2s ease-in-out;
+            }
         }
         
-        .nav-link:hover {
-            color: var(--booksy-teal);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- Hero Section --- */
         .hero-section {
             position: relative;
-            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=1920');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=1920');
             background-size: cover;
             background-position: center;
             height: 500px;
@@ -69,7 +116,7 @@
             font-weight: 700;
             font-size: 3rem;
             margin-bottom: 2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* --- Search Bar --- */
@@ -81,7 +128,7 @@
             align-items: center;
             max-width: 800px;
             margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         }
 
         .search-input-group {
@@ -91,9 +138,7 @@
             position: relative;
         }
 
-        .search-input-group:last-of-type {
-            border-right: none;
-        }
+        .search-input-group:last-of-type { border-right: none; }
 
         .search-label {
             display: block;
@@ -122,10 +167,7 @@
             transition: background 0.2s;
         }
 
-        .btn-hero-search:hover {
-            background-color: #008c95;
-            color: #fff;
-        }
+        .btn-hero-search:hover { background-color: #008c95; color: #fff; }
 
         /* --- Categories --- */
         .category-item {
@@ -155,9 +197,7 @@
             transition: color 0.2s;
         }
 
-        .category-item:hover .cat-icon-box {
-            color: var(--booksy-teal);
-        }
+        .category-item:hover .cat-icon-box { color: var(--booksy-teal); }
 
         .cat-title {
             font-weight: 600;
@@ -184,14 +224,8 @@
 
         /* --- App Banner --- */
         .app-banner {
-            background-color: #FDF4F7; /* Light pinkish tint used by Booksy sometimes, or just white */
             background: linear-gradient(135deg, #fff 0%, #f0fbfc 100%);
             padding: 80px 0;
-        }
-
-        .store-btn img {
-            height: 40px;
-            border-radius: 6px;
         }
 
         /* --- Footer --- */
@@ -202,58 +236,142 @@
             font-size: 0.9rem;
         }
 
-        .footer-heading {
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
+        .footer-heading { font-weight: 700; margin-bottom: 1rem; }
         .footer-link {
             color: var(--booksy-gray);
             text-decoration: none;
             display: block;
             margin-bottom: 0.5rem;
         }
+        .footer-link:hover { text-decoration: underline; }
 
-        .footer-link:hover {
-            text-decoration: underline;
+        /* --- Mobile Tweaks --- */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background: white;
+                padding: 1rem;
+                border-radius: 0 0 10px 10px;
+                border-top: 1px solid #eee;
+                margin-top: 10px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+            .nav-link { margin-left: 0; padding: 10px 0; }
+            .btn-hero-search { width: 100%; margin-top: 10px; }
+            
+            /* Language Dropdown Mobile Styling */
+            .navbar-nav .dropdown-menu {
+                border: none;
+                padding-left: 1rem;
+                margin-bottom: 1rem;
+            }
         }
 
         @media (max-width: 768px) {
             .hero-title { font-size: 2rem; }
             .search-container { flex-direction: column; border-radius: 12px; padding: 15px; }
             .search-input-group { width: 100%; border-right: none; border-bottom: 1px solid #eee; padding: 10px 0; margin-bottom: 10px; }
-            .btn-hero-search { width: 100%; }
         }
     </style>
 </head>
+
+
 <body>
 
-    <!-- 1. Navbar -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#">booksy</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand" href="#">ebook</a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    
                     <li class="nav-item">
                         <a class="nav-link" href="#">Для бизнеса</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Войти / Регистрация</a>
+
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="fs-5 lh-1">🇷🇺</span>
+                            <span class="small fw-bold">RU</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width: auto;">
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                                    <span class="fs-5 lh-1">🇷🇺</span>
+                                    <span class="fw-bold small">RU</span>
+                                    <span class="text-muted small ms-auto">Русский</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                                    <span class="fs-5 lh-1">🇺🇿</span>
+                                    <span class="fw-bold small">UZ</span>
+                                    <span class="text-muted small ms-auto">O'zbekcha</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
+
+                    {% if not user.is_authenticated %}
+                        <li class="nav-item mt-2 mt-lg-0 ms-lg-3">
+                            <a class="btn btn-outline-dark rounded-pill px-4 w-100" href="{% url 'accounts:login_register' %}">Войти</a>
+                        </li>
+                    {% else %}
+                        
+                        <li class="nav-item dropdown dropdown-hover ms-lg-3 mt-2 mt-lg-0 position-relative d-none d-lg-block">
+                            <div class="nav-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person"></i>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm mt-2">
+                                <li class="px-3 py-2">
+                                    <div class="fw-bold">{{ user.username }}</div>
+                                    <small class="text-muted">{{ user.email }}</small>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Account Settings</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-check me-2"></i>My Bookings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item d-lg-none mt-3">
+                            <div class="px-0 py-2 border-bottom mb-2">
+                                <div class="fw-bold text-dark">{{ user.username }}</div>
+                                <div class="small text-muted">{{ user.email }}</div>
+                            </div>
+                        </li>
+
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link py-2" href="#">
+                                <i class="bi bi-gear me-2"></i>Account Settings
+                            </a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link py-2" href="#">
+                                <i class="bi bi-calendar-check me-2"></i>My Bookings
+                            </a>
+                        </li>
+                        <li class="nav-item d-lg-none">
+                            <a class="nav-link py-2 text-danger" href="{% url 'accounts:logout' %}">
+                                <i class="bi bi-box-arrow-right me-2"></i>Logout
+                            </a>
+                        </li>
+
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- 2. Hero Section -->
     <section class="hero-section">
         <div class="container">
             <h1 class="hero-title">Будьте собой.<br>Записывайтесь к лучшим мастерам.</h1>
-            
-            <!-- Search Bar -->
+
             <div class="search-container text-start">
                 <div class="search-input-group">
                     <label class="search-label">ЧТО ВЫ ИЩЕТЕ?</label>
@@ -268,7 +386,6 @@
         </div>
     </section>
 
-    <!-- 3. Categories Grid -->
     <section class="container py-5">
         <div class="row g-4 justify-content-center">
             <div class="col-6 col-md-3 col-lg-2">
@@ -322,36 +439,36 @@
         </div>
     </section>
 
-    <!-- 4. Value Proposition -->
     <section class="promo-section">
         <div class="container text-center">
-            <h2 class="promo-title mb-5">Почему Booksy?</h2>
+            <h2 class="promo-title mb-5">Почему ebook?</h2>
             <div class="row g-5">
                 <div class="col-md-4">
                     <i class="bi bi-search feature-icon"></i>
                     <h4 class="fw-bold mb-3">Находите</h4>
-                    <p class="text-muted">Booksy поможет найти лучших мастеров красоты и здоровья рядом с вами.</p>
+                    <p class="text-muted">ebook поможет найти лучших мастеров красоты и здоровья рядом с вами.</p>
                 </div>
                 <div class="col-md-4">
                     <i class="bi bi-calendar-check feature-icon"></i>
                     <h4 class="fw-bold mb-3">Записывайтесь</h4>
-                    <p class="text-muted">Смотрите свободное время в календаре мастера и записывайтесь мгновенно 24/7.</p>
+                    <p class="text-muted">Смотрите свободное время в календаре мастера и записывайтесь мгновенно 24/7.
+                    </p>
                 </div>
                 <div class="col-md-4">
                     <i class="bi bi-bell feature-icon"></i>
                     <h4 class="fw-bold mb-3">Управляйте</h4>
-                    <p class="text-muted">Переносите визиты, получайте напоминания и управляйте своим расписанием в приложении.</p>
+                    <p class="text-muted">Переносите визиты, получайте напоминания и управляйте своим расписанием в
+                        приложении.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 5. App Promo -->
     <section class="app-banner">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6 mb-4 mb-md-0">
-                    <h2 class="promo-title display-6">Записывайтесь еще быстрее в приложении Booksy</h2>
+                    <h2 class="promo-title display-6">Записывайтесь еще быстрее в приложении ebook</h2>
                     <p class="lead text-muted mb-4">Доступно бесплатно для iOS и Android</p>
                     <div class="d-flex gap-3">
                         <button class="btn btn-dark d-flex align-items-center px-3 py-2 rounded-3">
@@ -371,23 +488,22 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-center">
-                    <!-- Placeholder for App Image -->
-                    <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=400" alt="App Preview" class="img-fluid rounded-4 shadow-lg" style="max-height: 400px;">
+                    <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&q=80&w=400"
+                        alt="App Preview" class="img-fluid rounded-4 shadow-lg" style="max-height: 400px;">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 6. Footer -->
     <footer>
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-3">
-                    <a href="#" class="navbar-brand mb-3 d-block">booksy</a>
-                    <p class="text-muted small">&copy; 2024 Booksy Inc. Все права защищены.</p>
+                    <a href="#" class="navbar-brand mb-3 d-block">ebook</a>
+                    <p class="text-muted small">&copy; 2024 ebook Inc. Все права защищены.</p>
                 </div>
                 <div class="col-6 col-md-3">
-                    <h6 class="footer-heading">О Booksy</h6>
+                    <h6 class="footer-heading">О ebook</h6>
                     <a href="#" class="footer-link">О нас</a>
                     <a href="#" class="footer-link">Карьера</a>
                     <a href="#" class="footer-link">Пресса</a>
@@ -410,6 +526,22 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link:not(.dropdown-toggle)');
+            const navCollapse = document.querySelector('.navbar-collapse');
+            const bsCollapse = new bootstrap.Collapse(navCollapse, {toggle: false});
+
+            navLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    if (navCollapse.classList.contains('show')) {
+                        bsCollapse.hide();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
-
