@@ -1,0 +1,14 @@
+{% extends "marketplace/base_client.html" %}
+{% block title %}Success{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <h1 class="h5 fw-bold">Booked successfully</h1>
+      <p class="text-muted mb-3">Your request is created. The salon can confirm it.</p>
+      <a class="btn btn-dark" href="{% url 'salon_detail' salon.id %}">Back to salon</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

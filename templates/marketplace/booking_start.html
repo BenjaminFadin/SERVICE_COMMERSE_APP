@@ -1,0 +1,102 @@
+{% extends "marketplace/base_client.html" %}
+{% block title %}Book{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <h1 class="h5 fw-bold mb-1">Booking</h1>
+      <div class="text-muted small mb-3">
+        {{ salon.name_ru }} · {{ service.name_ru }} ({{ service.duration_minutes }} min)
+      </div>
+
+      <form method="post" id="bookingForm">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label small">Master</label>
+            {{ form.master }}
+            {{ form.master.errors }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small">Date</label>
+            {{ form.date }}
+            {{ form.date.errors }}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small">Time</label>
+            {{ form.time }}
+            {{ form.time.errors }}
+            <div class="form-text">Or pick from available slots below.</div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label small">Comment</label>
+            {{ form.comment }}
+          </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div>
+          <div class="fw-semibold mb-2">Available slots</div>
+          <div id="slotsBox" class="d-flex flex-wrap gap-2"></div>
+          <div id="slotsHint" class="text-muted small mt-2">Select master and date to load slots.</div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-dark" type="submit">Confirm booking</button>
+          <a class="btn btn-outline-secondary" href="{% url 'salon_detail' salon.id %}">Back</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const masterEl = document.getElementById("id_master");
+  const dateEl = document.getElementById("id_date");
+  const timeEl = document.getElementById("id_time");
+  const slotsBox = document.getElementById("slotsBox");
+  const hint = document.getElementById("slotsHint");
+
+  async function loadSlots(){
+    slotsBox.innerHTML = "";
+    hint.textContent = "Loading...";
+    const master = masterEl.value;
+    const date = dateEl.value;
+    if(!master || !date){
+      hint.textContent = "Select master and date to load slots.";
+      return;
+    }
+    const url = "{% url 'api_slots' salon.id service.id %}" + `?master=${master}&date=${date}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(!data.slots || data.slots.length === 0){
+      hint.textContent = "No free slots for this date.";
+      return;
+    }
+    hint.textContent = "Click a slot to fill time.";
+
+    data.slots.forEach(t => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn btn-sm btn-outline-dark";
+      btn.textContent = t;
+      btn.onclick = () => { timeEl.value = t; };
+      slotsBox.appendChild(btn);
+    });
+  }
+
+  masterEl.addEventListener("change", loadSlots);
+  dateEl.addEventListener("change", loadSlots);
+</script>
+{% endblock %}
