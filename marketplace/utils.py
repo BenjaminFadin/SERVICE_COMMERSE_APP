@@ -2,7 +2,7 @@ import os
 import uuid
 from datetime import datetime, timedelta
 from django.utils import timezone
-
+from marketplace.models import Appointment, SalonWorkingHours
 
 
 

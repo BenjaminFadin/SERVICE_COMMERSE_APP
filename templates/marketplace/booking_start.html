@@ -51,7 +51,7 @@
 
         <div class="mt-4 d-flex gap-2">
           <button class="btn btn-dark" type="submit">Confirm booking</button>
-          <a class="btn btn-outline-secondary" href="{% url 'salon_detail' salon.id %}">Back</a>
+          <a class="btn btn-outline-secondary" href="{% url 'marketplace:salon_detail' salon.id %}">Back</a>
         </div>
       </form>
     </div>
@@ -76,7 +76,7 @@
       hint.textContent = "Select master and date to load slots.";
       return;
     }
-    const url = "{% url 'api_slots' salon.id service.id %}" + `?master=${master}&date=${date}`;
+    const url = "{% url 'marketplace:api_slots' salon.id service.id %}" + `?master=${master}&date=${date}`;
     const res = await fetch(url);
     const data = await res.json();
 

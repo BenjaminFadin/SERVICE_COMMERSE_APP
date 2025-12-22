@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-
 from .forms import UserSignUpForm 
 
 # Need add profile settings page, password reset using email also
@@ -15,7 +14,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, "You are now logged in.")
-            return redirect("services:home") # Ensure this URL pattern exists
+            return redirect("marketplace:home") # Ensure this URL pattern exists
         else:
             # If invalid, we fall through to render the template with form errors
             messages.error(request, "Invalid username or password.")
@@ -33,7 +32,7 @@ def logout_view(request):
     #     return redirect("home")
 
     logout(request)  # logs out current user
-    return redirect('services:home')
+    return redirect('marketplace:home')
 
 def auth_view(request):
     # Initialize forms
@@ -51,7 +50,7 @@ def auth_view(request):
                 user = login_form.get_user()
                 login(request, user)
                 # messages.success(request, "You are now logged in.")
-                return redirect("services:home")
+                return redirect("marketplace:home")
             else:
                 messages.error(request, "Invalid username or password.")
 
@@ -64,7 +63,7 @@ def auth_view(request):
                 user = register_form.save()
                 login(request, user)
                 # messages.success(request, "Account created! Welcome.")
-                return redirect("services:home")
+                return redirect("marketplace:home")
             else:
                 messages.error(request, "Registration failed. Please fix the errors.")
 

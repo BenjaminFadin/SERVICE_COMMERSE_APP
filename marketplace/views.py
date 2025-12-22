@@ -1,15 +1,15 @@
-from django.shortcuts import render
-
 from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET
 
-from .models import Category, Salon, Service, Appointment
 from .forms import BookingForm
+from .models import Appointment, Category, Master, Salon, Service
 from .utils import get_available_slots
+
 
 def home(request):
     categories = Category.objects.all()
@@ -17,22 +17,28 @@ def home(request):
 
 
 def salon_list(request, category_slug=None):
-    salons = Salon.objects.select_related("category", "owner").all()
+    salons = Salon.objects.select_related("category", "owner").prefetch_related("services").all()
+    category = None
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         salons = salons.filter(category=category)
-    else:
-        category = None
-    return render(request, "marketplace/salon_list.html", {"salons": salons, "category": category})
+
+    return render(
+        request,
+        "marketplace/salon_list.html",
+        {"salons": salons, "category": category},
+    )
 
 
 def salon_detail(request, salon_id):
     salon = get_object_or_404(Salon.objects.select_related("category"), pk=salon_id)
     services = salon.services.all()
     masters = salon.masters.filter(is_active=True)
-    return render(request, "marketplace/salon_detail.html", {
-        "salon": salon, "services": services, "masters": masters
-    })
+    return render(
+        request,
+        "marketplace/salon_detail.html",
+        {"salon": salon, "services": services, "masters": masters},
+    )
 
 
 @login_required
@@ -46,9 +52,12 @@ def booking_start(request, salon_id, service_id):
             master = form.cleaned_data["master"]
             start_dt = form.build_start_datetime()
 
-            # validate slot is truly free (server-side)
+            # server-side verify slot is still free
             slots = get_available_slots(
-                salon=salon, master=master, service=service, date_obj=form.cleaned_data["date"]
+                salon=salon,
+                master=master,
+                service=service,
+                date_obj=form.cleaned_data["date"],
             )
             if start_dt not in slots:
                 form.add_error(None, "Selected time is no longer available. Please choose another slot.")
@@ -62,13 +71,15 @@ def booking_start(request, salon_id, service_id):
                     status="pending",
                     comment=form.cleaned_data.get("comment", ""),
                 )
-                return redirect("booking_success", salon_id=salon.id)
-
+                return redirect("marketplace:booking_success", salon_id=salon.id)
     else:
-        # default date = today
         form = BookingForm(salon=salon, initial={"date": timezone.localdate()})
 
-    return render(request, "marketplace/booking_start.html", {"salon": salon, "service": service, "form": form})
+    return render(
+        request,
+        "marketplace/booking_start.html",
+        {"salon": salon, "service": service, "form": form},
+    )
 
 
 @login_required
@@ -106,14 +117,29 @@ def api_slots(request, salon_id, service_id):
 
 @login_required
 def owner_dashboard(request):
-    """
-    Simple owner dashboard page styled like your business_admin.html.
-    """
     salons = request.user.salons.all()
     salon = salons.first()
     if not salon:
         return render(request, "business/dashboard.html", {"salon": None, "bookings": []})
 
     today = timezone.localdate()
-    bookings = Appointment.objects.filter(salon=salon, start_time__date=today).select_related("client", "service", "master")
+    bookings = (
+        Appointment.objects.filter(salon=salon, start_time__date=today)
+        .select_related("client", "service", "master")
+    )
     return render(request, "business/dashboard.html", {"salon": salon, "bookings": bookings})
+
+
+@require_GET
+def ajax_booking_form(request, salon_id, service_id):
+    salon = get_object_or_404(Salon, pk=salon_id)
+    service = get_object_or_404(Service, pk=service_id, salon=salon)
+
+    form = BookingForm(salon=salon, initial={"date": timezone.localdate()})
+    form.fields["master"].queryset = Master.objects.filter(salon=salon, is_active=True)
+
+    return render(
+        request,
+        "marketplace/partials/booking_form_inner.html",
+        {"salon": salon, "service": service, "form": form},
+    )
