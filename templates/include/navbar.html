@@ -1,23 +1,130 @@
-  <nav class="navbar navbar-expand-lg navbar-light bg-olive">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-semibold" href="des2.html">
-        <span class="brand-mark">e</span> eBook
-      </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse mt-2 mt-lg-0" id="mainNav">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 small">
-          <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login' %}">Login</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'accounts:login_register' %}">Register</a></li>
-          <li class="nav-item"><a class="nav-link" href="des2.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="des2.html">Dashboard</a></li>
-          <li class="nav-item"><a class="nav-link" href="des2.html#bookingsSection">Bookings</a></li>
-          <li class="nav-item"><a class="nav-link" href="profile_page.html">Profile</a></li>
-          <li class="nav-item"><a class="nav-link active" href="confirmed_service.html">Client view</a></li>
-        </ul>
+{% if request.resolver_match.url_name == 'home' %}
+<nav class="navbar navbar-expand-lg sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#">ebook</a>
+
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+
+        <li class="nav-item">
+          <a class="nav-link" href="#">Для бизнеса</a>
+        </li>
+
+        <li class="nav-item dropdown ms-lg-2">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="fs-5 lh-1">🇷🇺</span>
+            <span class="small fw-bold">RU</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width: auto;">
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                <span class="fs-5 lh-1">🇷🇺</span>
+                <span class="fw-bold small">RU</span>
+                <span class="text-muted small ms-auto">Русский</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center gap-2" href="#">
+                <span class="fs-5 lh-1">🇺🇿</span>
+                <span class="fw-bold small">UZ</span>
+                <span class="text-muted small ms-auto">O'zbekcha</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        {% if not user.is_authenticated %}
+        <li class="nav-item mt-2 mt-lg-0 ms-lg-3">
+          <a class="btn btn-outline-dark rounded-pill px-4 w-100" href="{% url 'accounts:login_register' %}">Войти</a>
+        </li>
+        {% else %}
+
+        <li class="nav-item dropdown dropdown-hover ms-lg-3 mt-2 mt-lg-0 position-relative d-none d-lg-block">
+          <div class="nav-avatar" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person"></i>
+          </div>
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm mt-2">
+            <li class="px-3 py-2">
+              <div class="fw-bold">{{ user.username }}</div>
+              <small class="text-muted">{{ user.email }}</small>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Account Settings</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-check me-2"></i>My Bookings</a></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i
+                  class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item d-lg-none mt-3">
+          <div class="px-0 py-2 border-bottom mb-2">
+            <div class="fw-bold text-dark">{{ user.username }}</div>
+            <div class="small text-muted">{{ user.email }}</div>
+          </div>
+        </li>
+
+        <li class="nav-item d-lg-none">
+          <a class="nav-link py-2" href="#">
+            <i class="bi bi-gear me-2"></i>Account Settings
+          </a>
+        </li>
+        <li class="nav-item d-lg-none">
+          <a class="nav-link py-2" href="#">
+            <i class="bi bi-calendar-check me-2"></i>My Bookings
+          </a>
+        </li>
+        <li class="nav-item d-lg-none">
+          <a class="nav-link py-2 text-danger" href="{% url 'accounts:logout' %}">
+            <i class="bi bi-box-arrow-right me-2"></i>Logout
+          </a>
+        </li>
+
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% else %}
+
+<nav class="navbar navbar-expand-lg bg-white">
+  <div class="container px-lg-4">
+    <a class="navbar-brand me-4" href="{% url 'marketplace:home' %}">booksy</a>
+
+    <div class="d-none d-md-flex flex-grow-1 align-items-center" style="max-width: 600px;">
+      <div class="search-input-group w-100 shadow-sm border">
+        <div class="d-flex align-items-center px-3 w-50">
+          <i class="bi bi-search text-muted me-2"></i>
+          <input type="text" class="form-control" placeholder="What are you looking for?" value="">
+        </div>
+        <div class="search-divider"></div>
+        <div class="d-flex align-items-center px-3 w-50">
+          <i class="bi bi-geo-alt text-muted me-2"></i>
+          <input type="text" class="form-control" placeholder="Where?" value="">
+        </div>
+        <button class="btn btn-search" type="button">Search</button>
       </div>
     </div>
-  </nav>
 
-
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <a href="{% url 'marketplace:owner_dashboard' %}"
+        class="text-dark fw-semibold text-decoration-none small d-none d-md-block">For Business</a>
+      {% if user.is_authenticated %}
+      <a href="#" class="text-dark fw-semibold text-decoration-none small d-none d-md-block">{{ user.username }}</a>
+      {% else %}
+      <a href="/accounts/login/" class="text-dark fw-semibold text-decoration-none small d-none d-md-block">Login</a>
+      {% endif %}
+      <a href="#" class="text-dark h5 mb-0"><i class="bi bi-person-circle"></i></a>
+    </div>
+  </div>
+</nav>
+{% endif %}

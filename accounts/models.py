@@ -50,10 +50,12 @@ class Profile(models.Model):
 # ---- Signals so Profile is auto-created/updated ----
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
-
+def ensure_profile_exists(sender, instance, created, **kwargs):
+    """
+    Always ensure a Profile exists for the User.
+    Safe for admin, creates only if missing.
+    """
+    Profile.objects.get_or_create(user=instance)
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):

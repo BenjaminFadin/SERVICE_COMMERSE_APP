@@ -7,15 +7,46 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 
 
+
 def salon_logo_upload_to(instance, filename):
-    """
-    Filename -> salon_logos/2025/12/15/20251215_2231_<uuid>.<ext>
-    """
-    ext = os.path.splitext(filename)[1].lower()  # keeps .jpg/.png etc
-    now = timezone.localtime(timezone.now())
-    ts = now.strftime("%Y%m%d_%H%M")
-    unique = uuid.uuid4().hex[:10]
-    return f"salon_logos/{now:%Y/%m/%d}/{ts}_{unique}{ext}"
+    # 1. Split the name and extension
+    name, ext = os.path.splitext(filename)
+    
+    # 2. Truncate the original name to the first 20 characters
+    short_name = name[:20]
+    
+    # 3. Clean the extension (ensure lowercase)
+    ext = ext.lower() or ".jpg"
+    
+    now = timezone.localtime()
+    # 4. Return the path: folder/date/short_name + extension
+    # We use uuid.uuid4().hex[:4] or similar if you want to ensure uniqueness 
+    # even with truncated names, but here is the exact logic for 20 chars:
+    return f"salon_logos/{now:%Y/%m/%d}/{short_name}{ext}"
+
+def service_img_upload_to(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if not ext:
+        ext = ".jpg"
+    now = timezone.localtime()
+    unique = uuid.uuid4().hex[:8]
+    return f"services/{now:%Y/%m/%d}/{unique}{ext}"
+
+
+def master_photo_upload_to(instance, filename):
+    ext = os.path.splitext(filename)[1].lower()
+    if not ext:
+        ext = ".jpg"
+    now = timezone.localtime()
+    unique = uuid.uuid4().hex[:8]
+    return f"masters/{now:%Y/%m/%d}/{unique}{ext}"
+
+
+def salon_gallery_upload_to(instance, filename):
+    ext = os.path.splitext(filename)[1].lower() or ".jpg"
+    now = timezone.localtime()
+    # Path: salon_photos/YYYY/MM/DD/salon_id_uuid.ext
+    return f"salon_photos/{now:%Y/%m/%d}/{instance.salon.id}_{uuid.uuid4().hex[:6]}{ext}"
 
 
 class MultilingualMixin(models.Model):
@@ -74,12 +105,8 @@ class Salon(MultilingualMixin, models.Model):
 
     address = models.TextField(verbose_name="Адрес")
     phone = models.CharField(max_length=20, verbose_name="Телефон салона")
-    logo = models.ImageField(
-        upload_to=salon_logo_upload_to,
-        blank=True,
-        null=True,
-        verbose_name="Логотип"
-    )
+    logo = models.ImageField(upload_to=salon_logo_upload_to, blank=True, null=True)
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
@@ -90,9 +117,45 @@ class Salon(MultilingualMixin, models.Model):
         return self.name_ru
 
 
+class SalonPhoto(models.Model):
+    salon = models.ForeignKey(
+        Salon, 
+        on_delete=models.CASCADE, 
+        related_name='photos', 
+        verbose_name="Салон"
+    )
+    image = models.ImageField(
+        upload_to=salon_gallery_upload_to, 
+        verbose_name="Фото"
+    )
+    caption = models.CharField(
+        max_length=100, 
+        blank=True, 
+        verbose_name="Описание (необяз.)"
+    )
+    is_main = models.BooleanField(
+        default=False, 
+        verbose_name="Главное фото?"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Фото салона"
+        verbose_name_plural = "Фотографии салона"
+        ordering = ['-is_main', '-created_at']
+
+    def __str__(self):
+        return f"Photo for {self.salon.name_ru}"
+
+
 class Service(MultilingualMixin, models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='services', verbose_name="Салон")
-    img = models.ImageField(upload_to="services/%d.%m.%Y/", blank=True, null=True, verbose_name="Изображение услуги")
+    img = models.ImageField(
+        upload_to=service_img_upload_to,
+        blank=True,
+        null=True,
+        verbose_name="Изображение услуги"
+    )
     name_ru = models.CharField(max_length=200, verbose_name="Название услуги (RU)")
     name_en = models.CharField(max_length=200, blank=True, verbose_name="Название услуги (EN)")
     name_uz = models.CharField(max_length=200, blank=True, verbose_name="Название услуги (UZ)")
@@ -127,7 +190,12 @@ class Master(models.Model):
     specialization_en = models.CharField(max_length=100, verbose_name="Специализация (EN)", blank=True)
     specialization_uz = models.CharField(max_length=100, verbose_name="Специализация (UZ)", blank=True)
 
-    photo = models.ImageField(upload_to="masters/", blank=True, null=True, verbose_name="Фото")
+    photo = models.ImageField(
+        upload_to=master_photo_upload_to,
+        blank=True,
+        null=True,
+        verbose_name="Фото"
+    )
     is_active = models.BooleanField(default=True, verbose_name="Активен")
 
     class Meta:
@@ -146,12 +214,13 @@ class SalonWorkingHours(models.Model):
         (0, "Monday"), (1, "Tuesday"), (2, "Wednesday"),
         (3, "Thursday"), (4, "Friday"), (5, "Saturday"), (6, "Sunday")
     ]
+
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name="working_hours")
     weekday = models.IntegerField(choices=WEEKDAYS)
     is_closed = models.BooleanField(default=False)
     open_time = models.TimeField(null=True, blank=True)
     close_time = models.TimeField(null=True, blank=True)
-
+    
     class Meta:
         unique_together = ("salon", "weekday")
         verbose_name = "График работы салона"

@@ -19,6 +19,7 @@ from marketplace.models import (
     SalonWorkingHours,
 )
 
+# http://127.0.0.1:8000/api/salon/102/service/928/slots/
 
 CATEGORIES = [
     # (name_ru, slug, icon_class)

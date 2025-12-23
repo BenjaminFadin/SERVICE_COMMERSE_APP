@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import Category, Salon, Master, Service, Appointment, SalonWorkingHours
+from .models import Category, Salon, Master, Service, Appointment, SalonWorkingHours, SalonPhoto
 
 # 2. Marketplace Admin
 @admin.register(Category)
@@ -43,4 +43,12 @@ class AppointmentAdmin(admin.ModelAdmin):
         return obj.service.name_ru if obj.service else "-"
     get_service.short_description = "Услуга"
     
-admin.site.register(SalonWorkingHours)
+
+@admin.register(SalonWorkingHours)
+class SalonWorkingHoursAdmin(admin.ModelAdmin):
+    # CHANGED: 'name' -> 'name_ru'
+    list_display = ('salon', 'weekday', 'is_closed', 'open_time', 'close_time')
+    search_fields = ('salon__name_ru',)
+    list_filter = ('salon',)
+
+admin.site.register(SalonPhoto)

@@ -31,15 +31,27 @@ def salon_list(request, category_slug=None):
 
 
 def salon_detail(request, salon_id):
-    salon = get_object_or_404(Salon.objects.select_related("category"), pk=salon_id)
+    # Use prefetch_related for photos and services to optimize performance
+    salon = get_object_or_404(
+        Salon.objects.select_related("category").prefetch_related("photos", "services"), 
+        pk=salon_id
+    )
     services = salon.services.all()
     masters = salon.masters.filter(is_active=True)
+    # Get all photos for the gallery
+    photos = salon.photos.all() 
+    
     return render(
         request,
         "marketplace/salon_detail.html",
-        {"salon": salon, "services": services, "masters": masters},
+        {
+            "salon": salon, 
+            "services": services, 
+            "masters": masters,
+            "photos": photos,  # Added this
+            "today_weekday": timezone.localtime().weekday()
+        },
     )
-
 
 @login_required
 def booking_start(request, salon_id, service_id):
@@ -88,33 +100,6 @@ def booking_success(request, salon_id):
     return render(request, "marketplace/booking_success.html", {"salon": salon})
 
 
-@require_GET
-def api_slots(request, salon_id, service_id):
-    """
-    GET params: master=<id>&date=YYYY-MM-DD
-    returns: { slots: ["10:00", "10:15", ...] }
-    """
-    salon = get_object_or_404(Salon, pk=salon_id)
-    service = get_object_or_404(Service, pk=service_id, salon=salon)
-
-    master_id = request.GET.get("master")
-    date_str = request.GET.get("date")
-    if not master_id or not date_str:
-        return JsonResponse({"slots": []})
-
-    try:
-        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-    except ValueError:
-        return JsonResponse({"slots": []})
-
-    master = salon.masters.filter(pk=master_id, is_active=True).first()
-    if not master:
-        return JsonResponse({"slots": []})
-
-    slots = get_available_slots(salon=salon, master=master, service=service, date_obj=date_obj)
-    return JsonResponse({"slots": [timezone.localtime(s).strftime("%H:%M") for s in slots]})
-
-
 @login_required
 def owner_dashboard(request):
     salons = request.user.salons.all()
@@ -142,4 +127,58 @@ def ajax_booking_form(request, salon_id, service_id):
         request,
         "marketplace/partials/booking_form_inner.html",
         {"salon": salon, "service": service, "form": form},
+    )
+
+
+@require_GET
+def api_slots(request, salon_id, service_id):
+    salon = get_object_or_404(Salon, pk=salon_id)
+    service = get_object_or_404(Service, pk=service_id, salon=salon)
+
+    master_id = request.GET.get("master") or request.GET.get("master_id")
+    date_str = request.GET.get("date") or request.GET.get("day")
+
+    # Useful for debugging from browser DevTools Network tab
+    if not master_id or not date_str:
+        return JsonResponse(
+            {"slots": [], "error": "missing master/date", "got": {"master": master_id, "date": date_str}},
+            status=400,
+        )
+
+    try:
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return JsonResponse({"slots": [], "error": "bad date format, expected YYYY-MM-DD"}, status=400)
+
+    # Ensure master exists and belongs to salon
+    master = salon.masters.filter(pk=master_id, is_active=True).first()
+    if not master:
+        return JsonResponse({"slots": [], "error": "master not found for this salon"}, status=404)
+
+    try:
+        slots = get_available_slots(salon=salon, master=master, service=service, date_obj=date_obj)
+    except Exception as e:
+        # So you see errors instead of silent empty behavior
+        return JsonResponse({"slots": [], "error": f"server error: {str(e)}"}, status=500)
+
+    # Make sure all datetimes are aware before localtime()
+    out = []
+    tz = timezone.get_current_timezone()
+    for s in slots:
+        if timezone.is_naive(s):
+            s = timezone.make_aware(s, tz)
+        out.append(timezone.localtime(s, tz).strftime("%H:%M"))
+
+    return JsonResponse(
+        {
+            "slots": out,
+            "meta": {
+                "count": len(out),
+                "date": date_str,
+                "weekday": date_obj.weekday(),
+                "salon_id": salon_id,
+                "service_id": service_id,
+                "master_id": int(master_id),
+            },
+        }
     )
