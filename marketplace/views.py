@@ -31,15 +31,18 @@ def salon_list(request, category_slug=None):
 
 
 def salon_detail(request, salon_id):
-    # Use prefetch_related for photos and services to optimize performance
+    # Optimized query with select_related and prefetch_related
     salon = get_object_or_404(
-        Salon.objects.select_related("category").prefetch_related("photos", "services"), 
+        Salon.objects.select_related("category").prefetch_related("photos", "services", "masters", "working_hours"), 
         pk=salon_id
     )
+    
     services = salon.services.all()
     masters = salon.masters.filter(is_active=True)
-    # Get all photos for the gallery
-    photos = salon.photos.all() 
+    photos = salon.photos.all()
+    
+    # Get working hours ordered by weekday (Monday=0, Sunday=6)
+    working_hours = salon.working_hours.all().order_by('weekday')
     
     return render(
         request,
@@ -48,11 +51,13 @@ def salon_detail(request, salon_id):
             "salon": salon, 
             "services": services, 
             "masters": masters,
-            "photos": photos,  # Added this
-            "today_weekday": timezone.localtime().weekday()
+            "photos": photos,
+            "working_hours": working_hours,
+            "today_weekday": timezone.localtime().weekday() # Returns 0-6
         },
     )
-
+    
+    
 @login_required
 def booking_start(request, salon_id, service_id):
     salon = get_object_or_404(Salon, pk=salon_id)

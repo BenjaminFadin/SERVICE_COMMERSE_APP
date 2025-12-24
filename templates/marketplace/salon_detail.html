@@ -14,35 +14,47 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
   <style>
+
     :root {
       --booksy-teal: #00A3AD;
       --booksy-dark: #101928;
       --booksy-gray: #75767A;
       --bg-light: #F7F7F9;
+      --card-border: #eee;
+      --radius-lg: 12px;
+      --radius-md: 10px;
     }
 
     body {
       background-color: var(--bg-light);
       font-family: 'Inter', sans-serif;
       color: var(--booksy-dark);
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
-    /* --- Navbar --- */
+    /* Improve tap targets on mobile */
+    .btn, .nav-link, .gallery-btn {
+      min-height: 44px;
+    }
+
+    /* --- Navbar (mobile-first) --- */
     .navbar {
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
-      height: 70px;
+      min-height: 64px;
     }
 
     .navbar-brand {
       font-family: 'Poppins', sans-serif;
       font-weight: 700;
       color: #000;
+      letter-spacing: 0.2px;
     }
 
-    /* --- Hero Cover Image --- */
+    /* --- Hero Cover Image (mobile-first) --- */
     .cover-image {
-      height: 320px;
+      height: 220px;
       width: 100%;
       background-image: url('{% if salon.cover_image %}{{ salon.cover_image.url }}{% else %}https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=1200{% endif %}');
       background-size: cover;
@@ -52,38 +64,41 @@
 
     .gallery-btn {
       position: absolute;
-      bottom: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.9);
-      border: none;
-      border-radius: 8px;
-      padding: 8px 16px;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 10px;
+      padding: 8px 14px;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       z-index: 10;
+      min-height: auto; /* allow button to be compact while still tappable */
     }
 
     .gallery-btn:hover {
-        background: #fff;
+      background: #fff;
     }
 
-    /* --- Profile Header Section --- */
+    /* --- Profile Header Section (mobile-first) --- */
     .profile-header {
       position: relative;
-      margin-bottom: 2rem;
+      margin-bottom: 1.25rem;
+      padding-top: 64px; /* space for avatar overlap on mobile */
     }
 
     .avatar-container {
-      width: 140px;
-      height: 140px;
+      width: 112px;
+      height: 112px;
       border-radius: 50%;
       border: 4px solid #fff;
       background-color: #000;
       overflow: hidden;
       position: absolute;
-      top: -70px;
-      left: 0;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      top: -56px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
     }
 
     .avatar-img {
@@ -93,41 +108,54 @@
     }
 
     .header-content {
-      padding-left: 160px;
-      padding-top: 1rem;
+      padding-top: 0.75rem;
+      text-align: center;
     }
 
     .biz-title {
       font-family: 'Poppins', sans-serif;
       font-weight: 700;
-      font-size: 2rem;
-      margin-bottom: 0.2rem;
+      font-size: 1.6rem;
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+      word-break: break-word;
     }
 
     .rating-box {
       display: inline-flex;
       align-items: center;
       background: #fff;
-      padding: 4px 8px;
-      border-radius: 6px;
+      padding: 6px 10px;
+      border-radius: 10px;
       font-weight: 700;
       font-size: 0.95rem;
-      margin-right: 10px;
+      margin-right: 8px;
     }
 
-    /* --- Tabs --- */
+    /* --- Tabs (mobile-first: horizontal scroll) --- */
     .nav-tabs {
       border-bottom: 1px solid #e0e0e0;
-      margin-bottom: 2rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      gap: 18px;
+      padding-bottom: 4px;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+      height: 6px;
     }
 
     .nav-link {
       color: var(--booksy-gray);
       font-weight: 600;
-      padding: 1rem 0;
-      margin-right: 2rem;
+      padding: 0.75rem 0;
       border: none;
       position: relative;
+      white-space: nowrap;
+      min-height: auto;
     }
 
     .nav-link.active {
@@ -138,11 +166,12 @@
     .nav-link.active::after {
       content: '';
       position: absolute;
-      bottom: 0;
+      bottom: -1px;
       left: 0;
       width: 100%;
       height: 3px;
       background-color: var(--booksy-teal);
+      border-radius: 2px;
     }
 
     /* --- Services --- */
@@ -155,41 +184,43 @@
 
     .service-card {
       background: #fff;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 1.25rem;
-      margin-bottom: 1rem;
-      transition: box-shadow 0.2s;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      margin-bottom: 0.9rem;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
 
     .service-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+      transform: translateY(-1px);
     }
 
     .service-name {
       font-weight: 600;
       font-size: 1.05rem;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      word-break: break-word;
     }
 
     .service-desc {
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       color: var(--booksy-gray);
       margin-bottom: 0;
     }
 
     .price-tag {
-      font-weight: 600;
-      font-size: 1.1rem;
+      font-weight: 700;
+      font-size: 1.05rem;
     }
 
     .btn-add {
       border: 1px solid var(--booksy-teal);
       color: var(--booksy-teal);
       background: #fff;
-      font-weight: 600;
-      padding: 6px 24px;
-      border-radius: 6px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 10px;
     }
 
     .btn-add:hover {
@@ -197,30 +228,30 @@
       color: #fff;
     }
 
-    /* --- Sidebar --- */
+    /* --- Venue / Sidebar --- */
     .venue-card {
       background: #fff;
-      border-radius: 12px;
-      border: 1px solid #eee;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
       overflow: hidden;
-      position: sticky;
-      top: 90px;
     }
 
     .map-preview {
-      height: 150px;
+      height: 160px;
       width: 100%;
       background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/San_Diego_Street_Map.jpg/640px-San_Diego_Street_Map.jpg');
       background-size: cover;
+      background-position: center;
     }
 
     .venue-body {
-      padding: 1.5rem;
+      padding: 1.25rem;
     }
 
     .contact-row {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
+      gap: 12px;
       margin-bottom: 1rem;
     }
 
@@ -232,32 +263,83 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-right: 12px;
+      flex: 0 0 36px;
     }
 
     .working-hours-row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
-      margin-bottom: 6px;
+      gap: 12px;
+      font-size: 0.95rem;
+      margin-bottom: 8px;
     }
 
     .hours-today {
       color: #28a745;
-      font-weight: 600;
+      font-weight: 700;
     }
 
     /* Gallery Carousel Styles */
     .carousel-item img {
-        height: 70vh;
-        object-fit: contain;
-        background-color: #000;
+      height: 55vh;
+      object-fit: contain;
+      background-color: #000;
     }
 
-    @media (max-width: 991px) {
-      .header-content { padding-left: 0; margin-top: 80px; text-align: center; }
-      .avatar-container { left: 50%; transform: translateX(-50%); }
+    /* Booking drawer: full width on small screens, fixed width on larger */
+    #bookingDrawer {
+      width: 100vw;
+      max-width: 100vw;
     }
+
+    /* --- Breakpoints --- */
+    @media (min-width: 576px) {
+      .cover-image { height: 260px; }
+      .biz-title { font-size: 1.8rem; }
+      .carousel-item img { height: 62vh; }
+      #bookingDrawer { width: 420px; max-width: 420px; }
+    }
+
+    @media (min-width: 992px) {
+      .cover-image { height: 320px; }
+
+      .profile-header {
+        padding-top: 0;
+        margin-bottom: 2rem;
+      }
+
+      .avatar-container {
+        width: 140px;
+        height: 140px;
+        top: -70px;
+        left: 0;
+        transform: none;
+      }
+
+      .header-content {
+        padding-left: 160px;
+        padding-top: 1rem;
+        text-align: left;
+      }
+
+      .biz-title { font-size: 2rem; }
+
+      .nav-tabs {
+        overflow: visible;
+        gap: 0;
+      }
+
+      .nav-link { margin-right: 2rem; padding: 1rem 0; }
+
+      .venue-card {
+        position: sticky;
+        top: 90px;
+      }
+
+      .carousel-item img { height: 70vh; }
+      #bookingDrawer { width: 450px; max-width: 450px; }
+    }
+
   </style>
 </head>
 
@@ -269,6 +351,7 @@
     </div>
   </nav>
 
+  
   <div class="cover-image">
     <div class="container h-100 position-relative">
       <button class="gallery-btn shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#galleryModal">
@@ -302,9 +385,43 @@
           <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
           <li class="nav-item"><a class="nav-link" href="#">Portfolio</a></li>
           <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+        
         </ul>
 
+        <!-- Mobile Venue Info (shown on small screens) -->
+        <div class="d-lg-none mb-4">
+          <div class="venue-card shadow-sm">
+            <div class="map-preview"></div>
+            <div class="venue-body">
+              <h5 class="fw-bold mb-3">Venue Info</h5>
+              <div class="contact-row">
+                <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
+                <div>{{ salon.address }}</div>
+              </div>
+              <div class="contact-row">
+                <div class="icon-circle"><i class="bi bi-telephone"></i></div>
+                <div>{{ salon.phone }}</div>
+              </div>
+              <hr class="my-4 text-muted">
+              <h6 class="fw-bold mb-3">Opening Hours</h6>
+              {% if working_hours %}
+                {% for wh in working_hours %}
+                <div class="working-hours-row">
+                  <span class="day-name">{{ wh.get_weekday_display }}</span>
+                  <span class="hours-val {% if today_weekday == wh.weekday %}hours-today{% endif %}">
+                    {% if wh.is_closed %}Closed{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
+                  </span>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="small text-muted">Hours not provided.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
         <div class="mb-5">
+
           <h2 class="category-title">Featured Services</h2>
           {% for s in services %}
             {% i18n s "name" request.LANGUAGE_CODE as s_name %}
@@ -317,7 +434,7 @@
                   <div class="text-muted small mt-1">{{ s.duration_minutes }}min</div>
                 </div>
                 <div class="col-12 col-md-4 text-md-end d-flex flex-row flex-md-column justify-content-between align-items-end mt-2 mt-md-0">
-                  <div class="price-tag mb-md-2">{{ s.price }}</div>
+                  <div class="price-tag mb-md-2">{{ s.price }} сумм</div>
                   <button class="btn btn-add load-booking-btn" 
                           type="button" 
                           data-salon-id="{{ salon.id }}" 
@@ -405,7 +522,7 @@
     </div>
   </div>
 
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer" style="width: 450px;">
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer">
     <div class="offcanvas-header border-bottom">
       <h5 class="offcanvas-title fw-bold">Booking</h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
