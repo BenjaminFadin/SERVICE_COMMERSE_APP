@@ -38,7 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     
     'accounts',
     'marketplace',
@@ -54,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -147,5 +153,33 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "accounts.User"
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = 'marketplace:home'
 LOGOUT_REDIRECT_URL = "login"
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',   
+]
+
+UNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': '95838719942-iif3qbeo6md6krv70j68m4eks9qj4cjg.apps.googleusercontent.com', 
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "fazliddinabdukhakimov@gmail.com"
+EMAIL_HOST_PASSWORD = "zkwf hqwg stgd fhsj"
+DEFAULT_FROM_EMAIL = "ibron <fazliddinabdukhakimov@gmail.com>"
+

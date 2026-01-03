@@ -24,7 +24,7 @@ urlpatterns = [
     
     path('', include('marketplace.urls', namespace='marketplace')),
     path('accounts/', include('accounts.urls', namespace='accounts')),
-    
+    path('accounts/', include('allauth.urls')),
 ]
 
 if settings.DEBUG:

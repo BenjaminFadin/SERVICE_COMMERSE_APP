@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -61,7 +62,7 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between">
                                 <label class="form-label">Пароль</label>
-                                <a href="#" class="text-muted small text-decoration-none">Забыли пароль?</a>
+                                <a href="{% url 'accounts:password_reset_request' %}" class="text-muted small text-decoration-none">Забыли пароль?</a>
                             </div>
                             {{ login_form.password }}
                             <script>document.getElementsByName('password')[0].classList.add('form-control');</script>
@@ -72,9 +73,9 @@
 
                     <div class="divider">Или войдите через</div>
 
-                    <button class="btn btn-social">
+                    <a href="{% provider_login_url 'google' %}" class="field google">
                         <i class="bi bi-google me-2"></i> Google
-                    </button>
+                    </a>
                     <button class="btn btn-social">
                         <i class="bi bi-facebook me-2 text-primary"></i> Facebook
                     </button>
@@ -136,9 +137,9 @@
 
                     <div class="divider">Или через соцсети</div>
 
-                    <button class="btn btn-social">
+                    <a href="{% provider_login_url 'google' %}" class="field google">
                         <i class="bi bi-google me-2"></i> Google
-                    </button>
+                    </a>
                     <button class="btn btn-social">
                         <i class="bi bi-facebook me-2 text-primary"></i> Facebook
                     </button>

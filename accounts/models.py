@@ -3,7 +3,11 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import AbstractUser
-
+from django.conf import settings
+from django.utils import timezone
+import secrets
+import string
+from datetime import timedelta
 
 class User(AbstractUser):
     # Optional extra fields directly on user
@@ -46,6 +50,54 @@ class Profile(models.Model):
     def __str__(self):
         return self.full_name or self.user.username
         
+
+# -----------------------------
+# Password reset by 6-digit code
+# -----------------------------
+
+
+class PasswordResetCode(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="password_reset_codes")
+
+    # store code as string so leading zeros are kept
+    code = models.CharField(max_length=6)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    used_at = models.DateTimeField(blank=True, null=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "code"]),
+            models.Index(fields=["expires_at"]),
+        ]
+
+    def is_expired(self) -> bool:
+        return timezone.now() >= self.expires_at
+
+    def is_used(self) -> bool:
+        return self.used_at is not None
+
+    @staticmethod
+    def generate_code() -> str:
+        # 6-digit numeric code
+        return "".join(secrets.choice(string.digits) for _ in range(6))
+
+    @classmethod
+    def create_for_user(cls, user, ttl_minutes: int = 10):
+        # Optional: invalidate previous unused codes
+        cls.objects.filter(user=user, used_at__isnull=True).update(used_at=timezone.now())
+
+        code = cls.generate_code()
+        now = timezone.now()
+        return cls.objects.create(
+            user=user,
+            code=code,
+            expires_at=now + timedelta(minutes=ttl_minutes),
+        )
+
 
 # ---- Signals so Profile is auto-created/updated ----
 

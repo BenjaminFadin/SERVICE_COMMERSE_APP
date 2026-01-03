@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -103,3 +104,47 @@ class UserSignUpForm(forms.Form):
             pass
 
         return user
+
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',       # Adds Bootstrap styling
+            'placeholder': 'name@example.com'
+        })
+    )
+class PasswordResetVerifyForm(forms.Form):
+    email = forms.EmailField()
+    code = forms.CharField(max_length=6)
+
+    def clean_code(self):
+        code = self.cleaned_data["code"].strip()
+        if not code.isdigit() or len(code) != 6:
+            raise forms.ValidationError("Enter the 6-digit code.")
+        return code
+
+
+class PasswordResetSetPasswordForm(forms.Form):
+    email = forms.EmailField()
+    code = forms.CharField(max_length=6)
+    new_password1 = forms.CharField(widget=forms.PasswordInput)
+    new_password2 = forms.CharField(widget=forms.PasswordInput)
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("new_password1")
+        p2 = cleaned.get("new_password2")
+        if p1 and p2 and p1 != p2:
+            raise forms.ValidationError("Passwords do not match.")
+        return cleaned
+
+class PasswordVerifyCodeForm(forms.Form):
+    code = forms.CharField(
+        max_length=6,
+        widget=forms.TextInput(attrs={
+            'placeholder': '123456',
+            'class': 'form-control text-center letter-spacing-lg',
+            'style': 'font-size: 2rem; font-weight: bold;'
+        }),
+        label=_("Verification Code")
+    )
