@@ -17,7 +17,7 @@ def home(request):
 
 
 def salon_list(request, category_slug=None):
-    salons = Salon.objects.select_related("category", "owner").prefetch_related("services").all()
+    salons = Salon.objects.select_related("category", "owner").prefetch_related("services").order_by('-created_at').all()
     category = None
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)

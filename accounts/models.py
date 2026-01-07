@@ -9,6 +9,16 @@ import secrets
 import string
 from datetime import timedelta
 
+@receiver(post_save, sender=User)
+def ensure_profile_exists(sender, instance, created, **kwargs):
+    # 1. Check if we set a flag to skip this signal (used by Admin)
+    if getattr(instance, '_skip_signal_profile', False):
+        return
+
+    # 2. Standard logic: Create profile if it doesn't exist
+    if created:
+        Profile.objects.get_or_create(user=instance)
+
 class User(AbstractUser):
     # Optional extra fields directly on user
     email = models.EmailField(null=True, blank=True)
@@ -101,14 +111,14 @@ class PasswordResetCode(models.Model):
 
 # ---- Signals so Profile is auto-created/updated ----
 
-@receiver(post_save, sender=User)
-def ensure_profile_exists(sender, instance, created, **kwargs):
-    """
-    Always ensure a Profile exists for the User.
-    Safe for admin, creates only if missing.
-    """
-    Profile.objects.get_or_create(user=instance)
+# @receiver(post_save, sender=User)
+# def ensure_profile_exists(sender, instance, created, **kwargs):
+#     """
+#     Always ensure a Profile exists for the User.
+#     Safe for admin, creates only if missing.
+#     """
+#     Profile.objects.get_or_create(user=instance)
 
-@receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    instance.profile.save()
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()

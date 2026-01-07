@@ -62,7 +62,8 @@
                         <div class="mb-3">
                             <div class="d-flex justify-content-between">
                                 <label class="form-label">Пароль</label>
-                                <a href="{% url 'accounts:password_reset_request' %}" class="text-muted small text-decoration-none">Забыли пароль?</a>
+                                <a href="{% url 'accounts:password_reset_request' %}"
+                                    class="text-muted small text-decoration-none">Забыли пароль?</a>
                             </div>
                             {{ login_form.password }}
                             <script>document.getElementsByName('password')[0].classList.add('form-control');</script>
@@ -73,13 +74,12 @@
 
                     <div class="divider">Или войдите через</div>
 
-                    <a href="{% provider_login_url 'google' %}" class="field google">
-                        <i class="bi bi-google me-2"></i> Google
-                    </a>
-                    <button class="btn btn-social">
-                        <i class="bi bi-facebook me-2 text-primary"></i> Facebook
-                    </button>
-
+                    <form action="{% provider_login_url 'google' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-social w-100">
+                            <i class="bi bi-google me-2"></i> Google
+                        </button>
+                    </form>
                     <div class="switch-auth">
                         Нет аккаунта? <a href="javascript:void(0);" onclick="showRegister()">Зарегистрироваться</a>
                     </div>
@@ -137,12 +137,12 @@
 
                     <div class="divider">Или через соцсети</div>
 
-                    <a href="{% provider_login_url 'google' %}" class="field google">
-                        <i class="bi bi-google me-2"></i> Google
-                    </a>
-                    <button class="btn btn-social">
-                        <i class="bi bi-facebook me-2 text-primary"></i> Facebook
-                    </button>
+                    <form action="{% provider_login_url 'google' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-social w-100">
+                            <i class="bi bi-google me-2"></i> Google
+                        </button>
+                    </form>
 
                     <div class="switch-auth">
                         Уже есть аккаунт? <a href="javascript:void(0);" onclick="showLogin()">Войти</a>
