@@ -45,8 +45,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     
+    "marketplace.apps.MarketplaceConfig",    
     'accounts',
-    'marketplace',
     
 ]
 
@@ -183,3 +183,4 @@ EMAIL_HOST_USER = "fazliddinabdukhakimov@gmail.com"
 EMAIL_HOST_PASSWORD = "zkwf hqwg stgd fhsj"
 DEFAULT_FROM_EMAIL = "ibron <fazliddinabdukhakimov@gmail.com>"
 
+TELEGRAM_BOT_TOKEN = config.get('TELEGRAM_BOT_TOKEN')

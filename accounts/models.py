@@ -24,14 +24,14 @@ class User(AbstractUser):
     email = models.EmailField(null=True, blank=True)
     # Example: force login by email later if you want
     REQUIRED_FIELDS = ["email"]
-
+    
     def __str__(self):
         return self.username or self.email
 
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-
+    telegram_id = models.CharField(max_length=50, null=True, blank=True)
     # ---- Basic fields for service-offering app ----
     full_name = models.CharField(max_length=150, blank=True)
     phone = models.CharField(max_length=30, blank=True)

@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 from django.db.models import Q
 from django.utils import timezone
 
+import requests
+from django.conf import settings
+
 from .models import Appointment, SalonWorkingHours
 
 
@@ -90,3 +93,26 @@ def get_available_slots(*, salon, master, service, date_obj, interval_minutes=15
         t += step
 
     return candidates
+
+
+TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
+
+
+def send_telegram_message(chat_id: str, text: str):
+    if not chat_id:
+        return False
+
+    url = TELEGRAM_API.format(token=settings.TELEGRAM_BOT_TOKEN)
+    payload = {
+        "chat_id": chat_id,
+        "text": text,
+        "parse_mode": "HTML",
+    }
+
+    try:
+        response = requests.post(url, json=payload, timeout=5)
+        print("Telegram:", response.status_code, response.text)
+        return True
+    except Exception as e:
+        print("Telegram error:", e)
+        return False

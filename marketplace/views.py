@@ -8,7 +8,7 @@ from django.views.decorators.http import require_GET
 
 from .forms import BookingForm
 from .models import Appointment, Category, Master, Salon, Service
-from .utils import get_available_slots
+from .utils import get_available_slots, send_telegram_message
 
 
 def home(request):
@@ -22,7 +22,7 @@ def salon_list(request, category_slug=None):
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         salons = salons.filter(category=category)
-
+    
     return render(
         request,
         "marketplace/salon_list.html",
@@ -69,17 +69,17 @@ def booking_start(request, salon_id, service_id):
             master = form.cleaned_data["master"]
             start_dt = form.build_start_datetime()
 
-            # server-side verify slot is still free
             slots = get_available_slots(
                 salon=salon,
                 master=master,
                 service=service,
                 date_obj=form.cleaned_data["date"],
             )
+
             if start_dt not in slots:
-                form.add_error(None, "Selected time is no longer available. Please choose another slot.")
+                form.add_error(None, "Selected time is no longer available.")
             else:
-                Appointment.objects.create(
+                appointment = Appointment.objects.create(
                     client=request.user,
                     salon=salon,
                     master=master,
@@ -88,7 +88,51 @@ def booking_start(request, salon_id, service_id):
                     status="pending",
                     comment=form.cleaned_data.get("comment", ""),
                 )
+
+                # -----------------------------
+                # TELEGRAM NOTIFICATIONS
+                # -----------------------------
+                customer_profile = getattr(request.user, "profile", None)
+                provider_profile = getattr(salon.owner, "profile", None)
+                
+                print(customer_profile.telegram_id)
+                print(provider_profile.telegram_id)
+                
+                # import time
+                # time.sleep(200)
+                
+                start_time = timezone.localtime(start_dt).strftime("%d.%m.%Y %H:%M")
+
+                # Customer
+                if customer_profile and customer_profile.telegram_id:
+                    print(customer_profile)
+                    
+                    send_telegram_message(
+                        customer_profile.telegram_id,
+                        (
+                            "<b>Booking Confirmed</b>\n\n"
+                            f"Salon: {salon.name}\n"
+                            f"Service: {service.name}\n"
+                            f"Time: {start_time}"
+                        ),
+                    )
+
+                # Provider
+                if provider_profile and provider_profile.telegram_id:
+                    print(provider_profile)
+                    
+                    send_telegram_message(
+                        provider_profile.telegram_id,
+                        (
+                            "<b>New Booking</b>\n\n"
+                            f"Client: {request.user.get_full_name() or request.user.username}\n"
+                            f"Service: {service.name}\n"
+                            f"Time: {start_time}"
+                        ),
+                    )
+
                 return redirect("marketplace:booking_success", salon_id=salon.id)
+
     else:
         form = BookingForm(salon=salon, initial={"date": timezone.localdate()})
 

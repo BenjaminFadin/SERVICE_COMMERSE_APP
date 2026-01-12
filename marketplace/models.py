@@ -92,13 +92,10 @@ class Category(MultilingualMixin, models.Model):
 
 
 class Salon(MultilingualMixin, models.Model):
+    name = models.CharField(max_length=200, verbose_name="Название салона")
+    
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='salons', verbose_name="Владелец")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='salons', verbose_name="Категория")
-        
-    name_ru = models.CharField(max_length=200, verbose_name="Название салона (RU)")
-    name_en = models.CharField(max_length=200, blank=True, verbose_name="Название салона (EN)")
-    name_uz = models.CharField(max_length=200, blank=True, verbose_name="Название салона (UZ)")
-
     description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
     description_en = models.TextField(blank=True, verbose_name="Описание (EN)")
     description_uz = models.TextField(blank=True, verbose_name="Описание (UZ)")
@@ -114,7 +111,7 @@ class Salon(MultilingualMixin, models.Model):
         verbose_name_plural = "Салоны"
 
     def __str__(self):
-        return self.name_ru
+        return self.name
 
 
 class SalonPhoto(models.Model):
@@ -149,6 +146,7 @@ class SalonPhoto(models.Model):
 
 
 class Service(MultilingualMixin, models.Model):
+    name = models.CharField(max_length=200, verbose_name="Название услуги")
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='services', verbose_name="Салон")
     img = models.ImageField(
         upload_to=service_img_upload_to,
@@ -156,9 +154,6 @@ class Service(MultilingualMixin, models.Model):
         null=True,
         verbose_name="Изображение услуги"
     )
-    name_ru = models.CharField(max_length=200, verbose_name="Название услуги (RU)")
-    name_en = models.CharField(max_length=200, blank=True, verbose_name="Название услуги (EN)")
-    name_uz = models.CharField(max_length=200, blank=True, verbose_name="Название услуги (UZ)")
 
     description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
     description_en = models.TextField(blank=True, verbose_name="Описание (EN)")
@@ -172,7 +167,7 @@ class Service(MultilingualMixin, models.Model):
         verbose_name_plural = "Услуги"
 
     def __str__(self):
-        return f"{self.name_ru} - {self.price}"
+        return f"{self.name} - {self.price}"
 
 
 class Master(models.Model):

@@ -10,3 +10,4 @@ def code_is_valid(email, code):
     
     # Return True if codes match, False otherwise
     return str(stored_code) == str(code)
+
