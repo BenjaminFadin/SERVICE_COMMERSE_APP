@@ -11,6 +11,8 @@ from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.conf import settings
 from django.core.cache import cache
+from django.utils import translation
+from django.views.decorators.http import require_POST
 from .utils import code_is_valid
 from .forms import UserSignUpForm
 from .forms import (
@@ -23,6 +25,37 @@ from .models import PasswordResetCode
 
 
 User = get_user_model()
+
+
+@require_POST
+def set_language(request):
+    lang = request.POST.get("language")
+    next_url = request.POST.get("next") or request.META.get("HTTP_REFERER", "/")
+
+    if lang not in dict(settings.LANGUAGES):
+        return redirect(next_url)
+
+    # Store in session for anonymous users too
+    request.session["django_language"] = lang
+
+    # Store in profile for logged-in users
+    if request.user.is_authenticated:
+        profile = getattr(request.user, "profile", None)
+        if profile:
+            profile.language = lang
+            profile.save(update_fields=["language"])
+
+    response = redirect(next_url)
+
+    # Optional but good: set cookie used by LocaleMiddleware
+    response.set_cookie(
+        settings.LANGUAGE_COOKIE_NAME,
+        lang,
+        max_age=365 * 24 * 60 * 60,
+        samesite="Lax",
+    )
+    return response
+
 
 # Need add profile settings page, password reset using email also
 

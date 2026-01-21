@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n_extras %}
+{% load i18n_fields %}
 
 <title>
   {% if category %}
@@ -295,7 +295,7 @@
                 <div>
                   <h3 class="biz-title mb-0">
                     <a class="text-decoration-none text-dark" href="{% url 'marketplace:salon_detail' salon.id %}">
-                      {{ salon_name }}
+                      {{ salon.name }}
                     </a>
                   </h3>
 

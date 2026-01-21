@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 from dotenv import dotenv_values
 
 config = dotenv_values(".env")
@@ -28,9 +29,6 @@ SECRET_KEY = config.get('SECRET_KEY')
 DEBUG = config.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', '').split(',')
-
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -54,13 +52,18 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # 'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    "django.middleware.locale.LocaleMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "accounts.middleware.UserLanguageMiddleware",
+    'django.middleware.common.CommonMiddleware',
+    "django.middleware.csrf.CsrfViewMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware'
 ]
+
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
 
 ROOT_URLCONF = 'config.urls'
 
@@ -86,25 +89,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Template for PostgreSQL database configuration
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "service_commerse_db",
-        "USER": "postgres",
-        "PASSWORD": "Topson_2024",
-        "HOST": "localhost",
-        "PORT": "5432",
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "service_commerse_db",
+#         "USER": "postgres",
+#         "PASSWORD": "Topson_2024",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -128,7 +131,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'
+LANGUAGE_CODE = "ru"
+
+LANGUAGES = [
+    ("ru", _("Russian")),
+    ("en", _("English")),
+    ("uz", _("Uzbek")),
+]
 
 TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
@@ -173,6 +182,21 @@ UNT_PROVIDERS = {
     }
 }
 
+
+# settings.py
+
+# Ensure this is exactly SOCIALACCOUNT_PROVIDERS
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+        'APP': {
+            'client_id': '95838719942-iif3qbeo6md6krv70j68m4eks9qj4cjg.apps.googleusercontent.com', 
+            'secret': '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',
+            'key': ''
+        }
+    }
+}
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"

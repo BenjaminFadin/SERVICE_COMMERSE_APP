@@ -30,8 +30,16 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    LANG_CHOICES = (
+        ("ru", "Русский"),
+        ("en", "English"),
+        ("uz", "O‘zbek"),
+    )
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="profile")
+    language = models.CharField(max_length=2, choices=LANG_CHOICES, default="ru")
     telegram_id = models.CharField(max_length=50, null=True, blank=True)
+    
     # ---- Basic fields for service-offering app ----
     full_name = models.CharField(max_length=150, blank=True)
     phone = models.CharField(max_length=30, blank=True)

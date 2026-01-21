@@ -92,8 +92,10 @@ class Category(MultilingualMixin, models.Model):
 
 
 class Salon(MultilingualMixin, models.Model):
-    name = models.CharField(max_length=200, verbose_name="Название салона")
-    
+    name_ru = models.CharField(max_length=200)
+    name_en = models.CharField(max_length=200, blank=True)
+    name_uz = models.CharField(max_length=200, blank=True)
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='salons', verbose_name="Владелец")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='salons', verbose_name="Категория")
     description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
@@ -146,7 +148,9 @@ class SalonPhoto(models.Model):
 
 
 class Service(MultilingualMixin, models.Model):
-    name = models.CharField(max_length=200, verbose_name="Название услуги")
+    name_ru = models.CharField(max_length=200)
+    name_en = models.CharField(max_length=200, blank=True)
+    name_uz = models.CharField(max_length=200, blank=True)
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='services', verbose_name="Салон")
     img = models.ImageField(
         upload_to=service_img_upload_to,

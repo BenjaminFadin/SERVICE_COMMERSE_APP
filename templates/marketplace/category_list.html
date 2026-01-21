@@ -1,5 +1,5 @@
 {% load static %}
-{% load i18n_extras %}
+{% load i18n_fields %}
 
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE|default:'ru' }}">
@@ -293,7 +293,15 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'marketplace:owner_dashboard' %}">Для бизнеса</a>
                     </li>
-
+                    <form method="post" action="{% url 'accounts:set_language' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <select name="language" onchange="this.form.submit()">
+                        <option value="ru" {% if request.LANGUAGE_CODE == "ru" %}selected{% endif %}>RU</option>
+                        <option value="en" {% if request.LANGUAGE_CODE == "en" %}selected{% endif %}>EN</option>
+                        <option value="uz" {% if request.LANGUAGE_CODE == "uz" %}selected{% endif %}>UZ</option>
+                    </select>
+                    </form>
                     <li class="nav-item dropdown ms-lg-2">
                         <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="fs-5 lh-1">🇷🇺</span>
@@ -394,7 +402,7 @@
                         <div class="cat-icon-box">
                             <i class="{% if c.icon_class %}{{ c.icon_class }}{% else %}bi bi-grid{% endif %}"></i>
                         </div>
-                        <div class="cat-title">{{ cname }}</div>
+                        <div class="cat-title">{% i18n c "name" %}</div>
                     </a>
                 </div>
 

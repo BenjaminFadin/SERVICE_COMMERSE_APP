@@ -21,7 +21,7 @@ class MasterInline(admin.TabularInline):
 @admin.register(Salon)
 class SalonAdmin(admin.ModelAdmin):
     # CHANGED: 'name' -> 'name_ru'
-    list_display = ('name', 'owner', 'city_display', 'phone', 'category')
+    list_display = ('name_ru', 'name_uz', 'name_en', 'owner', 'city_display', 'phone', 'category')
     # CHANGED: 'name' -> 'name'
     search_fields = ('name', 'owner__email', 'phone')
     list_filter = ('category',)

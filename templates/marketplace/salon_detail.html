@@ -496,7 +496,7 @@
               {% if salon.photos.all %}
                 {% for image in salon.photos.all %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                  <img src="{{ image.image.url }}" class="d-block w-100" alt="Salon Photo" style="object-fit: cover;">
+                  <img src="{{ image.url }}" class="d-block w-100" alt="Salon Photo" style="object-fit: cover;">
                 </div>
                 {% endfor %}
               {% else %}
