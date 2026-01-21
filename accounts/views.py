@@ -37,7 +37,7 @@ def set_language(request):
 
     # Store in session for anonymous users too
     request.session["django_language"] = lang
-
+    
     # Store in profile for logged-in users
     if request.user.is_authenticated:
         profile = getattr(request.user, "profile", None)

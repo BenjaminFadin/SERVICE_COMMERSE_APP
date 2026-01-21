@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n_fields %}
+{% load i18n %}
+
 
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE|default:'ru' }}">
@@ -293,38 +295,48 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'marketplace:owner_dashboard' %}">Для бизнеса</a>
                     </li>
-                    <form method="post" action="{% url 'accounts:set_language' %}" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <select name="language" onchange="this.form.submit()">
-                        <option value="ru" {% if request.LANGUAGE_CODE == "ru" %}selected{% endif %}>RU</option>
-                        <option value="en" {% if request.LANGUAGE_CODE == "en" %}selected{% endif %}>EN</option>
-                        <option value="uz" {% if request.LANGUAGE_CODE == "uz" %}selected{% endif %}>UZ</option>
-                    </select>
-                    </form>
-                    <li class="nav-item dropdown ms-lg-2">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="fs-5 lh-1">🇷🇺</span>
-                            <span class="small fw-bold">RU</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width: auto;">
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
-                                    <span class="fs-5 lh-1">🇷🇺</span>
-                                    <span class="fw-bold small">RU</span>
-                                    <span class="text-muted small ms-auto">Русский</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item d-flex align-items-center gap-2" href="#">
-                                    <span class="fs-5 lh-1">🇺🇿</span>
-                                    <span class="fw-bold small">UZ</span>
-                                    <span class="text-muted small ms-auto">O'zbekcha</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
+        <li class="nav-item dropdown ms-lg-2">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                {% if request.LANGUAGE_CODE == 'ru' %}
+                    <span class="fs-5 lh-1">🇷🇺</span> <span class="small fw-bold">RU</span>
+                {% elif request.LANGUAGE_CODE == 'uz' %}
+                    <span class="fs-5 lh-1">🇺🇿</span> <span class="small fw-bold">UZ</span>
+                {% else %}
+                    <span class="fs-5 lh-1">🇺🇸</span> <span class="small fw-bold">EN</span>
+                {% endif %}
+            </a>
 
+    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width: 160px;">
+        <form action="{% url 'accounts:set_language' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            
+            <li>
+                <button type="submit" name="language" value="ru" class="dropdown-item d-flex align-items-center gap-2 {% if request.LANGUAGE_CODE == 'ru' %}active{% endif %}">
+                    <span class="fs-5 lh-1">🇷🇺</span>
+                    <span class="fw-bold small">RU</span>
+                    <span class="text-muted small ms-auto">Русский</span>
+                </button>
+            </li>
+
+            <li>
+                <button type="submit" name="language" value="en" class="dropdown-item d-flex align-items-center gap-2 {% if request.LANGUAGE_CODE == 'en' %}active{% endif %}">
+                    <span class="fs-5 lh-1">🇺🇸</span>
+                    <span class="fw-bold small">EN</span>
+                    <span class="text-muted small ms-auto">English</span>
+                </button>
+            </li>
+
+            <li>
+                <button type="submit" name="language" value="uz" class="dropdown-item d-flex align-items-center gap-2 {% if request.LANGUAGE_CODE == 'uz' %}active{% endif %}">
+                    <span class="fs-5 lh-1">🇺🇿</span>
+                    <span class="fw-bold small">UZ</span>
+                    <span class="text-muted small ms-auto">O'zbekcha</span>
+                </button>
+            </li>
+        </form>
+    </ul>
+</li>
                     {% if not user.is_authenticated %}
                         <li class="nav-item mt-2 mt-lg-0 ms-lg-3">
                             <a class="btn btn-outline-dark rounded-pill px-4 w-100" href="{% url 'accounts:login_register' %}">Войти</a>
@@ -419,7 +431,7 @@
 
     <section class="promo-section">
         <div class="container text-center">
-            <h2 class="promo-title mb-5">Почему ebook?</h2>
+            <h2 class="promo-title mb-5">{% trans "Почему ebook?" %}</h2>
             <div class="row g-5">
                 <div class="col-md-4">
                     <i class="bi bi-search feature-icon"></i>
