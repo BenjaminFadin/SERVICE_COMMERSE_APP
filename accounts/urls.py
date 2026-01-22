@@ -12,7 +12,8 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("auth/reset/", views.password_reset_request, name="password_reset_request"),
     path("auth/reset/verify/", views.password_reset_verify, name="password_reset_verify"),
-    path("auth/reset/set-password/", views.password_reset_set_password, name="password_reset_set_password"),
+    path('auth/reset/confirm/', views.password_reset_confirm, name='password_reset_confirm'),
+    # path("auth/reset/set-password/", views.password_reset_set_password, name="password_reset_set_password"),
 
 ]
 

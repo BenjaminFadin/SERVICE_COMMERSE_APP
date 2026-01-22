@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Profile
+from .models import User, Profile, PasswordResetCode
 
 
 
@@ -53,3 +53,5 @@ class CustomUserAdmin(UserAdmin):
         # If the inline form was empty, no profile exists yet. Create one now.
         if not hasattr(form.instance, 'profile'):
             Profile.objects.create(user=form.instance)
+
+admin.site.register(PasswordResetCode)

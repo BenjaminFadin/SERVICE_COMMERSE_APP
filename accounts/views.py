@@ -60,22 +60,28 @@ def set_language(request):
 # Need add profile settings page, password reset using email also
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("marketplace:home")
+
     if request.method == "POST":
-        # We pass request data to the form
+        # AuthenticationForm handles the backend call automatically 
+        # based on your AUTHENTICATION_BACKENDS setting
         form = AuthenticationForm(request, data=request.POST)
+        
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            messages.success(request, "You are now logged in.")
-            return redirect("marketplace:home") # Ensure this URL pattern exists
+            messages.success(request, _("Welcome back! You are now logged in."))
+            return redirect("marketplace:home")
         else:
-            # If invalid, we fall through to render the template with form errors
-            messages.error(request, "Invalid username or password.")
+            # We don't specify if it was the email or password that was wrong for security
+            messages.error(request, _("Invalid credentials. Please check your username/email and password."))
     else:
         form = AuthenticationForm(request)
+        # Optional: Change the label of the username field to be more descriptive
+        form.fields['username'].label = _("Username or Email")
 
     return render(request, "accounts/auth_combined.html", {"form": form})
-
 
 def logout_view(request):
     # If you want logout only via POST (more secure):
@@ -127,111 +133,111 @@ def auth_view(request):
     }
     return render(request, "accounts/auth_combined.html", context)
 
-
-# PASSWORD RESET VIEWS TO BE ADDED HERE
 def password_reset_request(request):
     if request.method == 'POST':
-        # 2. Bind the POST data to the form
         form = PasswordResetRequestForm(request.POST)
-        
         if form.is_valid():
-            # Get the validated email
             email = form.cleaned_data['email']
+            user = User.objects.filter(email__iexact=email).first()
             
-            # --- Logic to generate/send code ---
-            reset_code = str(random.randint(100000, 999999))
-            cache.set(f"reset_code_{email}", reset_code, timeout=600)
-            request.session['reset_email'] = email
+            if user:
+                reset_code = str(random.randint(100000, 999999))
+                
+                # Calculate expiration time (15 minutes from now)
+                expiration = timezone.now() + timezone.timedelta(minutes=15)
+                
+                # FIX: Add expires_at here
+                PasswordResetCode.objects.create(
+                    user=user,
+                    code=reset_code,
+                    expires_at=expiration  # This satisfies the NOT NULL constraint
+                )
+                
+                request.session['reset_email'] = email
 
-            send_mail(
-                subject="Password Reset Code",
-                message=f"Your verification code is: {reset_code}",
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[email],
-            )
-            # -----------------------------------
-
+                send_mail(
+                    subject="Password Reset Code",
+                    message=f"Your verification code is: {reset_code}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[email],
+                )
+            
             return redirect('accounts:password_reset_verify')
-    
     else:
-        # 3. GET request: Create an empty form so the field shows up
         form = PasswordResetRequestForm()
 
-    # 4. Pass 'form' to the template context
     return render(request, 'accounts/password_reset_request.html', {'form': form})
 
+
+
 def password_reset_verify(request):
-    # Retrieve email from session set in the previous email-entry step
     email = request.session.get('reset_email')
-    
     if not email:
         return redirect('accounts:password_reset_request')
 
     if request.method == 'POST':
         form = PasswordVerifyCodeForm(request.POST)
-        if form.is_post():
+        if form.is_valid():
             code = form.cleaned_data.get('code')
-            # Add your logic to check if 'code' matches the one sent to 'email'
             if code_is_valid(email, code): 
-                return redirect('accounts:password_reset_confirm')
+                # IMPORTANT: You must pass the email and code in the URL
+                return redirect(f"{reverse('accounts:password_reset_confirm')}?email={email}&code={code}")
             else:
                 messages.error(request, _("Invalid code. Please try again."))
     else:
         form = PasswordVerifyCodeForm()
 
-    return render(request, 'accounts/password_reset_code.html', {
-        'form': form,
-        'email': email
-    })
+    return render(request, 'accounts/password_reset_code.html', {'form': form, 'email': email})
 
-def password_reset_set_password(request):
-    """
-    Step 3: user sets new password using email+code.
-    """
-    initial = {
-        "email": request.GET.get("email", ""),
-        "code": request.GET.get("code", ""),
-    }
+
+def password_reset_confirm(request):
+    # Get identifiers from POST (if form submitted) or GET (if just arrived)
+    email = request.POST.get("email") or request.GET.get("email", "")
+    code = request.POST.get("code") or request.GET.get("code", "")
 
     if request.method == "POST":
         form = PasswordResetSetPasswordForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data["email"].strip().lower()
-            code = form.cleaned_data["code"]
             new_password = form.cleaned_data["new_password1"]
-
             user = User.objects.filter(email__iexact=email).first()
-            if not user:
-                messages.error(request, "Invalid email or code.")
-                return render(request, "accounts/password_reset_set_password.html", {"form": form})
 
+            if not user:
+                messages.error(request, _("User session lost."))
+                return redirect("accounts:password_reset_request")
+
+            # Fetch the valid code
             prc = PasswordResetCode.objects.filter(
                 user=user,
                 code=code,
-                used_at__isnull=True,
+                used_at__isnull=True
             ).order_by("-created_at").first()
 
-            if not prc or prc.is_expired():
-                messages.error(request, "Invalid or expired code. Request a new one.")
+            # Check if it exists and isn't expired
+            if prc and not prc.is_expired():
+                try:
+                    validate_password(new_password, user=user)
+                    
+                    # SAVE THE NEW PASSWORD
+                    user.set_password(new_password)
+                    user.save() 
+
+                    # MARK CODE AS USED so it can't be reused
+                    prc.used_at = timezone.now()
+                    prc.save()
+
+                    # CLEAR SESSION
+                    if 'reset_email' in request.session:
+                        del request.session['reset_email']
+
+                    messages.success(request, _("Password updated. Please log in."))
+                    return redirect("accounts:login_register") # Redirect to your login view
+                
+                except Exception as e:
+                    form.add_error("new_password1", e)
+            else:
+                messages.error(request, _("Reset code expired or already used."))
                 return redirect("accounts:password_reset_request")
-
-            # Validate password via Django validators
-            try:
-                validate_password(new_password, user=user)
-            except Exception as e:
-                # e is ValidationError; show messages
-                form.add_error("new_password1", e)
-                return render(request, "accounts/password_reset_set_password.html", {"form": form})
-
-            user.set_password(new_password)
-            user.save(update_fields=["password"])
-
-            prc.used_at = timezone.now()
-            prc.save(update_fields=["used_at"])
-
-            messages.success(request, "Password updated. You can now log in.")
-            return redirect("accounts:login")  # adjust to your login url name
     else:
-        form = PasswordResetSetPasswordForm(initial=initial)
+        form = PasswordResetSetPasswordForm(initial={"email": email, "code": code})
 
     return render(request, "accounts/password_reset_set_password.html", {"form": form})

@@ -9,6 +9,9 @@ import secrets
 import string
 from datetime import timedelta
 
+def get_default_expiry():
+    return timezone.now() + timedelta(minutes=15)
+
 @receiver(post_save, sender=User)
 def ensure_profile_exists(sender, instance, created, **kwargs):
     # 1. Check if we set a flag to skip this signal (used by Admin)
@@ -81,7 +84,7 @@ class PasswordResetCode(models.Model):
     code = models.CharField(max_length=6)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()
+    expires_at = models.DateTimeField(default=get_default_expiry)
 
     used_at = models.DateTimeField(blank=True, null=True)
     attempts = models.PositiveSmallIntegerField(default=0)
@@ -92,8 +95,8 @@ class PasswordResetCode(models.Model):
             models.Index(fields=["expires_at"]),
         ]
 
-    def is_expired(self) -> bool:
-        return timezone.now() >= self.expires_at
+    def is_expired(self):
+            return timezone.now() > self.expires_at
 
     def is_used(self) -> bool:
         return self.used_at is not None
