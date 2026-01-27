@@ -101,7 +101,7 @@ class Salon(MultilingualMixin, models.Model):
     description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
     description_en = models.TextField(blank=True, verbose_name="Описание (EN)")
     description_uz = models.TextField(blank=True, verbose_name="Описание (UZ)")
-
+    
     address = models.TextField(verbose_name="Адрес")
     phone = models.CharField(max_length=20, verbose_name="Телефон салона")
     logo = models.ImageField(upload_to=salon_logo_upload_to, blank=True, null=True)

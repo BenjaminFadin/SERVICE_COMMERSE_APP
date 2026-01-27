@@ -16,8 +16,9 @@
 </head>
 
 <body class="bg-light">
-    {% include 'include/navbar.html' %}
-
+{% block navbar %}
+        {% include 'include/navbar.html' %}
+    {% endblock navbar %}
     <main>
         {% block content %}
         {% endblock content %}

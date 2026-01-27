@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -11,22 +12,66 @@ from .models import Appointment, Category, Master, Salon, Service
 from .utils import get_available_slots, send_telegram_message
 
 
+def search_view(request):
+    query = request.GET.get('q', '').strip()
+    location = request.GET.get('location', '').strip()
+    
+    # Start with all active salons (or masters)
+    results = Salon.objects.all()
+
+    if query:
+        # Creative part: Search across multiple related models
+        results = results.filter(
+            Q(name_ru__icontains=query) | 
+            Q(category__name_ru__icontains=query) | 
+            Q(services__name_ru__icontains=query) |
+            Q(description_ru__icontains=query)
+        ).distinct()
+
+    if location:
+        results = results.filter(address__icontains=location)
+
+    return render(request, 'search_results.html', {'results': results, 'query': query})
+
 def home(request):
     categories = Category.objects.all()
     return render(request, "marketplace/category_list.html", {"categories": categories})
 
-
 def salon_list(request, category_slug=None):
-    salons = Salon.objects.select_related("category", "owner").prefetch_related("services").order_by('-created_at').all()
+    # 1. Start with the base queryset
+    salons = Salon.objects.select_related("category", "owner").prefetch_related("services").order_by('-created_at')
+    
+    # 2. Filter by Category (if slug is provided in URL)
     category = None
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         salons = salons.filter(category=category)
+
+    # 3. GET Search Parameters from the filter bar
+    query = request.GET.get('q')
+    location = request.GET.get('location')
+
+    if query:
+        # Search in Salon Name, Category Name, and Service Names
+        salons = salons.filter(
+            Q(name_ru__icontains=query) | 
+            Q(category__name_ru__icontains=query) |
+            Q(services__name_ru__icontains=query)
+        ).distinct()
+
+    if location:
+        # Search in the address field
+        salons = salons.filter(address__icontains=location)
     
     return render(
         request,
         "marketplace/salon_list.html",
-        {"salons": salons, "category": category},
+        {
+            "salons": salons, 
+            "category": category,
+            "search_query": query,      # Pass back to keep value in input
+            "search_location": location  # Pass back to keep value in input
+        },
     )
 
 

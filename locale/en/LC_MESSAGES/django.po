@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-21 23:22+0500\n"
+"POT-Creation-Date: 2026-01-27 21:54+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,40 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: accounts/forms.py:149
+#: accounts/forms.py:147
+msgid "Passwords do not match."
+msgstr ""
+
+#: accounts/forms.py:157
 msgid "Verification Code"
 msgstr ""
 
-#: accounts/views.py:178
+#: accounts/views.py:74
+msgid "Welcome back! You are now logged in."
+msgstr ""
+
+#: accounts/views.py:78
+msgid "Invalid credentials. Please check your username/email and password."
+msgstr ""
+
+#: accounts/views.py:82
+msgid "Username or Email"
+msgstr ""
+
+#: accounts/views.py:186
 msgid "Invalid code. Please try again."
+msgstr ""
+
+#: accounts/views.py:205
+msgid "User session lost."
+msgstr ""
+
+#: accounts/views.py:232
+msgid "Password updated. Please log in."
+msgstr ""
+
+#: accounts/views.py:238
+msgid "Reset code expired or already used."
 msgstr ""
 
 #: config/settings.py:137
@@ -37,6 +65,79 @@ msgstr ""
 msgid "Uzbek"
 msgstr ""
 
-#: templates/marketplace/category_list.html:434
+#: templates/include/navbar.html:14
+msgid "Для бизнеса"
+msgstr "For business"
+
+#: templates/include/navbar.html:74
+msgid "Settings"
+msgstr ""
+
+#: templates/include/navbar.html:75
+msgid "My Booking"
+msgstr ""
+
+#: templates/marketplace/category_list.html:243
+msgid "Будьте собой."
+msgstr ""
+
+#: templates/marketplace/category_list.html:244
+msgid "Записывайтесь к лучшим мастерам."
+msgstr ""
+
+#: templates/marketplace/category_list.html:248
+msgid "ЧТО ВЫ ИЩЕТЕ?"
+msgstr ""
+
+#: templates/marketplace/category_list.html:252
+msgid "ГДЕ?"
+msgstr ""
+
+#: templates/marketplace/category_list.html:255
+msgid "Найти?"
+msgstr ""
+
+#: templates/marketplace/category_list.html:281
 msgid "Почему ebook?"
-msgstr "Why ibron?"
+msgstr ""
+
+#: templates/marketplace/category_list.html:285
+msgid "Находите"
+msgstr ""
+
+#: templates/marketplace/category_list.html:286
+msgid "ebook поможет найти лучших мастеров красоты и здоровья рядом с вами."
+msgstr ""
+
+#: templates/marketplace/category_list.html:290
+msgid "Записывайтесь"
+msgstr ""
+
+#: templates/marketplace/category_list.html:291
+msgid ""
+"Смотрите свободное время в календаре мастера и записывайтесь мгновенно 24/7."
+msgstr ""
+
+#: templates/marketplace/category_list.html:295
+msgid "Управляйте"
+msgstr ""
+
+#: templates/marketplace/category_list.html:296
+msgid "Переносите визиты и управляйте своим расписанием в приложении."
+msgstr ""
+
+#: templates/marketplace/category_list.html:306
+msgid "Записывайтесь еще быстрее в приложении ibron"
+msgstr ""
+
+#: templates/marketplace/category_list.html:307
+msgid "Доступно бесплатно для iOS и Android"
+msgstr ""
+
+#: templates/marketplace/category_list.html:312
+msgid "Загрузите в"
+msgstr ""
+
+#: templates/marketplace/category_list.html:319
+msgid "Доступно в"
+msgstr ""

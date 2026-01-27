@@ -1,14 +1,14 @@
 :root {
-  --booksy-teal: #00A3AD;
+  --booksy-teal: #00a3ad;
   --booksy-dark: #101928;
-  --booksy-gray: #75767A;
-  --bg-light: #F7F7F9;
+  --booksy-gray: #75767a;
+  --bg-light: #f7f7f9;
 }
 
 body,
 html {
   height: 100%;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   color: var(--booksy-dark);
   background-color: #fff;
 }
@@ -20,7 +20,7 @@ html {
 
 /* --- Left Side Image --- */
 .auth-image-col {
-  background-image: url('https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1000');
+  background-image: url("https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1000");
   background-size: cover;
   background-position: center;
   position: relative;
@@ -32,7 +32,11 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.6));
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.6)
+  );
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -41,7 +45,7 @@ html {
 }
 
 .testimonial-text {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -57,7 +61,7 @@ html {
 }
 
 .auth-logo {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   font-size: 2rem;
   color: #000;
@@ -67,7 +71,7 @@ html {
 }
 
 .auth-title {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   font-size: 1.75rem;
   margin-bottom: 0.5rem;
@@ -88,7 +92,7 @@ html {
   padding: 0.75rem 1rem;
   border-radius: 8px;
   border: 1px solid #ddd;
-  background-color: #F8F9FA;
+  background-color: #f8f9fa;
   font-size: 0.95rem;
 }
 
@@ -126,17 +130,17 @@ html {
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   flex: 1;
   border-bottom: 1px solid #eee;
 }
 
 .divider::before {
-  margin-right: .5em;
+  margin-right: 0.5em;
 }
 
 .divider::after {
-  margin-left: .5em;
+  margin-left: 0.5em;
 }
 
 .btn-social {
@@ -189,7 +193,6 @@ html {
   }
 }
 
-
 /* Utility to hide sections */
 .d-none-custom {
   display: none !important;
@@ -201,4 +204,3 @@ html {
   margin-top: 4px;
   display: block;
 }
-

@@ -16,5 +16,6 @@ urlpatterns = [
 
     path("business/dashboard/", views.owner_dashboard, name="owner_dashboard"),
     path('ajax/booking-form/<int:salon_id>/<int:service_id>/', views.ajax_booking_form, name='ajax_booking_form'),
+    path('search/', views.search_view, name='salon_search')
 ]
 
