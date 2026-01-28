@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load tz %}
+{% load i18n_fields %}
 {% load static %}
 
 {% block title %}Dashboard · {{ salon.name_ru|default:"Business" }}{% endblock title %}
@@ -126,7 +127,8 @@
                                         <div class="fw-bold">{{ b.client }}</div>
                                     </td>
                                     <td>
-                                        <div class="small">{{ b.service }}</div>
+                                        {% i18n b.service "name" request.LANGUAGE_CODE as service_name %}
+                                        <div class="small">{{ service_name }}</div>
                                         <div class="text-muted small">{{ b.master }}</div>
                                     </td>
                                     <td>

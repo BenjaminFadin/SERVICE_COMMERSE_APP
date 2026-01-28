@@ -1,14 +1,16 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
 {% load i18n_fields %}
 
-<title>
+{% block title %}
   {% if category %}
-  {% i18n category "name" request.LANGUAGE_CODE as cat_name %}
-  {{ cat_name }} - Booksy Clone
+    {% i18n category "name" request.LANGUAGE_CODE as cat_name %}
+    {{ cat_name }} - Booksy Clone
   {% else %}
-  Salons - Booksy Clone
+    Salons - Booksy Clone
   {% endif %}
-</title>
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -16,79 +18,99 @@
     --booksy-teal: #00A3AD;
     --booksy-dark: #101928;
     --booksy-gray: #75767A;
+    --booksy-light-gray: #f0f2f5;
     --bg-light: #F7F7F9;
   }
 
+.navbar {
+  padding: 0.75rem 0;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #000;
+}
+
+.nav-link {
+  font-weight: 600;
+  color: var(--booksy-dark);
+  margin-left: 1rem;
+  transition: color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.show {
+  color: var(--booksy-teal);
+}
+
+/* --- Avatar & Hover Dropdown Logic --- */
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--booksy-dark);
+  font-size: 1.4rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.nav-avatar:hover,
+.dropdown-hover:hover .nav-avatar {
+  background-color: #e4e6eb;
+  border-color: var(--booksy-teal);
+  color: var(--booksy-teal);
+}
+
+@media (min-width: 992px) {
+  .dropdown-hover { position: relative; }
+  .dropdown-hover .dropdown-menu {
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 10px !important;
+    display: none;
+  }
+  .dropdown-hover:hover .dropdown-menu,
+  .dropdown-hover .dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
   body {
     background-color: var(--bg-light);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     color: var(--booksy-dark);
   }
 
-  .navbar {
-    background-color: #fff;
+  /* Sticky Filter Bar */
+  .filter-wrapper {
+    background: #fff;
     border-bottom: 1px solid #e0e0e0;
-    padding: 0.75rem 1rem;
     position: sticky;
     top: 0;
-    z-index: 1020;
-  }
-
-  .navbar-brand {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: #000;
-  }
-
-  .search-input-group {
-    background-color: #f3f3f3;
-    border-radius: 50px;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-  }
-
-  .search-input-group input {
-    border: none;
-    background: transparent;
-    font-size: 0.9rem;
-    font-weight: 500;
-    box-shadow: none;
-  }
-
-  .search-input-group input:focus {
-    box-shadow: none;
-    background: transparent;
-  }
-
-  .search-divider {
-    width: 1px;
-    height: 24px;
-    background-color: #ccc;
-    margin: 0 10px;
-  }
-
-  .btn-search {
-    background-color: var(--booksy-teal);
-    color: white;
-    border-radius: 50px;
-    padding: 6px 20px;
-    font-weight: 600;
-    border: none;
-  }
-
-  .btn-search:hover {
-    background-color: #008c95;
-    color: white;
+    z-index: 1000;
   }
 
   .filter-scroll {
     overflow-x: auto;
     white-space: nowrap;
-    padding: 10px 0;
-    background: #fff;
-    border-bottom: 1px solid #eee;
+    padding: 12px 0;
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
@@ -98,16 +120,23 @@
   }
 
   .filter-btn {
-    display: inline-block;
-    padding: 6px 16px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
     margin-right: 8px;
     border: 1px solid #e0e0e0;
-    border-radius: 20px;
+    border-radius: 50px;
     color: var(--booksy-dark);
-    font-size: 0.85rem;
+    font-size: 0.875rem;
     font-weight: 500;
     background: #fff;
+    transition: all 0.2s ease;
     text-decoration: none;
+  }
+
+  .filter-btn:active, .filter-btn:hover {
+    background-color: #f8f9fa;
+    color: var(--booksy-dark);
   }
 
   .filter-btn.active {
@@ -116,22 +145,34 @@
     border-color: var(--booksy-dark);
   }
 
+  /* Business Card Styling */
   .business-card {
     background: #fff;
-    border-radius: 12px;
-    border: none;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    margin-bottom: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
     overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .business-card:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  @media (min-width: 992px) {
+    .business-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
   }
 
   .card-img-col {
     position: relative;
-    min-height: 200px;
+    height: 220px;
+  }
+
+  @media (min-width: 768px) {
+    .card-img-col {
+        height: auto;
+        min-height: 280px;
+    }
   }
 
   .card-img-bg {
@@ -141,51 +182,59 @@
     background-position: center;
   }
 
+  .favorite-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+
   .rating-badge {
     background-color: #fff;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
     font-weight: 700;
     font-size: 0.9rem;
     display: inline-flex;
     align-items: center;
-  }
-
-  .review-count {
-    color: var(--booksy-gray);
-    font-size: 0.85rem;
-    margin-left: 5px;
+    border: 1px solid #eee;
   }
 
   .biz-title {
     font-family: 'Poppins', sans-serif;
     font-weight: 700;
-    font-size: 1.25rem;
-    margin-bottom: 0.2rem;
+    font-size: 1.15rem;
+    margin-bottom: 4px;
   }
 
   .biz-address {
     color: var(--booksy-gray);
     font-size: 0.85rem;
-    margin-bottom: 1rem;
+    margin-bottom: 12px;
   }
 
+  /* Services List */
   .service-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .service-item:last-child {
-    border-bottom: none;
+    padding: 14px 0;
+    border-top: 1px solid #f1f1f1;
   }
 
   .service-name {
     font-weight: 600;
     font-size: 0.95rem;
     margin-bottom: 2px;
+    color: #1a1a1a;
   }
 
   .service-meta {
@@ -194,9 +243,8 @@
   }
 
   .service-price {
-    font-weight: 600;
-    font-size: 0.95rem;
-    text-align: right;
+    font-weight: 700;
+    font-size: 1rem;
     margin-bottom: 4px;
   }
 
@@ -205,9 +253,10 @@
     color: #fff;
     font-weight: 600;
     font-size: 0.85rem;
-    padding: 6px 20px;
-    border-radius: 6px;
+    padding: 8px 18px;
+    border-radius: 8px;
     border: none;
+    transition: background 0.2s;
   }
 
   .btn-book:hover {
@@ -215,176 +264,210 @@
     color: white;
   }
 
-  .map-container {
-    position: sticky;
-    top: 90px;
-    height: calc(100vh - 100px);
-    background-color: #e5e3df;
-    border-radius: 12px;
-    overflow: hidden;
+  /* Offcanvas Logic */
+  #bookingDrawer {
+    width: 100% !important;
   }
 
-  .map-bg {
-    width: 100%;
-    height: 100%;
-    background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/San_Diego_Street_Map.jpg/640px-San_Diego_Street_Map.jpg');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.8;
+  @media (min-width: 576px) {
+    #bookingDrawer {
+        width: 450px !important;
+    }
   }
 
-  @media (max-width: 768px) {
-    .map-col {
-      display: none;
-    }
-
-    .navbar-brand {
-      font-size: 1.2rem;
-    }
-
-    .card-img-col {
-      min-height: 160px;
-    }
+  .results-count {
+    font-size: 0.9rem;
+    color: var(--booksy-gray);
+    font-weight: 400;
   }
 </style>
 {% endblock extra_css %}
 
-
 {% block content %}
-<div class="container px-lg-4">
-  <div class="filter-scroll">
-    <a href="{% url 'marketplace:salon_list' %}" class="filter-btn {% if not category %}active{% endif %}">All</a>
-    <a href="#" class="filter-btn">Haircut</a>
-    <a href="#" class="filter-btn">Beard Trim</a>
-    <a href="#" class="filter-btn">Shave</a>
-    <a href="#" class="filter-btn">Kids Haircut</a>
-    <a href="#" class="filter-btn"><i class="bi bi-calendar4 me-1"></i> Date</a>
-    <a href="#" class="filter-btn"><i class="bi bi-sliders me-1"></i> Filters</a>
-  </div>
+<div class="filter-wrapper mb-4">
+    <div class="container px-3">
+        <div class="filter-scroll">
+            {% for sub in subcategories %}
+                {% i18n sub "name" request.LANGUAGE_CODE as sub_name %}
+                <a href="{% url 'marketplace:salon_list_by_category' sub.slug %}" 
+                   class="filter-btn {% if category.slug == sub.slug %}active{% endif %}">
+                    {{ sub_name }}
+                </a>
+            {% endfor %}
+
+            <!-- <a href="#" class="filter-btn"><i class="bi bi-calendar4 me-2"></i>Date</a>
+            <a href="#" class="filter-btn"><i class="bi bi-sliders me-2"></i>Filters</a> -->
+        </div>
+    </div>
 </div>
 
-<div class="container px-lg-4 py-4">
-  <div class="row">
-    <div class="col-lg-7">
-      <h5 class="fw-bold mb-3">
-        {% if category %}
-        {% i18n category "name" request.LANGUAGE_CODE as cat_name %}
-        {{ cat_name }}
-        {% else %}
-        Salons
-        {% endif %}
-        <span class="text-muted fw-normal small">({{ salons|length }} results)</span>
-      </h5>
+<div class="container px-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            
+            <header class="mb-4">
+                <h1 class="h4 fw-bold mb-1">
+                    {% if category %}
+                        {% i18n category "name" request.LANGUAGE_CODE as cat_name %}
+                        {{ cat_name }}
+                    {% else %}
+                        Salons & Services
+                    {% endif %}
+                </h1>
+                <!-- <p class="results-count">{{ salons|length }} {% trans "places found" %}</p> -->
+            </header>
 
-      {% for salon in salons %}
-      {% i18n salon "name" request.LANGUAGE_CODE as salon_name %}
-      <div class="card business-card p-0">
-        <div class="row g-0 h-100">
-          <div class="col-md-4 card-img-col">
-            <div class="card-img-bg"
-              style="background-size: cover;background-image: url('{% if salon.logo %}{{ salon.logo.url }}{% else %}https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=400{% endif %}');">
-              <span class="badge bg-light text-dark position-absolute top-0 start-0 m-2 shadow-sm">
-                <i class="bi bi-heart"></i>
-              </span>
-            </div>
-          </div>
+            <div class="row">
+                {% for salon in salons %}
+                {% i18n salon "name" request.LANGUAGE_CODE as salon_name %}
+                <div class="col-12">
+                    <article class="card business-card">
+                        <div class="row g-0">
+                            <div class="col-md-4 col-lg-5 card-img-col">
+                                <div class="card-img-bg"
+                                     style="background-image: url('{% if salon.logo %}{{ salon.logo.url }}{% else %}{% static 'images/salon_main_img.avif' %}{% endif %}');">
+                                    <!-- <div class="favorite-btn">
+                                        <i class="bi bi-heart"></i>
+                                    </div> -->
+                                    {% if salon.category %}
+                                        {% i18n salon.category "name" request.LANGUAGE_CODE as salon_cat %}
+                                        <span class="badge bg-dark text-white position-absolute bottom-0 start-0 m-3 px-3 py-2">
+                                            {{ salon_cat }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+            
+                            <div class="col-md-8 col-lg-7">
+                                <div class="card-body p-3 p-lg-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h2 class="biz-title">
+                                                <a class="text-decoration-none text-dark" href="{% url 'marketplace:salon_detail' salon.id %}">
+                                                    {{ salon.name }}
+                                                </a>
+                                            </h2>
+                                            <!-- <div class="d-flex align-items-center flex-wrap gap-2"> -->
+                                                <!-- <div class="rating-badge"> -->
+                                                    <!-- <i class="bi bi-star-fill text-warning me-1"></i> -->
+                                                    <!-- {{ salon.avg_rating|default:"—" }} -->
+                                                <!-- </div> -->
+                                                <!-- <span class="review-count text-muted small">({{ salon.reviews_count|default:"0" }} reviews)</span> -->
+                                            <!-- </div> -->
+                                        </div>
+                                    </div>
 
-          <div class="col-md-8">
-            <div class="card-body p-3 p-md-4">
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h3 class="biz-title mb-0">
-                    <a class="text-decoration-none text-dark" href="{% url 'marketplace:salon_detail' salon.id %}">
-                      {{ salon.name }}
-                    </a>
-                  </h3>
+                                    <p class="biz-address">
+                                        <i class="bi bi-geo-alt-fill me-1"></i>
+                                        {{ salon.address }}
+                                    </p>
 
-                  <div class="mb-1">
-                    <span class="rating-badge text-dark">
-                      {{ salon.avg_rating|default:"—" }}
-                      <i class="bi bi-star-fill text-warning ms-1" style="font-size: 0.8em;"></i>
-                    </span>
-                    <span class="review-count">{{ salon.reviews_count|default:"0" }} reviews</span>
-                  </div>
+                                    <div class="mt-3">
+                                        {% for svc in salon.services.all|slice:":2" %}
+                                        {% i18n svc "name" request.LANGUAGE_CODE as svc_name %}
+                                        {% i18n svc "description" request.LANGUAGE_CODE as svc_desc %}
+                                        <div class="service-item">
+                                            <div class="pe-3">
+                                                <div class="service-name">{{ svc_name }}</div>
+                                                <div class="service-meta">{{ svc.duration_minutes }} min • {{ svc_desc|truncatechars:60 }}</div>
+                                            </div>
 
-                  <p class="biz-address text-truncate">
-                    <i class="bi bi-geo-alt-fill me-1 text-muted"></i>
-                    {{ salon.address }}
-                  </p>
-                </div>
+                                            <div class="text-end min-w-100">
+                                                <div class="service-price text-nowrap">{{ svc.price }}</div>
+                                                <button class="btn btn-book load-booking-btn" 
+                                                        type="button" 
+                                                        data-salon-id="{{ salon.id }}"
+                                                        data-svc-id="{{ svc.id }}">
+                                                    {% trans "Book" %}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {% empty %}
+                                        <div class="text-muted small py-2">{% trans "No services listed yet." %}</div>
+                                        {% endfor %}
+                                    </div>
 
-                {% if salon.category %}
-                {% i18n salon.category "name" request.LANGUAGE_CODE as salon_cat %}
-                <div class="badge bg-light text-dark border">{{ salon_cat }}</div>
-                {% else %}
-                <div class="badge bg-light text-dark border">New</div>
-                {% endif %}
-              </div>
-
-              <div class="mt-3">
-                {% for svc in salon.services.all|slice:":2" %}
-                {% i18n svc "name" request.LANGUAGE_CODE as svc_name %}
-                {% i18n svc "description" request.LANGUAGE_CODE as svc_desc %}
-                <div class="service-item">
-                  <div>
-                    <div class="service-name">{{ svc_name }}</div>
-                    <div class="service-meta">{{ svc.duration_minutes }}min • {{ svc_desc|truncatechars:100 }}</div>
-                  </div>
-
-                  <div class="d-flex flex-column align-items-end">
-                    <div class="service-price">{{ svc.price }}</div>
-
-                    <!-- IMPORTANT: Button only. Offcanvas is ONE global element below -->
-                    <button class="btn btn-book load-booking-btn" type="button" data-salon-id="{{ salon.id }}"
-                      data-svc-id="{{ svc.id }}">
-                      Book
-                    </button>
-                  </div>
+                                    <div class="text-center mt-3 pt-2 border-top">
+                                        <a href="{% url 'marketplace:salon_detail' salon.id %}"
+                                           class="text-booksy-teal small text-decoration-none fw-bold">
+                                            {% trans "VIEW MORE SERVICES" %} <i class="bi bi-chevron-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
                 </div>
                 {% empty %}
-                <div class="text-muted small">No services yet.</div>
+                <div class="col-12 text-center py-5">
+                    <img src="{% static 'images/not_found_salons.png' %}" width="80" class="opacity-25 mb-3" alt="Empty">
+                    <h3 class="h5">{% trans "No results found" %}</h3>
+                    <p class="text-muted">{% trans "Try adjusting your filters or location." %}</p>
+                    <a href="{% url 'marketplace:salon_list' %}" class="btn btn-outline-dark rounded-pill px-4">{% trans "Show All" %}</a>
+                </div>
                 {% endfor %}
-              </div>
-
-              <div class="text-center mt-2">
-                <a href="{% url 'marketplace:salon_detail' salon.id %}"
-                  class="text-muted small text-decoration-none fw-semibold">
-                  Show all services <i class="bi bi-chevron-down"></i>
+                {% if salons.has_other_pages %}
+<nav aria-label="Page navigation" class="my-5">
+    <ul class="pagination justify-content-center">
+        
+        {% if salons.has_previous %}
+            <li class="page-item">
+                <a class="page-link text-dark shadow-sm rounded-start-pill px-3" 
+                   href="?page={{ salons.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}">
+                    <i class="bi bi-chevron-left"></i>
                 </a>
-              </div>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link shadow-sm rounded-start-pill px-3"><i class="bi bi-chevron-left"></i></span>
+            </li>
+        {% endif %}
 
+        {% for i in salons.paginator.page_range %}
+            {% if salons.number == i %}
+                <li class="page-item active">
+                    <span class="page-link bg-dark border-dark">{{ i }}</span>
+                </li>
+            {% elif i > salons.number|add:'-3' and i < salons.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link text-dark shadow-sm" 
+                       href="?page={{ i }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}">
+                        {{ i }}
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if salons.has_next %}
+            <li class="page-item">
+                <a class="page-link text-dark shadow-sm rounded-end-pill px-3" 
+                   href="?page={{ salons.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <span class="page-link shadow-sm rounded-end-pill px-3"><i class="bi bi-chevron-right"></i></span>
+            </li>
+        {% endif %}
+
+    </ul>
+</nav>
+{% endif %}
             </div>
-          </div>
         </div>
-      </div>
-      {% empty %}
-      <div class="alert alert-warning">No salons found.</div>
-      {% endfor %}
     </div>
-
-    <div class="col-lg-5 map-col">
-      <div class="map-container shadow-sm border position-relative">
-        <div class="map-bg"></div>
-        <button
-          class="btn btn-light position-absolute bottom-0 start-50 translate-middle-x mb-4 shadow-sm rounded-pill px-4 fw-bold"
-          type="button">
-          <i class="bi bi-arrow-repeat me-1"></i> Search in this area
-        </button>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- ONE global Offcanvas -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer" style="width: 450px;">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer" aria-labelledby="bookingDrawerLabel">
   <div class="offcanvas-header border-bottom">
-    <h5 class="offcanvas-title fw-bold">Booking</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    <h5 class="offcanvas-title fw-bold" id="bookingDrawerLabel">Secure Booking</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  <div class="offcanvas-body" id="drawerContent"></div>
+  <div class="offcanvas-body" id="drawerContent">
+      </div>
 </div>
 {% endblock content %}
-
 
 {% block extra_js %}
 <script>
@@ -393,12 +476,15 @@
     const drawerBody = document.getElementById("drawerContent");
     const bsOffcanvas = new bootstrap.Offcanvas(drawerEl);
 
-    // URL templates generated by Django (safe)
     const ajaxTemplate = "{% url 'marketplace:ajax_booking_form' 11111 22222 %}";
     const slotsTemplate = "{% url 'marketplace:api_slots' 11111 22222 %}";
 
     async function openBooking(salonId, serviceId) {
-      drawerBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div></div>';
+      drawerBody.innerHTML = `
+        <div class="d-flex flex-column align-items-center justify-content-center h-100">
+            <div class="spinner-border text-info mb-3" role="status"></div>
+            <p class="text-muted">Loading available times...</p>
+        </div>`;
       bsOffcanvas.show();
 
       const url = ajaxTemplate.replace("11111", salonId).replace("22222", serviceId);
@@ -408,18 +494,17 @@
         drawerBody.innerHTML = await res.text();
         initBookingScripts(salonId, serviceId);
       } catch (e) {
-        drawerBody.innerHTML = '<div class="alert alert-danger">Failed to load booking form.</div>';
+        drawerBody.innerHTML = '<div class="alert alert-danger">Failed to load booking form. Please refresh.</div>';
       }
     }
 
-    // Click handlers
     document.querySelectorAll(".load-booking-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
         openBooking(btn.dataset.salonId, btn.dataset.svcId);
       });
     });
 
-    // init slots logic inside the loaded partial
     function initBookingScripts(salonId, serviceId) {
       const masterEl = document.getElementById("id_master");
       const dateEl = document.getElementById("id_date");
@@ -433,7 +518,7 @@
         if (!masterEl.value || !dateEl.value) return;
 
         slotsBox.innerHTML = "";
-        hint.textContent = "Loading slots...";
+        hint.innerHTML = '<div class="spinner-border spinner-border-sm text-secondary me-2"></div> Checking availability...';
 
         const base = slotsTemplate.replace("11111", salonId).replace("22222", serviceId);
         const url = `${base}?master=${encodeURIComponent(masterEl.value)}&date=${encodeURIComponent(dateEl.value)}`;
@@ -451,17 +536,15 @@
           data.slots.forEach(t => {
             const b = document.createElement("button");
             b.type = "button";
-            b.className = "btn btn-sm btn-outline-dark m-1";
+            b.className = "btn btn-outline-dark btn-sm m-1 px-3 py-2";
             b.textContent = t;
 
             b.addEventListener("click", () => {
               timeEl.value = t;
               slotsBox.querySelectorAll("button").forEach(x => {
-                x.classList.remove("btn-dark");
-                x.classList.add("btn-outline-dark");
+                x.classList.replace("btn-dark", "btn-outline-dark");
               });
-              b.classList.remove("btn-outline-dark");
-              b.classList.add("btn-dark");
+              b.classList.replace("btn-outline-dark", "btn-dark");
             });
 
             slotsBox.appendChild(b);
@@ -474,10 +557,8 @@
       masterEl.addEventListener("change", loadSlots);
       dateEl.addEventListener("change", loadSlots);
 
-      // optional: auto-load if defaults exist
       if (masterEl.value && dateEl.value) loadSlots();
     }
   });
 </script>
-
 {% endblock extra_js %}

@@ -1,14 +1,244 @@
-{% extends "marketplace/base_client.html" %}
-{% block title %}Success{% endblock %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load i18n_fields %}
+
+{% block title %}{% trans "Booking Confirmed" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --success-green: #22C55E;
+    --booksy-dark: #101928;
+    --bg-light: #F7F7F9;
+  }
+
+  .navbar {
+  padding: 0.75rem 0;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #000;
+}
+
+.nav-link {
+  font-weight: 600;
+  color: var(--booksy-dark);
+  margin-left: 1rem;
+  transition: color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.show {
+  color: var(--booksy-teal);
+}
+
+/* --- Avatar & Hover Dropdown Logic --- */
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--booksy-dark);
+  font-size: 1.4rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.nav-avatar:hover,
+.dropdown-hover:hover .nav-avatar {
+  background-color: #e4e6eb;
+  border-color: var(--booksy-teal);
+  color: var(--booksy-teal);
+}
+
+@media (min-width: 992px) {
+  .dropdown-hover { position: relative; }
+  .dropdown-hover .dropdown-menu {
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 10px !important;
+    display: none;
+  }
+  .dropdown-hover:hover .dropdown-menu,
+  .dropdown-hover .dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+
+  /* Success Animation Container */
+  .success-emblem-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .emblem-circle {
+    width: 80px;
+    height: 80px;
+    background-color: var(--success-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 40px;
+    box-shadow: 0 10px 20px rgba(34, 197, 94, 0.2);
+    animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  @keyframes scaleIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .confirmation-card {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 24px;
+    border: none;
+    overflow: hidden;
+  }
+
+  .success-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    color: var(--booksy-dark);
+  }
+
+  .status-badge {
+    background-color: #f0fdf4;
+    color: #166534;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 50px;
+    display: inline-block;
+  }
+
+  .booking-info-box {
+    background-color: #f8fafc;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 1.5rem;
+    border: 1px dashed #e2e8f0;
+  }
+
+  .info-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .info-value {
+    font-weight: 600;
+    color: var(--booksy-dark);
+    margin-bottom: 12px;
+  }
+
+  .btn-primary-action {
+    background-color: var(--booksy-dark);
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-primary-action:hover {
+    background-color: #000;
+    color: #fff;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary-action {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-  <div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body p-4">
-      <h1 class="h5 fw-bold">Booked successfully</h1>
-      <p class="text-muted mb-3">Your request is created. The salon can confirm it.</p>
-      <a class="btn btn-dark" href="{% url 'marketplace:salon_detail' salon.id %}">Back to salon</a>
+<div class="container py-5 px-3">
+  <div class="confirmation-card shadow-sm p-4 p-md-5">
+    
+    <div class="success-emblem-container">
+      <div class="emblem-circle">
+        <i class="bi bi-check-lg"></i>
+      </div>
     </div>
+
+    <div class="text-center mb-4">
+      <h1 class="h3 success-title mb-2">{% trans "Booked successfully!" %}</h1>
+      <div class="status-badge mb-3">
+        <i class="bi bi-hourglass-split me-1"></i> {% trans "Awaiting Salon Confirmation" %}
+      </div>
+      <p class="text-muted px-lg-4">
+        {% blocktrans with salon_name=salon.name %}
+            Your booking request has been sent to <strong>{{ salon_name }}</strong>. 
+        {% endblocktrans %}
+        {% trans "You will receive a notification once they confirm your time." %}
+      </p>
+    </div>
+    
+    <div class="booking-info-box">
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="info-label">{% trans "Salon" %}</div>
+                <div class="info-value">{{ salon.name }}</div>
+            </div>
+            <div class="col-6 text-end">
+                <div class="info-label">{% trans "Status" %}</div>
+                <div class="info-value" style="color: var(--success-green);">
+                    {% trans "Pending Approval" %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="d-grid gap-3 mt-4">
+      <a href="{% url 'marketplace:salon_detail' salon.id %}" class="btn btn-primary-action shadow-sm">
+        {% trans "Done" %}
+      </a>
+      <a href="{% url 'marketplace:home' %}" class="btn btn-secondary-action text-center text-decoration-none">
+        {% trans "Go to Home" %}
+      </a>
+    </div>
+
+    <div class="text-center mt-4">
+        <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i> 
+            {% trans "You can manage this booking in your profile." %}
+        </small>
+    </div>
+    
   </div>
 </div>
 {% endblock %}

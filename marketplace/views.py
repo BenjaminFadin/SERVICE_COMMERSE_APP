@@ -1,11 +1,12 @@
 from datetime import datetime
 
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef, Prefetch
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .forms import BookingForm
 from .models import Appointment, Category, Master, Salon, Service
@@ -34,46 +35,81 @@ def search_view(request):
     return render(request, 'search_results.html', {'results': results, 'query': query})
 
 def home(request):
-    categories = Category.objects.all()
+    categories = Category.objects.filter(parent__isnull=True)
     return render(request, "marketplace/category_list.html", {"categories": categories})
-
 def salon_list(request, category_slug=None):
-    # 1. Start with the base queryset
-    salons = Salon.objects.select_related("category", "owner").prefetch_related("services").order_by('-created_at')
-    
-    # 2. Filter by Category (if slug is provided in URL)
+    query = (request.GET.get("q") or "").strip()
+    location = (request.GET.get("location") or "").strip()
+
     category = None
+    subcategories = None
+
+    salons_qs = (
+        Salon.objects
+        .select_related("category", "owner")
+        .order_by("-created_at")
+    )
+
+    # Category filter (MPTT)
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
-        salons = salons.filter(category=category)
+        categories_to_include = category.get_descendants(include_self=True)
 
-    # 3. GET Search Parameters from the filter bar
-    query = request.GET.get('q')
-    location = request.GET.get('location')
+        salons_qs = salons_qs.filter(category__in=categories_to_include)
 
+        if category.is_leaf_node() and category.parent_id:
+            subcategories = category.parent.get_children()
+        else:
+            subcategories = category.get_children()
+
+    if not subcategories:
+        subcategories = Category.objects.filter(level=0).only(
+            "id", "slug", "name_ru", "name_en", "name_uz", "icon_class", "parent_id", "level"
+        )
+
+    # Search (NO JOIN on services => no duplicates => no DISTINCT)
     if query:
-        # Search in Salon Name, Category Name, and Service Names
-        salons = salons.filter(
-            Q(name_ru__icontains=query) | 
+        service_match = Service.objects.filter(
+            salon_id=OuterRef("pk"),
+        ).filter(
+            Q(name_ru__icontains=query) |
+            Q(name_en__icontains=query) |
+            Q(name_uz__icontains=query)
+        )
+
+        salons_qs = salons_qs.filter(
+            Q(name__icontains=query) |                       # <-- Salon has only "name"
             Q(category__name_ru__icontains=query) |
-            Q(services__name_ru__icontains=query)
-        ).distinct()
+            Q(category__name_en__icontains=query) |
+            Q(category__name_uz__icontains=query) |
+            Exists(service_match)
+        )
 
     if location:
-        # Search in the address field
-        salons = salons.filter(address__icontains=location)
-    
+        salons_qs = salons_qs.filter(address__icontains=location)
+
+    # Prefetch only if template actually needs services (otherwise remove this block)
+    salons_qs = salons_qs.prefetch_related(
+        Prefetch(
+            "services",
+            queryset=Service.objects.only("id", "salon_id", "name_ru", "name_en", "name_uz", "price", "duration_minutes", "img"),
+        )
+    )
+
+    paginator = Paginator(salons_qs, 10)
+    salons_page = paginator.get_page(request.GET.get("page"))
+
     return render(
         request,
         "marketplace/salon_list.html",
         {
-            "salons": salons, 
+            "salons": salons_page,
             "category": category,
-            "search_query": query,      # Pass back to keep value in input
-            "search_location": location  # Pass back to keep value in input
+            "subcategories": subcategories,
+            "search_query": query,
+            "search_location": location,
         },
     )
-
 
 def salon_detail(request, salon_id):
     # Optimized query with select_related and prefetch_related
@@ -102,7 +138,7 @@ def salon_detail(request, salon_id):
         },
     )
     
-    
+
 @login_required
 def booking_start(request, salon_id, service_id):
     salon = get_object_or_404(Salon, pk=salon_id)

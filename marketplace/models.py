@@ -5,7 +5,8 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-
+from django.utils.translation import get_language
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 def salon_logo_upload_to(instance, filename):
@@ -71,7 +72,15 @@ class MultilingualMixin(models.Model):
         return ""
 
 
-class Category(MultilingualMixin, models.Model):
+class Category(MultilingualMixin, MPTTModel):
+    parent = TreeForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='children', 
+        verbose_name="Родительская категория"
+    )
     name_ru = models.CharField(max_length=100, verbose_name="Название (RU)")
     name_en = models.CharField(max_length=100, blank=True, verbose_name="Название (EN)")
     name_uz = models.CharField(max_length=100, blank=True, verbose_name="Название (UZ)")
@@ -83,19 +92,27 @@ class Category(MultilingualMixin, models.Model):
         default="bi bi-grid",
         verbose_name="Bootstrap icon class"
     )
+    
+    class MPTTMeta:
+        order_insertion_by = ['name_ru']
+    
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
 
     def __str__(self):
-        return self.name_ru
+        # 1. Get current language code (e.g., 'ru', 'en', or 'uz')
+        lang = get_language() 
+        
+        # 2. Try to get the specific field (e.g., self.name_en)
+        localized_name = getattr(self, f'name_{lang}', None)
+        
+        # 3. Return the localized name, or fall back to RU if the current one is empty
+        return localized_name or self.name_ru or "Unnamed Category"
 
 
 class Salon(MultilingualMixin, models.Model):
-    name_ru = models.CharField(max_length=200)
-    name_en = models.CharField(max_length=200, blank=True)
-    name_uz = models.CharField(max_length=200, blank=True)
-
+    name = models.CharField(max_length=200)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='salons', verbose_name="Владелец")
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='salons', verbose_name="Категория")
     description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
@@ -105,7 +122,7 @@ class Salon(MultilingualMixin, models.Model):
     address = models.TextField(verbose_name="Адрес")
     phone = models.CharField(max_length=20, verbose_name="Телефон салона")
     logo = models.ImageField(upload_to=salon_logo_upload_to, blank=True, null=True)
-
+    
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
@@ -148,9 +165,9 @@ class SalonPhoto(models.Model):
 
 
 class Service(MultilingualMixin, models.Model):
-    name_ru = models.CharField(max_length=200)
-    name_en = models.CharField(max_length=200, blank=True)
     name_uz = models.CharField(max_length=200, blank=True)
+    name_en = models.CharField(max_length=200, blank=True)
+    name_ru = models.CharField(max_length=200)
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='services', verbose_name="Салон")
     img = models.ImageField(
         upload_to=service_img_upload_to,
@@ -158,7 +175,6 @@ class Service(MultilingualMixin, models.Model):
         null=True,
         verbose_name="Изображение услуги"
     )
-
     description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
     description_en = models.TextField(blank=True, verbose_name="Описание (EN)")
     description_uz = models.TextField(blank=True, verbose_name="Описание (UZ)")
@@ -171,7 +187,7 @@ class Service(MultilingualMixin, models.Model):
         verbose_name_plural = "Услуги"
 
     def __str__(self):
-        return f"{self.name} - {self.price}"
+        return f"{self.name_ru} - {self.price}"
 
 
 class Master(models.Model):
