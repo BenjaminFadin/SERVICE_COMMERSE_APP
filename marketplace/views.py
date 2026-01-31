@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.db.models import Q, Exists, OuterRef, Prefetch
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET, require_POST
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -312,3 +314,34 @@ def api_slots(request, salon_id, service_id):
             },
         }
     )
+
+
+@login_required
+def my_bookings(request):
+    now = timezone.now()
+    
+    # Get appointments where the current user is the client
+    bookings = Appointment.objects.filter(client=request.user).select_related('salon', 'service', 'master')
+    
+    upcoming_bookings = bookings.filter(start_time__gte=now).order_by('start_time')
+    past_bookings = bookings.filter(start_time__lt=now).order_by('-start_time')
+
+    return render(request, 'marketplace/my_bookings.html', {
+        'upcoming': upcoming_bookings,
+        'past': past_bookings,
+    })
+
+@login_required
+@require_POST
+def cancel_booking(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id, client=request.user)
+    
+    # Only allow cancellation if it's pending or confirmed
+    if appointment.status in ['pending', 'confirmed']:
+        appointment.status = 'cancelled'
+        appointment.save()
+        messages.success(request, "Your booking has been cancelled.")
+    else:
+        messages.error(request, "This booking cannot be cancelled.")
+        
+    return redirect('marketplace:my_bookings')

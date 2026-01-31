@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from .models import Profile
 
 User = get_user_model()
 
@@ -156,3 +157,46 @@ class PasswordVerifyCodeForm(forms.Form):
         }),
         label=_("Verification Code")
     )
+
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+
+    class Meta:
+        model = Profile
+        fields = [
+            'avatar', 'full_name', 'phone', 'language', 
+            'telegram_id', 'bio', 'company_name', 'website'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        # Apply Bootstrap classes to all fields
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control rounded-pill'})
+        
+        # Special styling for Textarea
+        if 'bio' in self.fields:
+            self.fields['bio'].widget.attrs.update({'class': 'form-control rounded-4', 'rows': 3})
+
+        # --- SET INITIAL VALUES FROM USER OBJECT ---
+        if user:
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        user = profile.user
+        
+        # Update User model fields
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        
+        if commit:
+            user.save()
+            profile.save()
+        return profile

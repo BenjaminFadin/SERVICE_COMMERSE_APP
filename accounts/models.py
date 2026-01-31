@@ -58,7 +58,6 @@ class Profile(models.Model):
         choices=ROLE_CHOICES,
         default="customer",
     )
-
     # For providers: short description, etc.
     bio = models.TextField(blank=True)
     company_name = models.CharField(max_length=255, blank=True)

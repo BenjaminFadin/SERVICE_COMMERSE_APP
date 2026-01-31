@@ -72,8 +72,8 @@
                                     <small class="text-muted">{{ user.email }}</small>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>{% trans "Settings" %}</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-calendar-check me-2"></i>{% trans "My Booking" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:settings' %}"><i class="bi bi-gear me-2"></i>{% trans "Settings" %}</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:my_bookings' %}"><i class="bi bi-calendar-check me-2"></i>{% trans "My Booking" %}</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                             </ul>
@@ -87,10 +87,10 @@
                         </li>
 
                         <li class="nav-item d-lg-none">
-                            <a class="nav-link py-2" href="#"><i class="bi bi-gear me-2"></i>{% trans "Settings" %}</a>
+                            <a class="nav-link py-2" href="{% url 'accounts:settings' %}"><i class="bi bi-gear me-2"></i>{% trans "Settings" %}</a>
                         </li>
                         <li class="nav-item d-lg-none">
-                            <a class="nav-link py-2" href="#"><i class="bi bi-calendar-check me-2"></i>{% trans "My Bookings" %}</a>
+                            <a class="nav-link py-2" href="{% url 'marketplace:my_bookings' %}"><i class="bi bi-calendar-check me-2"></i>{% trans "My Bookings" %}</a>
                         </li>
                         <li class="nav-item d-lg-none">
                             <a class="nav-link py-2 text-danger" href="{% url 'accounts:logout' %}">
@@ -103,5 +103,3 @@
             </div>
         </div>
     </nav>
-
-    

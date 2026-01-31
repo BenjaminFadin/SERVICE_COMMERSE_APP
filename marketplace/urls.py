@@ -8,6 +8,9 @@ urlpatterns = [
     path("category/<slug:category_slug>/", views.salon_list, name="salon_list_by_category"),
     path("salons/", views.salon_list, name="salon_list"),
     path("salon/<int:salon_id>/", views.salon_detail, name="salon_detail"),
+    path("my-bookings/", views.my_bookings, name="my_bookings"),
+    path("booking/<int:appointment_id>/cancel/", views.cancel_booking, name="cancel_booking"),
+
 
     path("salon/<int:salon_id>/service/<int:service_id>/book/", views.booking_start, name="booking_start"),
     path("salon/<int:salon_id>/booking/success/", views.booking_success, name="booking_success"),

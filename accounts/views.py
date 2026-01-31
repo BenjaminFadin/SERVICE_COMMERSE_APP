@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.conf import settings
@@ -17,10 +18,11 @@ from .utils import code_is_valid
 from .forms import UserSignUpForm
 from .forms import (
     PasswordResetRequestForm,
-    PasswordResetVerifyForm,
     PasswordVerifyCodeForm,
     PasswordResetSetPasswordForm,
+    ProfileUpdateForm
 )
+
 from .models import PasswordResetCode
 
 
@@ -241,3 +243,26 @@ def password_reset_confirm(request):
         form = PasswordResetSetPasswordForm(initial={"email": email, "code": code})
 
     return render(request, "accounts/password_reset_set_password.html", {"form": form})
+
+
+@login_required
+def profile_settings(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        # Pass request.FILES for the avatar!
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile, user=request.user)
+        if form.is_valid():
+            form.save()
+            
+            # Update the language in the current session using the correct key
+            lang = form.cleaned_data.get('language')
+            translation.activate(lang)
+            request.session['django_language'] = lang  # Fixed key here
+            
+            messages.success(request, _("Your profile has been updated!"))
+            return redirect('accounts:settings')
+    else:
+        # Initial values are handled inside the __init__ of the form
+        form = ProfileUpdateForm(instance=profile, user=request.user)
+    
+    return render(request, 'accounts/settings.html', {'form': form})
