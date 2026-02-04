@@ -1,20 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
 {% load i18n_fields %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}
+  {% if salon %}
+    {% i18n salon "name" request.LANGUAGE_CODE as salon_name %}
+      {{ salon_name }} - Booksy Clone
+  {% else %}
+    Salons - Booksy Clone
+  {% endif %}
+{% endblock %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  {% i18n salon "name" request.LANGUAGE_CODE as salon_name %}
-  <title>{{ salon_name }} - Booksy Clone</title>
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-
+{% block extra_css %}
   <style>
-
     :root {
       --booksy-teal: #00A3AD;
       --booksy-dark: #101928;
@@ -33,30 +32,15 @@
       text-size-adjust: 100%;
     }
 
-    /* Improve tap targets on mobile */
-    .btn, .nav-link, .gallery-btn {
-      min-height: 44px;
-    }
+    /* --- Navbar & Tap Targets --- */
+    .btn, .nav-link, .gallery-btn { min-height: 44px; }
+    .navbar { background: #fff; border-bottom: 1px solid #e0e0e0; min-height: 64px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+    .navbar-brand { font-family: 'Poppins', sans-serif; font-weight: 700; color: #000; font-size: 1.75rem; }
 
-    /* --- Navbar (mobile-first) --- */
-    .navbar {
-      background: #fff;
-      border-bottom: 1px solid #e0e0e0;
-      min-height: 64px;
-    }
-
-    .navbar-brand {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      color: #000;
-      letter-spacing: 0.2px;
-    }
-
-    /* --- Hero Cover Image (mobile-first) --- */
+    /* --- Hero Cover --- */
     .cover-image {
       height: 220px;
       width: 100%;
-      background-image: url('{% if salon.cover_image %}{{ salon.cover_image.url }}{% else %}https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=1200{% endif %}');
       background-size: cover;
       background-position: center;
       position: relative;
@@ -73,66 +57,8 @@
       font-weight: 600;
       font-size: 0.95rem;
       z-index: 10;
-      min-height: auto; /* allow button to be compact while still tappable */
+      min-height: auto;
     }
-
-    .gallery-btn:hover {
-      background: #fff;
-    }
-
-    /* --- Profile Header Section (mobile-first) --- */
-    .profile-header {
-      position: relative;
-      margin-bottom: 1.25rem;
-      padding-top: 64px; /* space for avatar overlap on mobile */
-    }
-
-    .avatar-container {
-      width: 112px;
-      height: 112px;
-      border-radius: 50%;
-      border: 4px solid #fff;
-      background-color: #000;
-      overflow: hidden;
-      position: absolute;
-      top: -56px;
-      left: 50%;
-      transform: translateX(-50%);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-    }
-
-    .avatar-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .header-content {
-      padding-top: 0.75rem;
-      text-align: center;
-    }
-
-    .biz-title {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 1.6rem;
-      line-height: 1.1;
-      margin-bottom: 0.25rem;
-      word-break: break-word;
-    }
-
-    .rating-box {
-      display: inline-flex;
-      align-items: center;
-      background: #fff;
-      padding: 6px 10px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      margin-right: 8px;
-    }
-
-    /* --- Tabs (mobile-first: horizontal scroll) --- */
 .navbar {
   padding: 0.75rem 0;
   background: #fff;
@@ -197,458 +123,335 @@
   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-
-    /* --- Services --- */
-    .category-title {
-      font-family: 'Poppins', sans-serif;
-      font-weight: 700;
-      font-size: 1.25rem;
-      margin-bottom: 1rem;
+    /* --- Profile Header (Mobile First) --- */
+    .profile-header { position: relative; margin-bottom: 1.25rem; padding-top: 64px; }
+    .avatar-container {
+      width: 112px; height: 112px; border-radius: 50%; border: 4px solid #fff;
+      background-color: #000; overflow: hidden; position: absolute;
+      top: -56px; left: 50%; transform: translateX(-50%);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
     }
+    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+    .header-content { padding-top: 0.75rem; text-align: center; }
+    .biz-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.6rem; line-height: 1.1; margin-bottom: 0.25rem; }
 
+    /* --- Services & Cards --- */
+    .category-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.25rem; margin-bottom: 1rem; }
     .service-card {
-      background: #fff;
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
-      padding: 1rem;
-      margin-bottom: 0.9rem;
-      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      background: #fff; border: 1px solid var(--card-border); border-radius: var(--radius-lg);
+      padding: 1rem; margin-bottom: 0.9rem; transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
-
-    .service-card:hover {
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
-      transform: translateY(-1px);
-    }
-
-    .service-name {
-      font-weight: 600;
-      font-size: 1.05rem;
-      margin-bottom: 6px;
-      word-break: break-word;
-    }
-
-    .service-desc {
-      font-size: 0.92rem;
-      color: var(--booksy-gray);
-      margin-bottom: 0;
-    }
-
-    .price-tag {
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-
-    .btn-add {
-      border: 1px solid var(--booksy-teal);
-      color: var(--booksy-teal);
-      background: #fff;
-      font-weight: 700;
-      padding: 8px 18px;
-      border-radius: 10px;
-    }
-
-    .btn-add:hover {
-      background-color: var(--booksy-teal);
-      color: #fff;
-    }
+    .service-card:hover { box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06); transform: translateY(-1px); }
+    .service-name { font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; }
+    .service-desc { font-size: 0.92rem; color: var(--booksy-gray); margin-bottom: 0; }
+    .price-tag { font-weight: 700; font-size: 1.05rem; }
+    .btn-add { border: 1px solid var(--booksy-teal); color: var(--booksy-teal); background: #fff; font-weight: 700; padding: 8px 18px; border-radius: 10px; }
+    .btn-add:hover { background-color: var(--booksy-teal); color: #fff; }
 
     /* --- Venue / Sidebar --- */
-    .venue-card {
-      background: #fff;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--card-border);
-      overflow: hidden;
-    }
+    .venue-card { background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--card-border); overflow: hidden; margin-bottom: 1.5rem; }
+    .map-preview { height: 160px; width: 100%; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; }
+    .venue-body { padding: 1.25rem; }
+    .contact-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem; }
+    .icon-circle { width: 36px; height: 36px; border-radius: 50%; background-color: #F0F2F5; display: flex; align-items: center; justify-content: center; flex: 0 0 36px; }
+    .working-hours-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.95rem; margin-bottom: 8px; }
+    .hours-today { color: #28a745; font-weight: 700; }
 
-    .map-preview {
-      height: 160px;
-      width: 100%;
-      background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/San_Diego_Street_Map.jpg/640px-San_Diego_Street_Map.jpg');
-      background-size: cover;
-      background-position: center;
-    }
-
-    .venue-body {
-      padding: 1.25rem;
-    }
-
-    .contact-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 1rem;
-    }
-
-    .icon-circle {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background-color: #F0F2F5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex: 0 0 36px;
-    }
-
-    .working-hours-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-size: 0.95rem;
-      margin-bottom: 8px;
-    }
-
-    .hours-today {
-      color: #28a745;
-      font-weight: 700;
-    }
-
-    /* Gallery Carousel Styles */
-    .carousel-item img {
-      height: 55vh;
-      object-fit: contain;
-      background-color: #000;
-    }
-
-    /* Booking drawer: full width on small screens, fixed width on larger */
-    #bookingDrawer {
-      width: 100vw;
-      max-width: 100vw;
-    }
-
-    /* --- Breakpoints --- */
-    @media (min-width: 576px) {
-      .cover-image { height: 260px; }
-      .biz-title { font-size: 1.8rem; }
-      .carousel-item img { height: 62vh; }
-      #bookingDrawer { width: 420px; max-width: 420px; }
-    }
-
+    /* --- Responsive Desktop --- */
     @media (min-width: 992px) {
       .cover-image { height: 320px; }
-
-      .profile-header {
-        padding-top: 0;
-        margin-bottom: 2rem;
-      }
-
-      .avatar-container {
-        width: 140px;
-        height: 140px;
-        top: -70px;
-        left: 0;
-        transform: none;
-      }
-
-      .header-content {
-        padding-left: 160px;
-        padding-top: 1rem;
-        text-align: left;
-      }
-
+      .profile-header { padding-top: 0; margin-bottom: 2rem; }
+      .avatar-container { width: 140px; height: 140px; top: -70px; left: 0; transform: none; }
+      .header-content { padding-left: 160px; padding-top: 1rem; text-align: left; }
       .biz-title { font-size: 2rem; }
-
-      .nav-tabs {
-        overflow: visible;
-        gap: 0;
-      }
-
-      .nav-link { margin-right: 2rem; padding: 1rem 0; }
-
-      .venue-card {
-        position: sticky;
-        top: 90px;
-      }
-
-      .carousel-item img { height: 70vh; }
+      .venue-card { position: sticky; top: 90px; }
       #bookingDrawer { width: 450px; max-width: 450px; }
     }
-
   </style>
-</head>
+{% endblock extra_css %}
 
-<body>
-
-  <nav class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-      <a class="navbar-brand" href="{% url 'marketplace:salon_list' %}">booksy</a>
-    </div>
-  </nav>
-
-  
-  <div class="cover-image">
-    <div class="container h-100 position-relative">
-      <button class="gallery-btn shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#galleryModal">
-        <i class="bi bi-images me-2"></i> Show all photos
-      </button>
-    </div>
+{% block content %}
+<div class="cover-image" style="background-image: url('{% if salon.photos.first %}{{ salon.photos.first.image.url }}{% else %}https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200{% endif %}');">
+  <div class="container h-100 position-relative">
+    <button class="gallery-btn shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#galleryModal">
+      <i class="bi bi-images me-2"></i> {% trans "Show all photos" %}
+    </button>
   </div>
+</div>
 
-  <div class="container pb-5">
-    <div class="row">
-      <div class="col-lg-8">
-        <div class="profile-header">
-          <div class="avatar-container">
-            <img src="{% if salon.logo %}{{ salon.logo.url }}{% else %}https://images.unsplash.com/photo-1634926878768-2a5b3c426d49?auto=format&fit=crop&q=80&w=200{% endif %}" alt="Avatar" class="avatar-img">
-          </div>
-          <div class="header-content">
-            <h1 class="biz-title">{{ salon_name|upper }}</h1>
-            <p class="text-muted mb-2">{{ salon.address }}</p>
-            <div class="d-flex align-items-center flex-wrap gap-2 justify-content-lg-start justify-content-center">
-              <div class="rating-box border">{{ salon.avg_rating|default:"—" }} <i class="bi bi-star-fill text-warning ms-1"></i></div>
-              <span class="text-muted small fw-semibold">{{ salon.reviews_count|default:"0" }} reviews</span>
-              <span class="badge bg-light text-dark border">
-                {% if salon.category %}{% i18n salon.category "name" request.LANGUAGE_CODE %}{% else %}Category{% endif %}
-              </span>
-            </div>
-          </div>
+<div class="container pb-5">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <img src="{% if salon.logo %}{{ salon.logo.url }}{% else %}https://images.unsplash.com/photo-1634926878768-2a5b3c426d49?auto=format&fit=crop&q=80&w=200{% endif %}" alt="Avatar" class="avatar-img">
         </div>
-
-        <ul class="nav nav-tabs">
-          <li class="nav-item"><a class="nav-link active" href="#">Services</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">Portfolio</a></li>
-          <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-        
-        </ul>
-
-        <!-- Mobile Venue Info (shown on small screens) -->
-        <div class="d-lg-none mb-4">
-          <div class="venue-card shadow-sm">
-            <div class="map-preview"></div>
-            <div class="venue-body">
-              <h5 class="fw-bold mb-3">Venue Info</h5>
-              <div class="contact-row">
-                <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
-                <div>{{ salon.address }}</div>
-              </div>
-              <div class="contact-row">
-                <div class="icon-circle"><i class="bi bi-telephone"></i></div>
-                <div>{{ salon.phone }}</div>
-              </div>
-              <hr class="my-4 text-muted">
-              <h6 class="fw-bold mb-3">Opening Hours</h6>
-              {% if working_hours %}
-                {% for wh in working_hours %}
-                <div class="working-hours-row">
-                  <span class="day-name">{{ wh.get_weekday_display }}</span>
-                  <span class="hours-val {% if today_weekday == wh.weekday %}hours-today{% endif %}">
-                    {% if wh.is_closed %}Closed{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
-                  </span>
-                </div>
-                {% endfor %}
+        <div class="header-content">
+          <h1 class="biz-title">{{ salon.name|upper }}</h1>
+          <p class="text-muted mb-2">{{ salon.location.full_address|default:salon.address }}</p>
+          <div class="d-flex align-items-center flex-wrap gap-2 justify-content-lg-start justify-content-center">
+            <span class="badge bg-light text-dark border">
+              {% if salon.category %}
+                {% i18n salon.category "name" request.LANGUAGE_CODE as cat_name %}
+                {{ cat_name }}
               {% else %}
-                <p class="small text-muted">Hours not provided.</p>
+                {% trans "Category" %}
               {% endif %}
-            </div>
+            </span>
           </div>
-        </div>
-
-        <div class="mb-5">
-
-          <h2 class="category-title">Featured Services</h2>
-          {% for s in services %}
-            {% i18n s "name" request.LANGUAGE_CODE as s_name %}
-            {% i18n s "description" request.LANGUAGE_CODE as s_desc %}
-            <div class="service-card">
-              <div class="row align-items-center">
-                <div class="col-12 col-md-8">
-                  <h4 class="service-name">{{ s.name }}</h4>
-                  <p class="service-desc">{{ s_desc }}</p>
-                  <div class="text-muted small mt-1">{{ s.duration_minutes }}min</div>
-                </div>
-                <div class="col-12 col-md-4 text-md-end d-flex flex-row flex-md-column justify-content-between align-items-end mt-2 mt-md-0">
-                  <div class="price-tag mb-md-2">{{ s.price }} сумм</div>
-                  <button class="btn btn-add load-booking-btn" 
-                          type="button" 
-                          data-salon-id="{{ salon.id }}" 
-                          data-svc-id="{{ s.id }}">
-                    Book
-                  </button>
-                </div>
-              </div>
-            </div>
-          {% empty %}
-            <div class="alert alert-warning">No services yet.</div>
-          {% endfor %}
         </div>
       </div>
 
-      <div class="col-lg-4 d-none d-lg-block">
+      <ul class="nav nav-tabs mb-4">
+        <li class="nav-item"><a class="nav-link active" href="#services-list">{% trans "Services" %}</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about-section">{% trans "About" %}</a></li>
+      </ul>
+
+      <div class="d-lg-none">
         <div class="venue-card shadow-sm">
-          <div class="map-preview"></div>
           <div class="venue-body">
-            <h5 class="fw-bold mb-3">Venue Info</h5>
+            <h5 class="fw-bold mb-3">{% trans "Venue Info" %}</h5>
             <div class="contact-row">
               <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
-              <div>{{ salon.address }}</div>
+                {{ salon.location.full_address|default:salon.address }}
+              
             </div>
             <div class="contact-row">
               <div class="icon-circle"><i class="bi bi-telephone"></i></div>
               <div>{{ salon.phone }}</div>
             </div>
             <hr class="my-4 text-muted">
-            <h6 class="fw-bold mb-3">Opening Hours</h6>
+            <h6 class="fw-bold mb-3">{% trans "Opening Hours" %}</h6>
             {% if working_hours %}
               {% for wh in working_hours %}
               <div class="working-hours-row">
                 <span class="day-name">{{ wh.get_weekday_display }}</span>
                 <span class="hours-val {% if today_weekday == wh.weekday %}hours-today{% endif %}">
-                  {% if wh.is_closed %}Closed{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
+                  {% if wh.is_closed %}{% trans "Closed" %}{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
                 </span>
               </div>
               {% endfor %}
-            {% else %}
-              <p class="small text-muted">Hours not provided.</p>
             {% endif %}
           </div>
         </div>
       </div>
-    </div>
-  </div>
-  
-  <div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-      <div class="modal-content bg-dark border-0">
-        <div class="modal-header border-0">
-          <h5 class="modal-title text-white" id="galleryModalLabel">{{ salon_name }} Gallery</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body p-0">
-          <div id="salonCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-              {% if salon.photos.all %}
-                {% for image in salon.photos.all %}
-                <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                  <img src="{{ image.url }}" class="d-block w-100" alt="Salon Photo" style="object-fit: cover;">
-                </div>
-                {% endfor %}
-              {% else %}
-                <div class="carousel-item active">
-                  <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=1200" class="d-block w-100" alt="Demo 1">
-                </div>
-                <div class="carousel-item">
-                  <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200" class="d-block w-100" alt="Demo 2">
-                </div>
-              {% endif %}
+
+      <div id="services-list" class="mb-5 mt-4">
+        <h2 class="category-title">{% trans "Featured Services" %}</h2>
+        {% for s in services %}
+          {% i18n s "name" request.LANGUAGE_CODE as s_name %}
+          {% i18n s "description" request.LANGUAGE_CODE as s_desc %}
+          <div class="service-card">
+            <div class="row align-items-center">
+              <div class="col-12 col-md-8">
+                <h4 class="service-name">{{ s_name }}</h4>
+                <p class="service-desc">{{ s_desc }}</p>
+                <div class="text-muted small mt-1">{{ s.duration_minutes }} {% trans "min" %}</div>
+              </div>
+              <div class="col-12 col-md-4 text-md-end d-flex flex-row flex-md-column justify-content-between align-items-end mt-2 mt-md-0">
+                <div class="price-tag mb-md-2">{{ s.price }} {% trans "sum" %}</div>
+                <button class="btn btn-add load-booking-btn" 
+                        type="button" 
+                        data-salon-id="{{ salon.id }}" 
+                        data-svc-id="{{ s.id }}">
+                  {% trans "Book" %}
+                </button>
+              </div>
             </div>
-            <button class="carousel-control-prev" type="button" data-bs-target="#salonCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#salonCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
-              <span class="visually-hidden">Next</span>
-            </button>
           </div>
+        {% empty %}
+          <div class="alert alert-warning">{% trans "No services yet." %}</div>
+        {% endfor %}
+      </div>
+
+      <div id="about-section" class="mb-5">
+         <h2 class="category-title">{% trans "About" %}</h2>
+         <div class="text-muted">
+            {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
+            {{ salon_desc|linebreaks|default:"No description provided." }}
+         </div>
+         <div class="flex-grow-1">
+                {{ salon.location.full_address|default:salon.address }}
+                {% if salon.location.map_link %}
+          <div class="mt-3 d-grid">
+            <a href="{{ salon.location.map_link }}" target="_blank" 
+              class="btn btn-light border shadow-sm rounded-pill d-flex align-items-center justify-content-center py-2 transition-all"
+              style="font-weight: 600; color: var(--booksy-dark); background-color: #ffffff;">
+              <i class="bi bi-map-fill text-primary me-2"></i> 
+              {% trans "View on Map" %}
+            </a>
+          </div>
+                {% endif %}
+              </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 d-none d-lg-block">
+      <div class="venue-card shadow-sm">
+        <div class="venue-body">
+          <h5 class="fw-bold mb-3">{% trans "Venue Info" %}</h5>
+          <div class="contact-row">
+            <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
+            <div class="flex-grow-1">
+              {{ salon.location.full_address|default:salon.address }}
+            </div>
+          </div>
+          <div class="contact-row">
+            <div class="icon-circle"><i class="bi bi-telephone"></i></div>
+            <div>{{ salon.phone }}</div>
+          </div>
+          <hr class="my-4 text-muted">
+          <h6 class="fw-bold mb-3">{% trans "Opening Hours" %}</h6>
+          {% if working_hours %}
+            {% for wh in working_hours %}
+            <div class="working-hours-row">
+              <span class="day-name">{{ wh.get_weekday_display }}</span>
+              <span class="hours-val {% if today_weekday == wh.weekday %}hours-today{% endif %}">
+                {% if wh.is_closed %}{% trans "Closed" %}{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
+              </span>
+            </div>
+            {% endfor %}
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer">
-    <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title fw-bold">Booking</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+<div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content bg-dark border-0">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-white">{{ salon.name }} {% trans "Gallery" %}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div id="salonCarousel" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% if salon.photos.all %}
+              {% for p in salon.photos.all %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <img src="{{ p.image.url }}" class="d-block w-100" style="object-fit: cover; max-height: 80vh;">
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="carousel-item active">
+                <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=1200" class="d-block w-100" alt="Demo">
+              </div>
+            {% endif %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#salonCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#salonCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="offcanvas-body" id="drawerContent"></div>
   </div>
+</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer" aria-labelledby="bookingDrawerLabel">
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-bold" id="bookingDrawerLabel">{% trans "Booking" %}</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+  <div class="offcanvas-body" id="drawerContent"></div>
+</div>
+{% endblock content %}
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const drawerEl = document.getElementById("bookingDrawer");
-      const drawerBody = document.getElementById("drawerContent");
-      const bsOffcanvas = new bootstrap.Offcanvas(drawerEl);
+{% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const drawerEl = document.getElementById("bookingDrawer");
+    const drawerBody = document.getElementById("drawerContent");
+    const bsOffcanvas = new bootstrap.Offcanvas(drawerEl);
 
-      // URL templates generated by Django
-      const ajaxTemplate = "{% url 'marketplace:ajax_booking_form' 11111 22222 %}";
-      const slotsTemplate = "{% url 'marketplace:api_slots' 11111 22222 %}";
+    const ajaxTemplate = "{% url 'marketplace:ajax_booking_form' 11111 22222 %}";
+    const slotsTemplate = "{% url 'marketplace:api_slots' 11111 22222 %}";
 
-      async function openBooking(salonId, serviceId) {
-        drawerBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div></div>';
-        bsOffcanvas.show();
+    async function openBooking(salonId, serviceId) {
+      drawerBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-info"></div><p class="mt-2 text-muted">{% trans "Loading..." %}</p></div>';
+      bsOffcanvas.show();
 
-        const url = ajaxTemplate.replace("11111", salonId).replace("22222", serviceId);
+      const url = ajaxTemplate.replace("11111", salonId).replace("22222", serviceId);
+
+      try {
+        const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
+        if (!res.ok) throw new Error("Network response was not ok");
+        drawerBody.innerHTML = await res.text();
+        initBookingScripts(salonId, serviceId);
+      } catch (e) {
+        drawerBody.innerHTML = '<div class="alert alert-danger m-3">{% trans "Failed to load booking form." %}</div>';
+      }
+    }
+
+    // Attach click event to body to catch dynamically loaded buttons if any
+    document.addEventListener('click', function (event) {
+      const btn = event.target.closest('.load-booking-btn');
+      if (btn) {
+        openBooking(btn.dataset.salonId, btn.dataset.svcId);
+      }
+    });
+
+    function initBookingScripts(salonId, serviceId) {
+      const masterEl = document.getElementById("id_master");
+      const dateEl = document.getElementById("id_date");
+      const timeEl = document.getElementById("id_time");
+      const slotsBox = document.getElementById("slotsBox");
+      const hint = document.getElementById("slotsHint");
+
+      if (!masterEl || !dateEl || !timeEl || !slotsBox || !hint) return;
+
+      async function loadSlots() {
+        if (!masterEl.value || !dateEl.value) return;
+
+        slotsBox.innerHTML = "";
+        hint.textContent = "{% trans "Checking availability..." %}";
+
+        const base = slotsTemplate.replace("11111", salonId).replace("22222", serviceId);
+        const url = `${base}?master=${encodeURIComponent(masterEl.value)}&date=${encodeURIComponent(dateEl.value)}`;
 
         try {
           const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
-          drawerBody.innerHTML = await res.text();
-          initBookingScripts(salonId, serviceId);
-        } catch (e) {
-          drawerBody.innerHTML = '<div class="alert alert-danger">Failed to load booking form.</div>';
-        }
-      }
+          const data = await res.json();
 
-      // Click handlers for all "Book" buttons
-      document.querySelectorAll(".load-booking-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          openBooking(btn.dataset.salonId, btn.dataset.svcId);
-        });
-      });
-
-      // Logic to load time slots dynamically inside the drawer
-      function initBookingScripts(salonId, serviceId) {
-        const masterEl = document.getElementById("id_master");
-        const dateEl = document.getElementById("id_date");
-        const timeEl = document.getElementById("id_time");
-        const slotsBox = document.getElementById("slotsBox");
-        const hint = document.getElementById("slotsHint");
-
-        if (!masterEl || !dateEl || !timeEl || !slotsBox || !hint) return;
-
-        async function loadSlots() {
-          if (!masterEl.value || !dateEl.value) return;
-
-          slotsBox.innerHTML = "";
-          hint.textContent = "Loading slots...";
-
-          const base = slotsTemplate.replace("11111", salonId).replace("22222", serviceId);
-          const url = `${base}?master=${encodeURIComponent(masterEl.value)}&date=${encodeURIComponent(dateEl.value)}`;
-
-          try {
-            const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } });
-            const data = await res.json();
-
-            if (!data.slots || data.slots.length === 0) {
-              hint.textContent = "No free slots for this date.";
-              return;
-            }
-
-            hint.textContent = "Select a time:";
-            data.slots.forEach(t => {
-              const b = document.createElement("button");
-              b.type = "button";
-              b.className = "btn btn-sm btn-outline-dark m-1";
-              b.textContent = t;
-
-              b.addEventListener("click", () => {
-                timeEl.value = t;
-                slotsBox.querySelectorAll("button").forEach(x => {
-                  x.classList.remove("btn-dark");
-                  x.classList.add("btn-outline-dark");
-                });
-                b.classList.remove("btn-outline-dark");
-                b.classList.add("btn-dark");
-              });
-
-              slotsBox.appendChild(b);
-            });
-          } catch (e) {
-            hint.textContent = "Error loading slots.";
+          if (!data.slots || data.slots.length === 0) {
+            hint.textContent = "{% trans "No free slots for this date." %}";
+            return;
           }
-        }
 
-        masterEl.addEventListener("change", loadSlots);
-        dateEl.addEventListener("change", loadSlots);
+          hint.textContent = "{% trans "Select a time:" %}";
+          data.slots.forEach(t => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "btn btn-sm btn-outline-dark m-1 px-3 py-2";
+            b.textContent = t;
+
+            b.addEventListener("click", () => {
+              timeEl.value = t;
+              slotsBox.querySelectorAll("button").forEach(x => {
+                x.classList.remove("btn-dark");
+                x.classList.add("btn-outline-dark");
+              });
+              b.classList.remove("btn-outline-dark");
+              b.classList.add("btn-dark");
+            });
+
+            slotsBox.appendChild(b);
+          });
+        } catch (e) {
+          hint.textContent = "{% trans "Error loading slots." %}";
+        }
       }
-    });
-  </script>
-</body>
-</html>
+
+      masterEl.addEventListener("change", loadSlots);
+      dateEl.addEventListener("change", loadSlots);
+      
+      // Trigger if values are pre-selected
+      if(masterEl.value && dateEl.value) loadSlots();
+    }
+  });
+</script>
+{% endblock extra_js %}

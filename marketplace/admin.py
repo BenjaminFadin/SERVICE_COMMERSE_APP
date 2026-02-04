@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from mptt.admin import DraggableMPTTAdmin
-from .models import Category, Salon, Master, Service, Appointment, SalonWorkingHours, SalonPhoto
+from .models import Category, Salon, Master, Service, Appointment, SalonWorkingHours, SalonPhoto, Address
 
 
 class ParentCategoryFilter(admin.SimpleListFilter):
@@ -22,6 +22,11 @@ class ParentCategoryFilter(admin.SimpleListFilter):
             descendants = parent_category.get_descendants(include_self=True)
             return queryset.filter(category__in=descendants)
         return queryset
+
+class AddressInline(admin.StackedInline):
+    model = Address
+    can_delete = False
+    verbose_name_plural = 'Location Details'
 
 # 2. Marketplace Admin
 @admin.register(Category)
@@ -53,7 +58,7 @@ class SalonAdmin(admin.ModelAdmin):
     # Use the custom filter class here
     list_filter = (ParentCategoryFilter, 'category') 
     
-    inlines = [MasterInline, ServiceInline]
+    inlines = [MasterInline, ServiceInline, AddressInline]
 
     def city_display(self, obj):
         return obj.address[:30] + "..." if obj.address else "-"
@@ -79,3 +84,4 @@ class SalonWorkingHoursAdmin(admin.ModelAdmin):
     list_filter = ('salon',)
 
 admin.site.register(SalonPhoto)
+admin.site.register(Address)

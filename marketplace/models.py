@@ -3,6 +3,7 @@ import uuid
 from datetime import timedelta
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import get_language
@@ -133,6 +134,35 @@ class Salon(MultilingualMixin, models.Model):
         return self.name
 
 
+class Address(models.Model):
+    salon = models.OneToOneField(
+        'Salon', 
+        on_delete=models.CASCADE, 
+        related_name='location', 
+        verbose_name=_("Salon")
+    )
+    # The text representation (e.g., "123 Beauty St, Tashkent")
+    full_address = models.TextField(verbose_name=_("Full Address"))
+    
+    # Coordinates
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Latitude")
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True, verbose_name=_("Longitude")
+    )
+    
+    # External link (Google Maps / Yandex Maps)
+    map_link = models.URLField(max_length=500, blank=True, verbose_name=_("Map Link"))
+
+    class Meta:
+        verbose_name = _("Address")
+        verbose_name_plural = _("Addresses")
+
+    def __str__(self):
+        return f"Location for {self.salon.name}"
+
+
 class SalonPhoto(models.Model):
     salon = models.ForeignKey(
         Salon, 
@@ -225,33 +255,41 @@ class SalonWorkingHours(models.Model):
     """
     Define salon opening hours per weekday (0=Mon .. 6=Sun).
     """
+    # Use gettext_lazy (_) so these names can be translated in .po files
     WEEKDAYS = [
-        (0, "Monday"), (1, "Tuesday"), (2, "Wednesday"),
-        (3, "Thursday"), (4, "Friday"), (5, "Saturday"), (6, "Sunday")
+        (0, _("Monday")), 
+        (1, _("Tuesday")), 
+        (2, _("Wednesday")),
+        (3, _("Thursday")), 
+        (4, _("Friday")), 
+        (5, _("Saturday")), 
+        (6, _("Sunday"))
     ]
 
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name="working_hours")
     weekday = models.IntegerField(choices=WEEKDAYS)
-    is_closed = models.BooleanField(default=False)
-    open_time = models.TimeField(null=True, blank=True)
-    close_time = models.TimeField(null=True, blank=True)
+    is_closed = models.BooleanField(default=False, verbose_name=_("Closed"))
+    open_time = models.TimeField(null=True, blank=True, verbose_name=_("Open time"))
+    close_time = models.TimeField(null=True, blank=True, verbose_name=_("Close time"))
     
     class Meta:
         unique_together = ("salon", "weekday")
-        verbose_name = "График работы салона"
-        verbose_name_plural = "Графики работы салонов"
+        verbose_name = _("Salon working hours")
+        verbose_name_plural = _("Salon working hours")
+        ordering = ['weekday'] # Ensures Mon-Sun order in templates
 
     def clean(self):
         if not self.is_closed:
             if not self.open_time or not self.close_time:
-                raise ValidationError("If not closed, open_time and close_time are required.")
+                raise ValidationError(_("If not closed, open_time and close_time are required."))
             if self.open_time >= self.close_time:
-                raise ValidationError("open_time must be earlier than close_time.")
+                raise ValidationError(_("Open time must be earlier than close time."))
 
     def __str__(self):
+        # get_weekday_display() will now automatically return the translated choice
         return f"{self.salon} - {self.get_weekday_display()}"
-
-
+    
+    
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Ожидает'),
