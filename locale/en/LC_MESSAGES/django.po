@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-27 21:54+0500\n"
+"POT-Creation-Date: 2026-02-07 17:44+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,64 +17,329 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#: accounts/forms.py:147
+
+#: accounts/forms.py:148
 msgid "Passwords do not match."
 msgstr ""
 
-#: accounts/forms.py:157
+#: accounts/forms.py:158
 msgid "Verification Code"
 msgstr ""
 
-#: accounts/views.py:74
+#: accounts/views.py:76
 msgid "Welcome back! You are now logged in."
 msgstr ""
 
-#: accounts/views.py:78
+#: accounts/views.py:80
 msgid "Invalid credentials. Please check your username/email and password."
 msgstr ""
 
-#: accounts/views.py:82
+#: accounts/views.py:84
 msgid "Username or Email"
 msgstr ""
 
-#: accounts/views.py:186
+#: accounts/views.py:188
 msgid "Invalid code. Please try again."
 msgstr ""
 
-#: accounts/views.py:205
+#: accounts/views.py:207
 msgid "User session lost."
 msgstr ""
 
-#: accounts/views.py:232
+#: accounts/views.py:234
 msgid "Password updated. Please log in."
 msgstr ""
 
-#: accounts/views.py:238
+#: accounts/views.py:240
 msgid "Reset code expired or already used."
 msgstr ""
 
-#: config/settings.py:137
-msgid "Russian"
+#: accounts/views.py:262
+msgid "Your profile has been updated!"
 msgstr ""
 
 #: config/settings.py:138
-msgid "English"
+msgid "Russian"
 msgstr ""
 
 #: config/settings.py:139
+msgid "English"
+msgstr ""
+
+#: config/settings.py:140
 msgid "Uzbek"
 msgstr ""
 
-#: templates/include/navbar.html:14
-msgid "Для бизнеса"
-msgstr "For business"
+#: marketplace/models.py:143 templates/marketplace/booking_success.html:213
+#: templates/marketplace/my_bookings.html:121
+msgid "Salon"
+msgstr ""
 
-#: templates/include/navbar.html:74
+#: marketplace/models.py:146
+msgid "Full Address"
+msgstr ""
+
+#: marketplace/models.py:150
+msgid "Latitude"
+msgstr ""
+
+#: marketplace/models.py:153
+msgid "Longitude"
+msgstr ""
+
+#: marketplace/models.py:157
+msgid "Map Link"
+msgstr ""
+
+#: marketplace/models.py:160
+msgid "Address"
+msgstr ""
+
+#: marketplace/models.py:161
+msgid "Addresses"
+msgstr ""
+
+#: marketplace/models.py:261
+msgid "Monday"
+msgstr ""
+
+#: marketplace/models.py:262
+msgid "Tuesday"
+msgstr ""
+
+#: marketplace/models.py:263
+msgid "Wednesday"
+msgstr ""
+
+#: marketplace/models.py:264
+msgid "Thursday"
+msgstr ""
+
+#: marketplace/models.py:265
+msgid "Friday"
+msgstr ""
+
+#: marketplace/models.py:266
+msgid "Saturday"
+msgstr ""
+
+#: marketplace/models.py:267
+msgid "Sunday"
+msgstr ""
+
+#: marketplace/models.py:272 templates/include/working_hours_loop.html:19
+#: templates/marketplace/salon_detail.html:230
+#: templates/marketplace/salon_detail.html:310
+msgid "Closed"
+msgstr ""
+
+#: marketplace/models.py:273
+msgid "Open time"
+msgstr ""
+
+#: marketplace/models.py:274
+msgid "Close time"
+msgstr ""
+
+#: marketplace/models.py:278 marketplace/models.py:279
+msgid "Salon working hours"
+msgstr ""
+
+#: marketplace/models.py:285
+msgid "If not closed, open_time and close_time are required."
+msgstr ""
+
+#: marketplace/models.py:287
+msgid "Open time must be earlier than close time."
+msgstr ""
+
+#: templates/accounts/settings.html:81 templates/include/navbar.html:75
+#: templates/include/navbar.html:90
 msgid "Settings"
 msgstr ""
 
-#: templates/include/navbar.html:75
+#: templates/accounts/settings.html:82
+msgid "Update your personal and professional profile"
+msgstr ""
+
+#: templates/accounts/settings.html:90
+msgid "Personal Info"
+msgstr ""
+
+#: templates/accounts/settings.html:106
+msgid "Full Name"
+msgstr ""
+
+#: templates/accounts/settings.html:110
+msgid "Phone Number"
+msgstr ""
+
+#: templates/accounts/settings.html:114
+msgid "First Name"
+msgstr ""
+
+#: templates/accounts/settings.html:118
+msgid "Last Name"
+msgstr ""
+
+#: templates/accounts/settings.html:127
+msgid "Preferences"
+msgstr ""
+
+#: templates/accounts/settings.html:130
+msgid "Telegram ID"
+msgstr ""
+
+#: templates/accounts/settings.html:132
+msgid "Used for booking notifications."
+msgstr ""
+
+#: templates/accounts/settings.html:135
+msgid "Language"
+msgstr ""
+
+#: templates/accounts/settings.html:144
+msgid "Service Provider Details"
+msgstr ""
+
+#: templates/accounts/settings.html:147
+msgid "Company Name"
+msgstr ""
+
+#: templates/accounts/settings.html:151
+msgid "Website"
+msgstr ""
+
+#: templates/accounts/settings.html:155
+msgid "Professional Bio"
+msgstr ""
+
+#: templates/accounts/settings.html:164
+msgid "Save All Changes"
+msgstr ""
+
+#: templates/business/dashboard.html:7
+msgid "Business Dashboard"
+msgstr ""
+
+#: templates/business/dashboard.html:67
+msgid "Owner Management"
+msgstr ""
+
+#: templates/business/dashboard.html:71
+msgid "Exit to Market"
+msgstr ""
+
+#: templates/business/dashboard.html:83
+msgid "No Active Salon"
+msgstr ""
+
+#: templates/business/dashboard.html:84
+msgid "It seems you haven't linked a business profile to your account yet."
+msgstr ""
+
+#: templates/business/dashboard.html:124
+msgid "Schedule Overview"
+msgstr ""
+
+#: templates/business/dashboard.html:130
+msgid "Today"
+msgstr ""
+
+#: templates/business/dashboard.html:133
+#: templates/marketplace/my_bookings.html:94
+msgid "Upcoming"
+msgstr ""
+
+#: templates/business/dashboard.html:136
+msgid "History"
+msgstr ""
+
+#: templates/business/dashboard.html:155
+msgid "Performance Stats"
+msgstr ""
+
+#: templates/business/dashboard.html:163
+msgid "Bookings Today"
+msgstr ""
+
+#: templates/business/dashboard.html:173
+msgid "Scheduled Future"
+msgstr ""
+
+#: templates/business/dashboard.html:187
+msgid "Primary Business Owner"
+msgstr ""
+
+#: templates/include/navbar.html:15
+msgid "Для бизнеса"
+msgstr "For business"
+
+#: templates/include/navbar.html:61
+msgid "Войти"
+msgstr ""
+
+#: templates/include/navbar.html:76
 msgid "My Booking"
+msgstr ""
+
+#: templates/include/navbar.html:93 templates/marketplace/my_bookings.html:3
+#: templates/marketplace/my_bookings.html:91
+msgid "My Bookings"
+msgstr ""
+
+#: templates/include/navbar.html:97
+msgid "Logout"
+msgstr ""
+
+#: templates/include/working_hours_loop.html:27
+msgid "Opening hours not specified."
+msgstr ""
+
+#: templates/marketplace/booking_success.html:5
+msgid "Booking Confirmed"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:198
+msgid "Booked successfully!"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:200
+msgid "Awaiting Salon Confirmation"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:203
+#, python-format
+msgid ""
+"\n"
+"            Your booking request has been sent to <strong>%(salon_name)s</"
+"strong>. \n"
+"        "
+msgstr ""
+
+#: templates/marketplace/booking_success.html:206
+msgid "You will receive a notification once they confirm your time."
+msgstr ""
+
+#: templates/marketplace/booking_success.html:217
+#: templates/marketplace/my_bookings.html:123
+msgid "Status"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:219
+msgid "Pending Approval"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:228
+msgid "Done"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:231
+msgid "Go to Home"
+msgstr ""
+
+#: templates/marketplace/booking_success.html:238
+msgid "You can manage this booking in your profile."
 msgstr ""
 
 #: templates/marketplace/category_list.html:243
@@ -90,54 +355,208 @@ msgid "ЧТО ВЫ ИЩЕТЕ?"
 msgstr ""
 
 #: templates/marketplace/category_list.html:252
+msgid "Напр. стрижка, маникюр, спа..."
+msgstr ""
+
+#: templates/marketplace/category_list.html:257
 msgid "ГДЕ?"
 msgstr ""
 
-#: templates/marketplace/category_list.html:255
+#: templates/marketplace/category_list.html:261
+msgid "Город или адрес"
+msgstr ""
+
+#: templates/marketplace/category_list.html:265
 msgid "Найти?"
 msgstr ""
 
-#: templates/marketplace/category_list.html:281
-msgid "Почему ebook?"
-msgstr ""
-
-#: templates/marketplace/category_list.html:285
-msgid "Находите"
-msgstr ""
-
-#: templates/marketplace/category_list.html:286
-msgid "ebook поможет найти лучших мастеров красоты и здоровья рядом с вами."
-msgstr ""
-
-#: templates/marketplace/category_list.html:290
-msgid "Записывайтесь"
+#: templates/marketplace/category_list.html:283
+msgid "No categories yet!"
 msgstr ""
 
 #: templates/marketplace/category_list.html:291
+msgid "Почему ebook?"
+msgstr ""
+
+#: templates/marketplace/category_list.html:295
+msgid "Находите"
+msgstr ""
+
+#: templates/marketplace/category_list.html:296
+msgid "ebook поможет найти лучших мастеров красоты и здоровья рядом с вами."
+msgstr ""
+
+#: templates/marketplace/category_list.html:300
+msgid "Записывайтесь"
+msgstr ""
+
+#: templates/marketplace/category_list.html:301
 msgid ""
 "Смотрите свободное время в календаре мастера и записывайтесь мгновенно 24/7."
 msgstr ""
 
-#: templates/marketplace/category_list.html:295
+#: templates/marketplace/category_list.html:305
 msgid "Управляйте"
 msgstr ""
 
-#: templates/marketplace/category_list.html:296
+#: templates/marketplace/category_list.html:306
 msgid "Переносите визиты и управляйте своим расписанием в приложении."
 msgstr ""
 
-#: templates/marketplace/category_list.html:306
-msgid "Записывайтесь еще быстрее в приложении ibron"
+#: templates/marketplace/category_list.html:317
+msgid "Новинка"
 msgstr ""
 
-#: templates/marketplace/category_list.html:307
-msgid "Доступно бесплатно для iOS и Android"
+#: templates/marketplace/category_list.html:320
+msgid "Записывайтесь мгновенно через"
 msgstr ""
 
-#: templates/marketplace/category_list.html:312
-msgid "Загрузите в"
+#: templates/marketplace/category_list.html:324
+msgid ""
+"Никаких загрузок и обновлений. Запускайте ibron прямо в любимом мессенджере "
+"и бронируйте услуги за 10 секунд."
 msgstr ""
 
-#: templates/marketplace/category_list.html:319
-msgid "Доступно в"
+#: templates/marketplace/category_list.html:333
+msgid "Открыть в"
+msgstr ""
+
+#: templates/marketplace/category_list.html:334
+msgid "Telegram Bot"
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:95
+msgid "Past"
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:109
+msgid "View Details"
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:112
+msgid "No upcoming bookings."
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:120
+msgid "Service"
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:122
+msgid "Time"
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:124
+msgid "Action"
+msgstr ""
+
+#: templates/marketplace/my_bookings.html:134
+msgid "View"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:177
+msgid "Show all photos"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:198
+msgid "Category"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:206
+msgid "Services"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:207
+#: templates/marketplace/salon_detail.html:268
+msgid "About"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:213
+#: templates/marketplace/salon_detail.html:292
+msgid "Venue Info"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:224
+#: templates/marketplace/salon_detail.html:304
+msgid "Opening Hours"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:240
+msgid "Featured Services"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:249
+msgid "min"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:252
+msgid "sum"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:257
+#: templates/marketplace/salon_list.html:381
+msgid "Book"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:263
+msgid "No services yet."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:281
+msgid "View on Map"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:325
+msgid "Gallery"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:357
+msgid "Booking"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:375
+msgid "Loading..."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:386
+msgid "Failed to load booking form."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:411
+msgid "Checking availability..."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:421
+msgid "No free slots for this date."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:425
+msgid "Select a time:"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:445
+msgid "Error loading slots."
+msgstr ""
+
+#: templates/marketplace/salon_list.html:317
+msgid "places found"
+msgstr ""
+
+#: templates/marketplace/salon_list.html:386
+msgid "No services listed yet."
+msgstr ""
+
+#: templates/marketplace/salon_list.html:393
+msgid "VIEW MORE SERVICES"
+msgstr ""
+
+#: templates/marketplace/salon_list.html:404
+msgid "No results found"
+msgstr ""
+
+#: templates/marketplace/salon_list.html:405
+msgid "Try adjusting your filters or location."
+msgstr ""
+
+#: templates/marketplace/salon_list.html:406
+msgid "Show All"
 msgstr ""

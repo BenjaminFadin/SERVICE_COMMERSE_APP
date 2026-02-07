@@ -8,8 +8,8 @@ from .models import User, Profile, PasswordResetCode
 # ---------------------------------------------------------
 # GLOBAL ADMIN SETTINGS (Russian Titles)
 # ---------------------------------------------------------
-admin.site.site_header = "Администрирование Booksy MVP"
-admin.site.site_title = "Booksy Admin"
+admin.site.site_header = "Администрирование ibron MVP"
+admin.site.site_title = "ibron Admin"
 admin.site.index_title = "Управление системой"
 admin.site.unregister(Group)
 

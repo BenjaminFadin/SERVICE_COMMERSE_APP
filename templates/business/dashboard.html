@@ -1,62 +1,140 @@
 {% extends 'base.html' %}
 {% load tz %}
 {% load i18n_fields %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Dashboard · {{ salon.name_ru|default:"Business" }}{% endblock title %}
+{% block title %}{% trans "Business Dashboard" %} · {{ salon.name }}{% endblock title %}
 
 {% block extra_css %}
 <style>
-    /* Dashboard specific styling */
-    .dashboard-header {
+    :root {
+        --ibron-teal: #2bb5b2;
+        --ibron-dark: #333333;
+        --ibron-light-bg: #f8fafb;
+        --ibron-accent: #f0fafa;
+        --ibron-border: #edf2f7;
+    }
+
+    body { background-color: var(--ibron-light-bg); color: var(--ibron-dark); }
+
+    .navbar {
+  padding: 0.75rem 0;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #000;
+}
+
+.nav-link {
+  font-weight: 600;
+  color: var(--booksy-dark);
+  margin-left: 1rem;
+  transition: color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.show {
+  color: var(--booksy-teal);
+}
+
+/* --- Avatar & Hover Dropdown Logic --- */
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--booksy-dark);
+  font-size: 1.4rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.nav-avatar:hover,
+.dropdown-hover:hover .nav-avatar {
+  background-color: #e4e6eb;
+  border-color: var(--booksy-teal);
+  color: var(--booksy-teal);
+}
+
+@media (min-width: 992px) {
+  .dropdown-hover { position: relative; }
+  .dropdown-hover .dropdown-menu {
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 10px !important;
+    display: none;
+  }
+  .dropdown-hover:hover .dropdown-menu,
+  .dropdown-hover .dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+
+
+    /* Dashboard UI Elements */
+    .dashboard-card {
+        border: none;
+        border-radius: 20px;
         background: white;
-        border-bottom: 1px solid #dee2e6;
-        padding: 1.5rem 0;
-        margin-bottom: 2rem;
-    }
-    
-    .card-stats {
-        border-radius: 12px;
-        transition: transform 0.2s;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
-    .booking-row {
-        transition: background 0.1s;
-    }
+    .text-teal { color: var(--ibron-teal) !important; }
+    .bg-teal-soft { background-color: var(--ibron-accent); color: var(--ibron-teal); }
 
-    .booking-row:hover {
-        background-color: #f8f9fa;
-    }
-
-    .status-badge {
-        font-size: 0.75rem;
-        padding: 0.35em 0.65em;
-        border-radius: 50px;
+    /* Nav Pills Styling */
+    .nav-pills .nav-link {
+        color: #718096;
         font-weight: 600;
+        border-radius: 12px;
+        padding: 12px 24px;
+        transition: all 0.3s ease;
     }
-    
-    /* Custom status colors */
-    .status-confirmed { background-color: #e1f5fe; color: #0288d1; }
-    .status-pending { background-color: #fff3e0; color: #ef6c00; }
-    .status-completed { background-color: #e8f5e9; color: #2e7d32; }
+    .nav-pills .nav-link.active {
+        background-color: var(--ibron-teal);
+        color: white;
+        box-shadow: 0 8px 15px rgba(43, 181, 178, 0.2);
+    }
 
-    /* Hide main site footer for a cleaner dashboard feel (Optional) */
+    /* Stats Cards */
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+    }
+
     footer { display: none; }
 </style>
 {% endblock extra_css %}
 
 {% block content %}
-
-{% block navbar %}
-{% endblock navbar %}
-<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top shadow-sm mb-4">
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom sticky-top py-3 mb-4">
   <div class="container">
-    <span class="navbar-brand fw-bold text-primary">
-        <i class="bi bi-speedometer2 me-2"></i>Business Panel
+    <span class="navbar-brand fw-bold d-flex align-items-center">
+        <div class="bg-teal-soft p-2 rounded-3 me-2">
+            <i class="bi bi-grid-1x2-fill text-teal"></i>
+        </div>
+        {% trans "Owner Management" %}
     </span>
     <div class="ms-auto">
-      <a class="btn btn-sm btn-outline-secondary rounded-pill px-3" href="{% url 'marketplace:salon_list' %}">
-        <i class="bi bi-eye me-1"></i> Client view
+      <a class="btn btn-sm btn-outline-dark rounded-pill px-4 fw-600" href="{% url 'marketplace:salon_list' %}">
+        <i class="bi bi-box-arrow-left me-2"></i>{% trans "Exit to Market" %}
       </a>
     </div>
   </div>
@@ -64,12 +142,12 @@
 
 <main class="container pb-5">
   {% if not salon %}
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm text-center p-5">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6 text-center">
+            <div class="dashboard-card p-5">
                 <i class="bi bi-shop fs-1 text-muted mb-3"></i>
-                <h4>No Salon Found</h4>
-                <p class="text-muted">You haven't registered a business yet.</p>
+                <h4 class="fw-bold">{% trans "No Active Salon" %}</h4>
+                <p class="text-muted">{% trans "It seems you haven't linked a business profile to your account yet." %}</p>
             </div>
         </div>
     </div>
@@ -77,24 +155,28 @@
     
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm overflow-hidden">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb mb-1">
-                                    <li class="breadcrumb-item small text-uppercase">Admin</li>
-                                    <li class="breadcrumb-item small text-uppercase active">Dashboard</li>
-                                </ol>
-                            </nav>
-                            <h1 class="h3 mb-1 fw-bold">{{ salon.name_ru }}</h1>
-                            <p class="text-muted mb-0 small">
-                                <i class="bi bi-geo-alt me-1"></i> {{ salon.address }}
-                            </p>
+            <div class="dashboard-card overflow-hidden">
+                <div class="card-body p-4 p-md-5">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            {% if salon.logo %}
+                                <img src="{{ salon.logo.url }}" class="rounded-4 shadow-sm" style="width: 100px; height: 100px; object-fit: cover; border: 4px solid white;">
+                            {% else %}
+                                <div class="bg-teal-soft rounded-4 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                    <i class="bi bi-house-door-fill text-teal fs-1"></i>
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="bg-light p-3 rounded-3 text-center">
-                            <div class="h4 mb-0 fw-bold text-primary">{{ bookings|length }}</div>
-                            <div class="text-muted small text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Today's Bookings</div>
+                        <div class="col mt-3 mt-md-0">
+                            <h1 class="display-6 fw-bold mb-1">{{ salon.name }}</h1>
+                            <div class="d-flex flex-wrap gap-3">
+                                <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                                    <i class="bi bi-geo-alt-fill text-teal me-1"></i> {{ salon.address }}
+                                </span>
+                                <span class="badge bg-light text-dark rounded-pill px-3 py-2">
+                                    <i class="bi bi-telephone-fill text-teal me-1"></i> {{ salon.phone }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -104,75 +186,82 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Daily Schedule</h5>
-                    <span class="badge bg-soft-primary text-primary">{{ now|date:"d M, Y" }}</span>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold mb-0">{% trans "Schedule Overview" %}</h4>
+                <div class="text-muted small fw-bold text-uppercase">{% now "l, d F" %}</div>
+            </div>
+
+            <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="pills-today-tab" data-bs-toggle="pill" data-bs-target="#pills-today" type="button">{% trans "Today" %}</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button">{% trans "Upcoming" %}</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="pills-past-tab" data-bs-toggle="pill" data-bs-target="#pills-past" type="button">{% trans "History" %}</button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="pills-tabContent">
+                <div class="tab-pane fade show active" id="pills-today">
+                    {% include "include/booking_table.html" with bookings=bookings_today title="Today's Sessions" %}
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-4 border-0 small text-muted">CLIENT</th>
-                                    <th class="border-0 small text-muted">SERVICE / MASTER</th>
-                                    <th class="border-0 small text-muted">TIME</th>
-                                    <th class="pe-4 border-0 small text-muted text-end">STATUS</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for b in bookings %}
-                                <tr class="booking-row">
-                                    <td class="ps-4">
-                                        <div class="fw-bold">{{ b.client }}</div>
-                                    </td>
-                                    <td>
-                                        {% i18n b.service "name" request.LANGUAGE_CODE as service_name %}
-                                        <div class="small">{{ service_name }}</div>
-                                        <div class="text-muted small">{{ b.master }}</div>
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold">{{ b.start_time|localtime|date:"H:i" }}</div>
-                                    </td>
-                                    <td class="pe-4 text-end">
-                                        <span class="status-badge status-confirmed">
-                                            {{ b.get_status_display }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">
-                                        <i class="bi bi-calendar-x d-block fs-2 mb-2"></i>
-                                        No bookings scheduled for today.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                <div class="tab-pane fade" id="pills-upcoming">
+                    {% include "include/booking_table.html" with bookings=bookings_upcoming title="Future Sessions" show_date=True %}
+                </div>
+                <div class="tab-pane fade" id="pills-past">
+                    {% include "include/booking_table.html" with bookings=bookings_past title="Past Records" show_date=True %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4 mt-4 mt-lg-0">
+            <div class="dashboard-card p-4 mb-4">
+                <h6 class="fw-bold mb-4 text-uppercase small text-muted" style="letter-spacing: 1px;">{% trans "Performance Stats" %}</h6>
+                
+                <div class="d-flex align-items-center mb-4">
+                    <div class="stat-icon bg-teal-soft me-3">
+                        <i class="bi bi-calendar-check-fill fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="h4 mb-0 fw-bold">{{ bookings_today.count }}</div>
+                        <div class="text-muted small">{% trans "Bookings Today" %}</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-0">
+                    <div class="stat-icon bg-light me-3">
+                        <i class="bi bi-graph-up-arrow text-dark fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="h4 mb-0 fw-bold">{{ bookings_upcoming.count }}</div>
+                        <div class="text-muted small">{% trans "Scheduled Future" %}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-card p-4" style="background: var(--ibron-dark);">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <img src="{{ request.user.profile.avatar.url|default:'/static/images/default-avatar.png' }}" 
+                             class="rounded-circle border border-3 border-white shadow-sm" 
+                             style="width: 55px; height: 55px; object-fit: cover;">
+                    </div>
+                    <div class="ms-3">
+                        <h6 class="mb-0 fw-bold text-white">{{ request.user.get_full_name|default:request.user.username }}</h6>
+                        <span class="text-teal small fw-bold">{% trans "Primary Business Owner" %}</span>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <div class="col-lg-4 mt-4 mt-lg-0">
-            <div class="card border-0 shadow-sm bg-primary text-white mb-3">
-                <div class="card-body">
-                    <h6>Quick Tips</h6>
-                    <p class="small opacity-75">Keep your availability updated to receive more bookings from clients.</p>
-                    <a href="#" class="btn btn-sm btn-light w-100 fw-bold">Update Calendar</a>
-                </div>
-            </div>
-        </div>
     </div>
-
   {% endif %}
 </main>
 {% endblock content %}
 
 {% block extra_js %}
 <script>
-    // You can add logic here to auto-refresh the bookings every 5 minutes
-    console.log("Dashboard loaded for {{ salon.name_ru }}");
+    console.log("Business Dashboard: {{ salon.name }} is active.");
 </script>
 {% endblock extra_js %}

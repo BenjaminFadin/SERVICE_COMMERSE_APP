@@ -231,21 +231,42 @@ def booking_success(request, salon_id):
     salon = get_object_or_404(Salon, pk=salon_id)
     return render(request, "marketplace/booking_success.html", {"salon": salon})
 
-
 @login_required
 def owner_dashboard(request):
+    # Get all salons owned by this user
     salons = request.user.salons.all()
-    salon = salons.first()
-    if not salon:
-        return render(request, "business/dashboard.html", {"salon": None, "bookings": []})
+    
+    # Check if the user is a Master (via the profile relation you created earlier)
+    master_profile = getattr(request.user, 'master_profile', None)
+    
+    # If not a salon owner and not a master, they shouldn't be here
+    if not salons.exists() and not master_profile:
+        return render(request, "business/dashboard.html", {"salon": None, "bookings_today": []})
 
     today = timezone.localdate()
-    bookings = (
-        Appointment.objects.filter(salon=salon, start_time__date=today)
-        .select_related("client", "service", "master")
-    )
-    return render(request, "business/dashboard.html", {"salon": salon, "bookings": bookings})
+    
+    # Base Queryset: Select salon or master context
+    if salons.exists():
+        target_salon = salons.first()
+        base_query = Appointment.objects.filter(salon=target_salon)
+    else:
+        target_salon = master_profile.salon
+        base_query = Appointment.objects.filter(master=master_profile)
 
+    # Fetching split datasets for the UI
+    bookings_today = base_query.filter(start_time__date=today).select_related("client", "service", "master").order_by('start_time')
+    
+    bookings_upcoming = base_query.filter(start_time__date__gt=today).select_related("client", "service", "master").order_by('start_time')
+    
+    bookings_past = base_query.filter(start_time__date__lt=today).select_related("client", "service", "master").order_by('-start_time')
+
+    return render(request, "business/dashboard.html", {
+        "salon": target_salon,
+        "bookings_today": bookings_today,
+        "bookings_upcoming": bookings_upcoming,
+        "bookings_past": bookings_past,
+        "today": today
+    })
 
 @require_GET
 def ajax_booking_form(request, salon_id, service_id):
