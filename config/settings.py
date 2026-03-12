@@ -90,25 +90,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Template for PostgreSQL database configuration
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "service_commerse_db",
-#         "USER": "postgres",
-#         "PASSWORD": "Topson_2024",
-#         "HOST": "localhost",
-#         "PORT": "5432",
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "service_commerse_db",
+        "USER": "postgres",
+        "PASSWORD": config.get('DB_PASSWORD'),
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -177,8 +177,8 @@ AUTHENTICATION_BACKENDS = [
 UNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': '95838719942-iif3qbeo6md6krv70j68m4eks9qj4cjg.apps.googleusercontent.com', 
-            'secret': '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',
+            'client_id': config.get("GOOGLE_CLIENT_ID"), 
+            'secret': config.get('GOOGLE_SECRET'),
             'key': ''
         }
     }
@@ -193,8 +193,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
         'APP': {
-            'client_id': '95838719942-iif3qbeo6md6krv70j68m4eks9qj4cjg.apps.googleusercontent.com', 
-            'secret': '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',
+            'client_id': config.get("GOOGLE_CLIENT_ID"), 
+            'secret': config.get('GOOGLE_SECRET'),
             'key': ''
         }
     }

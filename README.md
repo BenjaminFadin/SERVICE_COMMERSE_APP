@@ -7,3 +7,7 @@ django-admin compilemessages
 
 
 pip install --upgrade pip setuptools wheel
+
+ssh root@170.168.6.169
+Логин:root
+Пароль:ScZ9Op2TwHGkX7DJ
