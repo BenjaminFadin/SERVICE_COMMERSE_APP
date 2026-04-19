@@ -26,10 +26,11 @@ def notify_booking_created(sender, instance, created, **kwargs):
         send_telegram_message(
             customer_profile.telegram_id,
             (
-                "<b>Booking Confirmed</b>\n\n"
+                "<b>⏳ Booking Request Sent</b>\n\n"
                 f"Salon: {instance.salon.name}\n"
-                f"Service: {instance.service.name}\n"
-                f"Time: {start_time}"
+                f"Service: {instance.service.name_ru}\n"
+                f"Time: {start_time}\n\n"
+                "Waiting for the provider to confirm your booking."
             ),
         )
 
@@ -38,9 +39,11 @@ def notify_booking_created(sender, instance, created, **kwargs):
         send_telegram_message(
             provider_profile.telegram_id,
             (
-                "<b>New Booking</b>\n\n"
+                "<b>🔔 New Booking Request</b>\n\n"
                 f"Client: {customer.get_full_name() or customer.username}\n"
-                f"Service: {instance.service.name}\n"
-                f"Time: {start_time}"
+                f"Service: {instance.service.name_ru}\n"
+                f"Time: {start_time}\n\n"
+                "Please open your dashboard to Accept or Decline."
             ),
         )
+

@@ -11,3 +11,13 @@ pip install --upgrade pip setuptools wheel
 ssh root@170.168.6.169
 Логин:root
 Пароль:ScZ9Op2TwHGkX7DJ
+
+
+# User 
+fazliddinabduhakimov9@gmail.com
+Topson_2024
+
+# Service provider
+Fazliddin44
+1
+

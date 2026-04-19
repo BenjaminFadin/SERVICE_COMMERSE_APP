@@ -140,7 +140,6 @@ def salon_detail(request, salon_id):
         },
     )
     
-
 @login_required
 def booking_start(request, salon_id, service_id):
     salon = get_object_or_404(Salon, pk=salon_id)
@@ -162,7 +161,10 @@ def booking_start(request, salon_id, service_id):
             if start_dt not in slots:
                 form.add_error(None, "Selected time is no longer available.")
             else:
-                appointment = Appointment.objects.create(
+                # Create the appointment with 'pending' status.
+                # Telegram notifications are handled by the post_save signal
+                # in signals.py — do not duplicate here.
+                Appointment.objects.create(
                     client=request.user,
                     salon=salon,
                     master=master,
@@ -171,49 +173,6 @@ def booking_start(request, salon_id, service_id):
                     status="pending",
                     comment=form.cleaned_data.get("comment", ""),
                 )
-
-                # -----------------------------
-                # TELEGRAM NOTIFICATIONS
-                # -----------------------------
-                customer_profile = getattr(request.user, "profile", None)
-                provider_profile = getattr(salon.owner, "profile", None)
-                
-                print(customer_profile.telegram_id)
-                print(provider_profile.telegram_id)
-                
-                # import time
-                # time.sleep(200)
-                
-                start_time = timezone.localtime(start_dt).strftime("%d.%m.%Y %H:%M")
-
-                # Customer
-                if customer_profile and customer_profile.telegram_id:
-                    print(customer_profile)
-                    
-                    send_telegram_message(
-                        customer_profile.telegram_id,
-                        (
-                            "<b>Booking Confirmed</b>\n\n"
-                            f"Salon: {salon.name}\n"
-                            f"Service: {service.name}\n"
-                            f"Time: {start_time}"
-                        ),
-                    )
-
-                # Provider
-                if provider_profile and provider_profile.telegram_id:
-                    print(provider_profile)
-                    
-                    send_telegram_message(
-                        provider_profile.telegram_id,
-                        (
-                            "<b>New Booking</b>\n\n"
-                            f"Client: {request.user.get_full_name() or request.user.username}\n"
-                            f"Service: {service.name}\n"
-                            f"Time: {start_time}"
-                        ),
-                    )
-
                 return redirect("marketplace:booking_success", salon_id=salon.id)
 
     else:
@@ -225,7 +184,6 @@ def booking_start(request, salon_id, service_id):
         {"salon": salon, "service": service, "form": form},
     )
 
-
 @login_required
 def booking_success(request, salon_id):
     salon = get_object_or_404(Salon, pk=salon_id)
@@ -235,16 +193,16 @@ def booking_success(request, salon_id):
 def owner_dashboard(request):
     # Get all salons owned by this user
     salons = request.user.salons.all()
-    
+
     # Check if the user is a Master (via the profile relation you created earlier)
     master_profile = getattr(request.user, 'master_profile', None)
-    
+
     # If not a salon owner and not a master, they shouldn't be here
     if not salons.exists() and not master_profile:
         return render(request, "business/dashboard.html", {"salon": None, "bookings_today": []})
 
     today = timezone.localdate()
-    
+
     # Base Queryset: Select salon or master context
     if salons.exists():
         target_salon = salons.first()
@@ -253,20 +211,121 @@ def owner_dashboard(request):
         target_salon = master_profile.salon
         base_query = Appointment.objects.filter(master=master_profile)
 
+    # NEW: Pending bookings — provider must accept/decline
+    bookings_pending = base_query.filter(status="pending").select_related(
+        "client", "client__profile", "service", "master"
+    ).order_by("start_time")
+
     # Fetching split datasets for the UI
     bookings_today = base_query.filter(start_time__date=today).select_related("client", "service", "master").order_by('start_time')
-    
+
     bookings_upcoming = base_query.filter(start_time__date__gt=today).select_related("client", "service", "master").order_by('start_time')
-    
+
     bookings_past = base_query.filter(start_time__date__lt=today).select_related("client", "service", "master").order_by('-start_time')
 
     return render(request, "business/dashboard.html", {
         "salon": target_salon,
+        "bookings_pending": bookings_pending,   # <-- NEW
         "bookings_today": bookings_today,
         "bookings_upcoming": bookings_upcoming,
         "bookings_past": bookings_past,
         "today": today
     })
+    
+
+@login_required
+@require_POST
+def accept_booking(request, appointment_id):
+    appointment = get_object_or_404(
+        Appointment.objects.select_related("client__profile", "salon", "service", "master"),
+        pk=appointment_id,
+    )
+
+    if not _user_can_manage_appointment(request.user, appointment):
+        messages.error(request, "You are not allowed to manage this booking.")
+        return redirect("marketplace:owner_dashboard")
+
+    if appointment.status != "pending":
+        messages.warning(request, "This booking has already been processed.")
+        return redirect("marketplace:owner_dashboard")
+
+    appointment.status = "confirmed"
+    appointment.save(update_fields=["status"])
+    _notify_client_status_change(appointment, action="accepted")
+
+    messages.success(request, "Booking accepted. The client has been notified.")
+    return redirect("marketplace:owner_dashboard")
+
+
+@login_required
+@require_POST
+def decline_booking(request, appointment_id):
+    appointment = get_object_or_404(
+        Appointment.objects.select_related("client__profile", "salon", "service", "master"),
+        pk=appointment_id,
+    )
+
+    if not _user_can_manage_appointment(request.user, appointment):
+        messages.error(request, "You are not allowed to manage this booking.")
+        return redirect("marketplace:owner_dashboard")
+
+    if appointment.status != "pending":
+        messages.warning(request, "This booking has already been processed.")
+        return redirect("marketplace:owner_dashboard")
+
+    appointment.status = "cancelled"
+    appointment.save(update_fields=["status"])
+    _notify_client_status_change(appointment, action="declined")
+
+    messages.success(request, "Booking declined. The client has been notified.")
+    return redirect("marketplace:owner_dashboard")
+
+def _notify_client_status_change(appointment, action):
+    """
+    Send a Telegram message to the CLIENT when the provider
+    accepts or declines their booking.
+    action: "accepted" or "declined"
+    """
+    client_profile = getattr(appointment.client, "profile", None)
+    if not client_profile or not client_profile.telegram_id:
+        return
+
+    service_name = appointment.service.name_ru if appointment.service else "-"
+    master_name = appointment.master.name if appointment.master else "-"
+    start_time = timezone.localtime(appointment.start_time).strftime("%d.%m.%Y %H:%M")
+
+    if action == "accepted":
+        text = (
+            "<b>✅ Booking Accepted</b>\n\n"
+            f"Your booking at <b>{appointment.salon.name}</b> has been confirmed.\n\n"
+            f"Service: {service_name}\n"
+            f"Master: {master_name}\n"
+            f"Time: {start_time}\n\n"
+            "See you soon!"
+        )
+    else:  # declined
+        text = (
+            "<b>❌ Booking Declined</b>\n\n"
+            f"Unfortunately, <b>{appointment.salon.name}</b> had to decline your booking.\n\n"
+            f"Service: {service_name}\n"
+            f"Master: {master_name}\n"
+            f"Time: {start_time}\n\n"
+            "You can choose another time or another salon."
+        )
+
+    send_telegram_message(client_profile.telegram_id, text)
+
+def _user_can_manage_appointment(user, appointment):
+    """
+    Salon owner OR the assigned master can manage (accept/decline) bookings.
+    """
+    if appointment.salon.owner_id == user.id:
+        return True
+    master_profile = getattr(user, "master_profile", None)
+    if master_profile and appointment.master_id == master_profile.id:
+        return True
+    return False
+
 
 @require_GET
 def ajax_booking_form(request, salon_id, service_id):

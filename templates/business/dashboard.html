@@ -191,29 +191,41 @@
                 <div class="text-muted small fw-bold text-uppercase">{% now "l, d F" %}</div>
             </div>
 
-            <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
-                <li class="nav-item">
-                    <button class="nav-link active" id="pills-today-tab" data-bs-toggle="pill" data-bs-target="#pills-today" type="button">{% trans "Today" %}</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button">{% trans "Upcoming" %}</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="pills-past-tab" data-bs-toggle="pill" data-bs-target="#pills-past" type="button">{% trans "History" %}</button>
-                </li>
-            </ul>
-
-            <div class="tab-content" id="pills-tabContent">
-                <div class="tab-pane fade show active" id="pills-today">
-                    {% include "include/booking_table.html" with bookings=bookings_today title="Today's Sessions" %}
-                </div>
-                <div class="tab-pane fade" id="pills-upcoming">
-                    {% include "include/booking_table.html" with bookings=bookings_upcoming title="Future Sessions" show_date=True %}
-                </div>
-                <div class="tab-pane fade" id="pills-past">
-                    {% include "include/booking_table.html" with bookings=bookings_past title="Past Records" show_date=True %}
-                </div>
+        <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active position-relative" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending" type="button">
+                    {% trans "Pending" %}
+                    {% if bookings_pending %}
+                        <span class="badge bg-danger rounded-pill ms-1">{{ bookings_pending|length }}</span>
+                    {% endif %}
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="pills-today-tab" data-bs-toggle="pill" data-bs-target="#pills-today" type="button">{% trans "Today" %}</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button">{% trans "Upcoming" %}</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="pills-past-tab" data-bs-toggle="pill" data-bs-target="#pills-past" type="button">{% trans "History" %}</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade show active" id="pills-pending">
+                {% include "include/booking_table.html" with bookings=bookings_pending title="Awaiting Your Approval" show_actions=True %}
             </div>
+            <div class="tab-pane fade" id="pills-today">
+                {% include "include/booking_table.html" with bookings=bookings_today title="Today's Sessions" %}
+            </div>
+            <div class="tab-pane fade" id="pills-upcoming">
+                {% include "include/booking_table.html" with bookings=bookings_upcoming title="Future Sessions" show_date=True %}
+            </div>
+            <div class="tab-pane fade" id="pills-past">
+                {% include "include/booking_table.html" with bookings=bookings_past title="Past Records" show_date=True %}
+            </div>
+        </div>
+
         </div>
 
         <div class="col-lg-4 mt-4 mt-lg-0">
@@ -244,9 +256,15 @@
             <div class="dashboard-card p-4" style="background: var(--ibron-dark);">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0">
-                        <img src="{{ request.user.profile.avatar.url|default:'/static/images/default-avatar.png' }}" 
-                             class="rounded-circle border border-3 border-white shadow-sm" 
-                             style="width: 55px; height: 55px; object-fit: cover;">
+                        {% if request.user.profile.avatar %}
+                            <img src="{{ request.user.profile.avatar.url }}" 
+                                 class="rounded-circle border border-3 border-white shadow-sm" 
+                                 style="width: 55px; height: 55px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-teal-soft rounded-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px;">
+                                <i class="bi bi-person-fill text-teal fs-1"></i>
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="ms-3">
                         <h6 class="mb-0 fw-bold text-white">{{ request.user.get_full_name|default:request.user.username }}</h6>

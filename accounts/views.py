@@ -23,6 +23,10 @@ from .forms import (
     ProfileUpdateForm
 )
 
+
+from marketplace.forms import WorkingHoursFormSet
+from marketplace.models import SalonWorkingHours
+
 from .models import PasswordResetCode
 
 
@@ -248,21 +252,78 @@ def password_reset_confirm(request):
 @login_required
 def profile_settings(request):
     profile = request.user.profile
+
+    # Get the first salon owned by the user (assuming 1 salon per user for now)
+    salon = request.user.salons.first()
+
+    # Initialize formset and queryset as None — only populated if user has a salon
+    hours_formset = None
+    hours_qs = None
+
+    if salon:
+        # Ensure all 7 days exist in the database for this salon.
+        # If any weekday is missing, create it as "closed" by default.
+        existing_days = salon.working_hours.values_list('weekday', flat=True)
+        for day_num, day_name in SalonWorkingHours.WEEKDAYS:
+            if day_num not in existing_days:
+                SalonWorkingHours.objects.create(
+                    salon=salon,
+                    weekday=day_num,
+                    is_closed=True,
+                )
+
+        # Query the hours for the formset (ordered Monday -> Sunday)
+        hours_qs = salon.working_hours.all().order_by('weekday')
+
     if request.method == 'POST':
-        # Pass request.FILES for the avatar!
-        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile, user=request.user)
-        if form.is_valid():
-            form.save()
-            
-            # Update the language in the current session using the correct key
-            lang = form.cleaned_data.get('language')
-            translation.activate(lang)
-            request.session['django_language'] = lang  # Fixed key here
-            
-            messages.success(request, _("Your profile has been updated!"))
+        profile_form = ProfileUpdateForm(
+            request.POST,
+            request.FILES,
+            instance=profile,
+            user=request.user,
+        )
+
+        # Only build the working-hours formset if the user has a salon
+        if salon:
+            hours_formset = WorkingHoursFormSet(
+                request.POST,
+                queryset=hours_qs,
+                prefix='working_hours',
+            )
+
+        # Validate profile form (always) + hours formset (only if salon exists)
+        profile_valid = profile_form.is_valid()
+        hours_valid = hours_formset.is_valid() if salon else True
+
+        if profile_valid and hours_valid:
+            profile_form.save()
+
+            if salon:
+                hours_formset.save()
+
+            # Language update logic
+            lang = profile_form.cleaned_data.get('language')
+            if lang:
+                translation.activate(lang)
+                request.session['django_language'] = lang
+
+            messages.success(request, _("Settings updated successfully!"))
             return redirect('accounts:settings')
+        else:
+            messages.error(request, _("Please fix the errors below."))
+
     else:
-        # Initial values are handled inside the __init__ of the form
-        form = ProfileUpdateForm(instance=profile, user=request.user)
-    
-    return render(request, 'accounts/settings.html', {'form': form})
+        # GET request — build blank/pre-filled forms
+        profile_form = ProfileUpdateForm(instance=profile, user=request.user)
+        if salon:
+            hours_formset = WorkingHoursFormSet(
+                queryset=hours_qs,
+                prefix='working_hours',
+            )
+
+    context = {
+        'form': profile_form,
+        'salon': salon,
+        'hours_formset': hours_formset,
+    }
+    return render(request, 'accounts/settings.html', context)

@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extra_css %}
+<style>
+        :root {
+            --booksy-teal: #00A3AD;
+            --booksy-dark: #101928;
+            --booksy-gray: #75767A;
+            --bg-light: #F7F7F9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--booksy-dark);
+        }
+
+        /* --- Navbar Styles --- */
+        .navbar {
+            padding: 0.75rem 0;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #000;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: var(--booksy-dark);
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.show {
+            color: var(--booksy-teal);
+        }
+
+        /* --- Avatar & Hover Dropdown Logic (Desktop Only) --- */
+        .nav-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--booksy-dark);
+            font-size: 1.4rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .nav-avatar:hover, .dropdown-hover:hover .nav-avatar {
+            background-color: #e4e6eb;
+            border-color: var(--booksy-teal);
+            color: var(--booksy-teal);
+        }
+
+        /* Desktop Hover Effect */
+        @media (min-width: 992px) {
+            .dropdown-hover { position: relative; }
+            
+            .dropdown-hover .dropdown-menu {
+                top: 100% !important;
+                right: 0 !important;
+                left: auto !important;
+                margin-top: 10px !important;
+                display: none; 
+            }
+
+            .dropdown-hover:hover .dropdown-menu,
+            .dropdown-hover .dropdown-menu.show {
+                display: block;
+                animation: fadeIn 0.2s ease-in-out;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    /* Mobile-first card styling */
+    .settings-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+    }
+
+    .card-title-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        margin-right: 0.75rem;
+    }
+
+    /* Avatar handling */
+    .avatar-wrapper {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .avatar-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    /* Working Hours: Mobile List Layout */
+    .hour-row {
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .hour-row:last-child { border-bottom: none; }
+
+    /* Touch-friendly inputs */
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 0.35rem;
+        margin-left: 0.25rem;
+    }
+
+    .form-control, .form-select {
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Floating Action Button for mobile save */
+    @media (max-width: 767.98px) {
+        .save-container-mobile {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #dee2e6;
+            z-index: 1030;
+        }
+        .container-settings { padding-bottom: 80px; }
+    }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container container-settings py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            
+            <div class="text-center mb-4">
+                <h1 class="h4 fw-bold mb-1">{% trans "Settings" %}</h1>
+                <p class="text-muted small">{% trans "Manage your profile and business" %}</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% if hours_formset %}{{ hours_formset.management_form }}{% endif %}
+                
+                <div class="avatar-wrapper">
+                    {% if request.user.profile.avatar %}
+                        <img src="{{ request.user.profile.avatar.url }}" class="avatar-img" alt="Avatar">
+                    {% else %}
+                        <div class="avatar-img bg-primary text-white d-flex align-items-center justify-content-center" style="font-size: 2rem;">
+                            {{ request.user.username|first|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card settings-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="card-title-icon bg-primary-subtle text-primary">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <h5 class="card-title h6 fw-bold mb-0">{% trans "Personal Information" %}</h5>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">{% trans "Upload Photo" %}</label>
+                            {{ form.avatar }}
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">{% trans "Full Name" %}</label>
+                                {{ form.full_name }}
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">{% trans "Phone Number" %}</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">{% trans "First Name" %}</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">{% trans "Last Name" %}</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if salon and hours_formset %}
+                <div class="card settings-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="card-title-icon bg-success-subtle text-success">
+                                    <i class="bi bi-shop"></i>
+                                </div>
+                                <h5 class="card-title h6 fw-bold mb-0">{% trans "Working Hours" %}</h5>
+                            </div>
+                            <span class="badge bg-light text-muted rounded-pill">{{ salon.name }}</span>
+                        </div>
+
+                        <p class="small text-muted mb-3">
+                            {% trans "Set your salon's weekly opening hours. Toggle 'Closed' for days off." %}
+                        </p>
+
+                        <div class="hours-list">
+                            {% for h_form in hours_formset %}
+                            <div class="hour-row">
+                                <div class="row align-items-center g-2">
+                                    <div class="col-5">
+                                        <span class="fw-bold d-block">{{ h_form.instance.get_weekday_display }}</span>
+                                        <div class="form-check form-switch small mt-1">
+                                            {{ h_form.is_closed }}
+                                            <label class="form-check-label text-muted" for="{{ h_form.is_closed.id_for_label }}">
+                                                {% trans "Closed" %}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-7">
+                                        <div class="input-group input-group-sm time-inputs-container">
+                                            {{ h_form.id }}{{ h_form.weekday }}
+                                            {{ h_form.open_time }}
+                                            <span class="input-group-text bg-transparent border-0">-</span>
+                                            {{ h_form.close_time }}
+                                        </div>
+                                        {% if h_form.errors %}
+                                            <div class="text-danger small mt-1">{{ h_form.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card settings-card border-dashed">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-shop fs-1 text-muted opacity-50 d-block mb-2"></i>
+                        <h6 class="fw-bold mb-1">{% trans "No salon yet" %}</h6>
+                        <p class="small text-muted mb-0">
+                            {% trans "Once you have a salon, you'll be able to set its working hours here." %}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card settings-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="card-title-icon bg-info-subtle text-info">
+                                <i class="bi bi-gear-fill"></i>
+                            </div>
+                            <h5 class="card-title h6 fw-bold mb-0">{% trans "App Preferences" %}</h5>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">{% trans "Telegram ID" %}</label>
+                                {{ form.telegram_id }}
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">{% trans "System Language" %}</label>
+                                {{ form.language }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="provider-fields" class="card settings-card {% if form.role.value != 'provider' %}d-none{% endif %}">
+                    <div class="card-body p-4 border-top border-4 border-primary">
+                        <h5 class="card-title h6 fw-bold mb-4">{% trans "Professional Details" %}</h5>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">{% trans "Company Name" %}</label>
+                                {{ form.company_name }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">{% trans "Bio" %}</label>
+                                {{ form.bio }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="save-container-mobile text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold shadow">
+                        {% trans "Save Settings" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle Time Inputs based on "Closed" checkbox
+        const hourRows = document.querySelectorAll('.hour-row');
+        hourRows.forEach(row => {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            const timeInputs = row.querySelectorAll('input[type="time"]');
+            
+            const toggleInputs = () => {
+                timeInputs.forEach(input => {
+                    input.disabled = checkbox.checked;
+                    input.style.opacity = checkbox.checked ? '0.5' : '1';
+                });
+            };
+
+            checkbox.addEventListener('change', toggleInputs);
+            toggleInputs(); // Run on load
+        });
+    });
+</script>
+{% endblock %}

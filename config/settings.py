@@ -102,11 +102,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "service_commerse_db",
-        "USER": "postgres",
+        "NAME": config.get('DB_NAME'),
+        "USER": config.get('DB_USER'),
         "PASSWORD": config.get('DB_PASSWORD'),
-        "HOST": "localhost",
-        "PORT": "5432",
+        "HOST": config.get('DB_HOST'),
+        "PORT": config.get('DB_PORT'),
     }
 }
 
@@ -205,8 +205,9 @@ EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "fazliddinabdukhakimov@gmail.com"
-EMAIL_HOST_PASSWORD = "zkwf hqwg stgd fhsj"
-DEFAULT_FROM_EMAIL = "ibron <fazliddinabdukhakimov@gmail.com>"
+EMAIL_HOST_USER = config.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config.get('DEFAULT_FROM_EMAIL')
 
 TELEGRAM_BOT_TOKEN = config.get('TELEGRAM_BOT_TOKEN')
+

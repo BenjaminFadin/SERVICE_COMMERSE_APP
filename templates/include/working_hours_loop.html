@@ -1,0 +1,28 @@
+{% load i18n %}
+
+{% comment %}
+    This partial handles the display of working hours.
+    Expects: 
+    - 'working_hours': QuerySet of SalonWorkingHours
+    - 'today_weekday': Integer (0-6) representing today's day
+{% endcomment %}
+
+{% if working_hours %}
+    {% for wh in working_hours %}
+    <div class="working-hours-row d-flex justify-content-between align-items-center mb-2">
+      <span class="day-name {% if today_weekday == wh.weekday %}fw-bold text-dark{% else %}text-muted{% endif %}">
+        {{ wh.get_weekday_display }}
+      </span>
+      
+      <span class="hours-val {% if today_weekday == wh.weekday %}hours-today fw-bold{% endif %}">
+        {% if wh.is_closed %}
+            <span class="text-danger">{% trans "Closed" %}</span>
+        {% else %}
+            {{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}
+        {% endif %}
+      </span>
+    </div>
+    {% endfor %}
+{% else %}
+    <p class="small text-muted italic">{% trans "Opening hours not specified." %}</p>
+{% endif %}

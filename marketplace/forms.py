@@ -2,8 +2,9 @@ from datetime import datetime
 
 from django import forms
 from django.utils import timezone
+from django.forms import modelformset_factory
 
-from .models import Master
+from .models import Master, SalonWorkingHours
 
 
 class BookingForm(forms.Form):
@@ -30,3 +31,23 @@ class BookingForm(forms.Form):
         t = self.cleaned_data["time"]
         naive = datetime.combine(d, t)
         return timezone.make_aware(naive, timezone.get_current_timezone())
+
+
+class SalonWorkingHoursForm(forms.ModelForm):
+    class Meta:
+        model = SalonWorkingHours
+        fields = ['weekday', 'is_closed', 'open_time', 'close_time']
+        widgets = {
+            'weekday': forms.HiddenInput(),  # We don't want users changing the day index
+            'open_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'close_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'is_closed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+# This factory creates a group of 7 forms (one for each day)
+WorkingHoursFormSet = modelformset_factory(
+    SalonWorkingHours,
+    form=SalonWorkingHoursForm,
+    extra=0,  # No extra empty forms
+    can_delete=False
+)

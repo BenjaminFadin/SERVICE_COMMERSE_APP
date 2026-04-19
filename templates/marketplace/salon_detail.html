@@ -2,327 +2,687 @@
 {% load static %}
 {% load i18n %}
 {% load i18n_fields %}
+{% load venue_labels %}
 
 {% block title %}
   {% if salon %}
     {% i18n salon "name" request.LANGUAGE_CODE as salon_name %}
-      {{ salon_name }} - Booksy Clone
+    {{ salon_name }}
   {% else %}
-    Salons - Booksy Clone
+    {% trans "Salons" %}
   {% endif %}
 {% endblock %}
 
 {% block extra_css %}
-  <style>
-    :root {
-      --booksy-teal: #00A3AD;
-      --booksy-dark: #101928;
-      --booksy-gray: #75767A;
-      --bg-light: #F7F7F9;
-      --card-border: #eee;
-      --radius-lg: 12px;
-      --radius-md: 10px;
-    }
-
-    body {
-      background-color: var(--bg-light);
-      font-family: 'Inter', sans-serif;
-      color: var(--booksy-dark);
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
-
-    /* --- Navbar & Tap Targets --- */
-    .btn, .nav-link, .gallery-btn { min-height: 44px; }
-    .navbar { background: #fff; border-bottom: 1px solid #e0e0e0; min-height: 64px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
-    .navbar-brand { font-family: 'Poppins', sans-serif; font-weight: 700; color: #000; font-size: 1.75rem; }
-
-    /* --- Hero Cover --- */
-    .cover-image {
-      height: 220px;
-      width: 100%;
-      background-size: cover;
-      background-position: center;
-      position: relative;
-    }
-
-    .gallery-btn {
-      position: absolute;
-      bottom: 12px;
-      right: 12px;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(0,0,0,0.06);
-      border-radius: 10px;
-      padding: 8px 14px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      z-index: 10;
-      min-height: auto;
-    }
-.navbar {
-  padding: 0.75rem 0;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-}
-
-.navbar-brand {
-  font-family: "Poppins", sans-serif;
-  font-weight: 700;
-  font-size: 1.75rem;
-  color: #000;
-}
-
-.nav-link {
-  font-weight: 600;
-  color: var(--booksy-dark);
-  margin-left: 1rem;
-  transition: color 0.2s;
-}
-
-.nav-link:hover,
-.nav-link.show {
-  color: var(--booksy-teal);
-}
-
-/* --- Avatar & Hover Dropdown Logic --- */
-.nav-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #f0f2f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--booksy-dark);
-  font-size: 1.4rem;
-  transition: all 0.2s;
-  cursor: pointer;
-  border: 2px solid transparent;
-}
-
-.nav-avatar:hover,
-.dropdown-hover:hover .nav-avatar {
-  background-color: #e4e6eb;
-  border-color: var(--booksy-teal);
-  color: var(--booksy-teal);
-}
-
-@media (min-width: 992px) {
-  .dropdown-hover { position: relative; }
-  .dropdown-hover .dropdown-menu {
-    top: 100% !important;
-    right: 0 !important;
-    left: auto !important;
-    margin-top: 10px !important;
-    display: none;
+<style>
+  :root {
+    --booksy-teal: #00A3AD;
+    --booksy-dark: #101928;
+    --booksy-gray: #75767A;
+    --bg-light: #F7F7F9;
+    --card-border: #eee;
+    --radius-lg: 14px;
+    --radius-md: 10px;
   }
-  .dropdown-hover:hover .dropdown-menu,
-  .dropdown-hover .dropdown-menu.show {
-    display: block;
-    animation: fadeIn 0.2s ease-in-out;
-  }
-}
 
-    /* --- Profile Header (Mobile First) --- */
-    .profile-header { position: relative; margin-bottom: 1.25rem; padding-top: 64px; }
+  /* ===== GLOBAL ANTI-OVERFLOW ===== */
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  img, video { max-width: 100%; height: auto; }
+
+  body {
+    background-color: var(--bg-light);
+    font-family: 'Inter', sans-serif;
+    color: var(--booksy-dark);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Long words (phones, URLs, addresses) wrap instead of overflowing */
+  .break-anywhere {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* ===== MOBILE-FIRST CONTAINER ===== */
+  .page-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    max-width: 100%;
+  }
+  @media (min-width: 576px) { .page-container { padding-left: 1.25rem; padding-right: 1.25rem; } }
+  @media (min-width: 992px) {
+    .page-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  /* ===== TAP TARGETS (Apple HIG min 44px) ===== */
+  .btn, .nav-link, .gallery-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ===== COVER / HERO ===== */
+  .cover-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    background-color: #d9dde3;
+  }
+  @media (min-width: 768px) { .cover-image { height: 280px; } }
+  @media (min-width: 992px) { .cover-image { height: 340px; } }
+
+  .gallery-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--booksy-dark);
+    min-height: 40px;
+    max-width: calc(100% - 24px);
+  }
+  .gallery-btn i { margin-right: 6px; }
+
+  /* ===== PROFILE HEADER ===== */
+  .profile-header {
+    position: relative;
+    margin: -40px 0 1.25rem;
+    padding-top: 52px;
+    text-align: center;
+  }
+  .avatar-container {
+    position: absolute;
+    top: -40px; left: 50%;
+    transform: translateX(-50%);
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    background: #eee;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+  .avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .biz-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    margin: 0 0 0.35rem;
+    word-wrap: break-word;
+  }
+  .biz-address {
+    font-size: 0.88rem;
+    color: var(--booksy-gray);
+    margin: 0 0 0.5rem;
+  }
+  @media (min-width: 768px) {
+    .biz-title { font-size: 1.65rem; }
+    .avatar-container { width: 110px; height: 110px; top: -50px; }
+    .profile-header { padding-top: 62px; }
+  }
+  @media (min-width: 992px) {
+    .profile-header {
+      margin-top: 0;
+      padding: 0 0 0 160px;
+      text-align: left;
+      min-height: 120px;
+    }
     .avatar-container {
-      width: 112px; height: 112px; border-radius: 50%; border: 4px solid #fff;
-      background-color: #000; overflow: hidden; position: absolute;
-      top: -56px; left: 50%; transform: translateX(-50%);
-      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+      width: 130px; height: 130px;
+      top: -55px; left: 0;
+      transform: none;
     }
-    .avatar-img { width: 100%; height: 100%; object-fit: cover; }
-    .header-content { padding-top: 0.75rem; text-align: center; }
-    .biz-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.6rem; line-height: 1.1; margin-bottom: 0.25rem; }
+    .biz-title { font-size: 2rem; }
+  }
 
-    /* --- Services & Cards --- */
-    .category-title { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.25rem; margin-bottom: 1rem; }
-    .service-card {
-      background: #fff; border: 1px solid var(--card-border); border-radius: var(--radius-lg);
-      padding: 1rem; margin-bottom: 0.9rem; transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-    .service-card:hover { box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06); transform: translateY(-1px); }
-    .service-name { font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; }
-    .service-desc { font-size: 0.92rem; color: var(--booksy-gray); margin-bottom: 0; }
-    .price-tag { font-weight: 700; font-size: 1.05rem; }
-    .btn-add { border: 1px solid var(--booksy-teal); color: var(--booksy-teal); background: #fff; font-weight: 700; padding: 8px 18px; border-radius: 10px; }
-    .btn-add:hover { background-color: var(--booksy-teal); color: #fff; }
+  /* ===== NAV TABS (horizontally scrollable on mobile) ===== */
+  .nav-tabs-wrap {
+    margin: 0 -1rem 1rem;
+    padding: 0 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nav-tabs-wrap::-webkit-scrollbar { display: none; }
+  .nav-tabs-wrap .nav-tabs {
+    flex-wrap: nowrap;
+    border-bottom: 1px solid #e6e8eb;
+    min-width: max-content;
+  }
+  .nav-tabs-wrap .nav-link {
+    white-space: nowrap;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--booksy-gray);
+    border: none;
+    padding: 10px 14px;
+  }
+  .nav-tabs-wrap .nav-link.active {
+    color: var(--booksy-dark);
+    border-bottom: 3px solid var(--booksy-teal);
+    background: transparent;
+  }
 
-    /* --- Venue / Sidebar --- */
-    .venue-card { background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--card-border); overflow: hidden; margin-bottom: 1.5rem; }
-    .map-preview { height: 160px; width: 100%; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; }
-    .venue-body { padding: 1.25rem; }
-    .contact-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem; }
-    .icon-circle { width: 36px; height: 36px; border-radius: 50%; background-color: #F0F2F5; display: flex; align-items: center; justify-content: center; flex: 0 0 36px; }
-    .working-hours-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.95rem; margin-bottom: 8px; }
-    .hours-today { color: #28a745; font-weight: 700; }
+  /* ===== ALERTS / BANNERS ===== */
+  .venue-alert {
+    background: #e8f7f8;
+    color: #0b6a6e;
+    border: 1px solid #b7e8eb;
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .venue-alert i { flex: 0 0 auto; margin-top: 2px; }
 
-    /* --- Responsive Desktop --- */
-    @media (min-width: 992px) {
-      .cover-image { height: 320px; }
-      .profile-header { padding-top: 0; margin-bottom: 2rem; }
-      .avatar-container { width: 140px; height: 140px; top: -70px; left: 0; transform: none; }
-      .header-content { padding-left: 160px; padding-top: 1rem; text-align: left; }
-      .biz-title { font-size: 2rem; }
-      .venue-card { position: sticky; top: 90px; }
-      #bookingDrawer { width: 450px; max-width: 450px; }
-    }
-  </style>
+  /* ===== SECTION TITLES ===== */
+  .category-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin: 0 0 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  @media (min-width: 768px) { .category-title { font-size: 1.25rem; } }
+
+  .count-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--booksy-gray);
+    background: #eef1f4;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  /* ===== SERVICE CARDS (Mobile-first stacked) ===== */
+  .service-card {
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    margin-bottom: 10px;
+    transition: box-shadow .2s;
+  }
+  .service-card:active { background: #fafbfc; }
+  .service-card:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
+
+  .service-head {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .service-name {
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.3;
+    margin: 0;
+    word-break: break-word;
+  }
+  .service-desc {
+    font-size: 0.85rem;
+    color: var(--booksy-gray);
+    margin: 0;
+    word-break: break-word;
+  }
+  .service-meta {
+    font-size: 0.78rem;
+    color: var(--booksy-gray);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .service-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .service-price-block { min-width: 0; flex: 1 1 auto; }
+  .price-tag {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--booksy-dark);
+    line-height: 1.1;
+  }
+  .price-sub {
+    font-size: 0.72rem;
+    color: var(--booksy-gray);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+  .price-free { color: #1aa06d; }
+
+  .btn-add {
+    flex: 0 0 auto;
+    border: 1.5px solid var(--booksy-teal);
+    color: var(--booksy-teal);
+    background: #fff;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 8px 18px;
+    border-radius: 999px;
+    min-height: 40px;
+    white-space: nowrap;
+  }
+  .btn-add:hover, .btn-add:focus {
+    background: var(--booksy-teal); color: #fff;
+  }
+
+  /* ===== VENUE INFO CARD ===== */
+  .venue-card {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--card-border);
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+  }
+  .venue-body { padding: 16px; }
+  .venue-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 0 12px;
+  }
+  .contact-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+  }
+  .contact-row:last-child { margin-bottom: 0; }
+  .contact-row .icon-circle {
+    flex: 0 0 34px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: #F0F2F5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+  }
+  .contact-row a { color: var(--booksy-dark); text-decoration: none; }
+  .contact-row a:hover { color: var(--booksy-teal); }
+  .contact-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.4;
+  }
+
+  .working-hours-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+  }
+  .working-hours-row:last-child { margin-bottom: 0; }
+  .day-name { color: var(--booksy-dark); }
+  .hours-today { color: #1aa06d; font-weight: 700; }
+
+  /* ===== RESOURCE GRID (courts/PCs/tables) ===== */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  @media (min-width: 480px) { .resource-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (min-width: 768px) { .resource-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (min-width: 1200px) { .resource-grid { grid-template-columns: repeat(5, 1fr); } }
+
+  .resource-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    font-size: 0.82rem;
+    font-weight: 500;
+    min-width: 0;
+  }
+  .resource-chip i {
+    color: var(--booksy-teal);
+    flex: 0 0 auto;
+  }
+  .resource-chip span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  /* ===== ABOUT / MAP BUTTON ===== */
+  .about-text {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #3c4451;
+  }
+  .map-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 999px;
+    font-weight: 600;
+    color: var(--booksy-dark);
+    text-decoration: none;
+    margin-top: 12px;
+  }
+  .map-btn:hover { background: #f5f7f9; color: var(--booksy-dark); }
+
+  /* ===== DESKTOP SIDEBAR ===== */
+  @media (min-width: 992px) {
+    .venue-sidebar { position: sticky; top: 90px; }
+  }
+
+  /* ===== OFFCANVAS BOOKING ===== */
+  #bookingDrawer {
+    width: 100%;
+    max-width: 100%;
+  }
+  @media (min-width: 768px) {
+    #bookingDrawer { width: 420px; max-width: 420px; }
+  }
+
+  /* ===== GALLERY MODAL FIX ===== */
+  .modal-body .carousel-item img {
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
+    background: #000;
+  }
+</style>
 {% endblock extra_css %}
 
 {% block content %}
-<div class="cover-image" style="background-image: url('{% if salon.photos.first %}{{ salon.photos.first.image.url }}{% else %}https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200{% endif %}');">
-  <div class="container h-100 position-relative">
-    <button class="gallery-btn shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#galleryModal">
-      <i class="bi bi-images me-2"></i> {% trans "Show all photos" %}
-    </button>
-  </div>
+
+{# ===== COVER IMAGE ===== #}
+<div class="cover-image"
+     style="background-image: url('{% if salon.photos.first %}{{ salon.photos.first.image.url }}{% else %}https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200{% endif %}');">
+  <button class="gallery-btn shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#galleryModal">
+    <i class="bi bi-images"></i> {% trans "Photos" %}
+  </button>
 </div>
 
-<div class="container pb-5">
-  <div class="row">
-    <div class="col-lg-8">
+<div class="page-container pb-5">
+  <div class="row g-lg-4">
+
+    {# ================== MAIN COLUMN ================== #}
+    <div class="col-12 col-lg-8">
+
+      {# ----- PROFILE HEADER ----- #}
       <div class="profile-header">
         <div class="avatar-container">
-          <img src="{% if salon.logo %}{{ salon.logo.url }}{% else %}https://images.unsplash.com/photo-1634926878768-2a5b3c426d49?auto=format&fit=crop&q=80&w=200{% endif %}" alt="Avatar" class="avatar-img">
+          <img class="avatar-img"
+               src="{% if salon.logo %}{{ salon.logo.url }}{% else %}https://images.unsplash.com/photo-1634926878768-2a5b3c426d49?auto=format&fit=crop&q=80&w=200{% endif %}"
+               alt="{{ salon.name }}">
         </div>
-        <div class="header-content">
-          <h1 class="biz-title">{{ salon.name|upper }}</h1>
-          <p class="text-muted mb-2">{{ salon.location.full_address|default:salon.address }}</p>
-          <div class="d-flex align-items-center flex-wrap gap-2 justify-content-lg-start justify-content-center">
-            <span class="badge bg-light text-dark border">
-              {% if salon.category %}
-                {% i18n salon.category "name" request.LANGUAGE_CODE as cat_name %}
-                {{ cat_name }}
-              {% else %}
-                {% trans "Category" %}
-              {% endif %}
-            </span>
-          </div>
-        </div>
+        <h1 class="biz-title break-anywhere">{{ salon.name }}</h1>
+        <p class="biz-address break-anywhere">
+          <i class="bi bi-geo-alt"></i>
+          {{ salon.location.full_address|default:salon.address }}
+        </p>
+        {% if salon.category %}
+          {% i18n salon.category "name" request.LANGUAGE_CODE as cat_name %}
+          <span class="badge bg-light text-dark border">{{ cat_name }}</span>
+        {% endif %}
       </div>
 
-      <ul class="nav nav-tabs mb-4">
-        <li class="nav-item"><a class="nav-link active" href="#services-list">{% trans "Services" %}</a></li>
-        <li class="nav-item"><a class="nav-link" href="#about-section">{% trans "About" %}</a></li>
-      </ul>
+      {# ----- RESTAURANT BANNER ----- #}
+      {% if salon|is_restaurant %}
+        <div class="venue-alert">
+          <i class="bi bi-info-circle-fill"></i>
+          <span>{% trans "Your reservation will be held for 30 minutes. Please arrive on time." %}</span>
+        </div>
+      {% endif %}
 
+      {# ----- NAV TABS (scrollable on mobile) ----- #}
+      <div class="nav-tabs-wrap">
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a class="nav-link active" href="#services-list">
+              {% if salon|is_restaurant %}{% trans "Reservation" %}
+              {% elif salon|is_time_based %}{% trans "Rental" %}
+              {% else %}{% trans "Services" %}{% endif %}
+            </a>
+          </li>
+          {% if masters %}
+          <li class="nav-item">
+            <a class="nav-link" href="#resources-section">{{ salon|resource_label_plural }}</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="#about-section">{% trans "About" %}</a>
+          </li>
+        </ul>
+      </div>
+
+      {# ----- MOBILE VENUE INFO ----- #}
       <div class="d-lg-none">
-        <div class="venue-card shadow-sm">
+        <div class="venue-card">
           <div class="venue-body">
-            <h5 class="fw-bold mb-3">{% trans "Venue Info" %}</h5>
+            <h5 class="venue-title">{% trans "Venue Info" %}</h5>
+
             <div class="contact-row">
               <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
+              <div class="contact-text">
                 {{ salon.location.full_address|default:salon.address }}
-              
+              </div>
             </div>
+
             <div class="contact-row">
               <div class="icon-circle"><i class="bi bi-telephone"></i></div>
-              <div>{{ salon.phone }}</div>
+              <div class="contact-text">
+                <a href="tel:{{ salon.phone }}">{{ salon.phone }}</a>
+              </div>
             </div>
-            <hr class="my-4 text-muted">
-            <h6 class="fw-bold mb-3">{% trans "Opening Hours" %}</h6>
+
             {% if working_hours %}
-              {% for wh in working_hours %}
+            <hr class="my-3">
+            <h6 class="venue-title" style="font-size:0.95rem;">{% trans "Opening Hours" %}</h6>
+            {% for wh in working_hours %}
               <div class="working-hours-row">
                 <span class="day-name">{{ wh.get_weekday_display }}</span>
-                <span class="hours-val {% if today_weekday == wh.weekday %}hours-today{% endif %}">
-                  {% if wh.is_closed %}{% trans "Closed" %}{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
+                <span class="{% if today_weekday == wh.weekday %}hours-today{% endif %}">
+                  {% if wh.is_closed %}{% trans "Closed" %}{% else %}{{ wh.open_time|time:"H:i" }}–{{ wh.close_time|time:"H:i" }}{% endif %}
                 </span>
               </div>
-              {% endfor %}
+            {% endfor %}
             {% endif %}
           </div>
         </div>
       </div>
 
-      <div id="services-list" class="mb-5 mt-4">
-        <h2 class="category-title">{% trans "Featured Services" %}</h2>
+      {# ================== SERVICES ================== #}
+      <div id="services-list" class="mb-4">
+        <h2 class="category-title">
+          {% if salon|is_restaurant %}{% trans "Reservation Options" %}
+          {% elif salon|is_time_based %}{% trans "Rental Options" %}
+          {% else %}{% trans "Featured Services" %}{% endif %}
+        </h2>
+
         {% for s in services %}
           {% i18n s "name" request.LANGUAGE_CODE as s_name %}
           {% i18n s "description" request.LANGUAGE_CODE as s_desc %}
           <div class="service-card">
-            <div class="row align-items-center">
-              <div class="col-12 col-md-8">
-                <h4 class="service-name">{{ s_name }}</h4>
-                <p class="service-desc">{{ s_desc }}</p>
-                <div class="text-muted small mt-1">{{ s.duration_minutes }} {% trans "min" %}</div>
+            <div class="service-head">
+              <h4 class="service-name break-anywhere">{{ s_name }}</h4>
+              {% if s_desc %}
+                <p class="service-desc break-anywhere">{{ s_desc }}</p>
+              {% endif %}
+              <span class="service-meta">
+                {% if salon|is_restaurant %}
+                  <i class="bi bi-hourglass-split"></i>
+                  {% trans "Hold time" %}: {{ s.duration_minutes }} {% trans "min" %}
+                {% elif salon|is_time_based and s.duration_minutes >= 60 %}
+                  <i class="bi bi-clock"></i>
+                  {% widthratio s.duration_minutes 60 1 %} {% trans "h" %}
+                {% else %}
+                  <i class="bi bi-clock"></i>
+                  {{ s.duration_minutes }} {% trans "min" %}
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="service-footer">
+              <div class="service-price-block">
+                {% if salon|is_restaurant and s.price == 0 %}
+                  <div class="price-tag price-free">{% trans "Free" %}</div>
+                {% else %}
+                  <div class="price-tag">{{ s.price|floatformat:0 }} {% trans "sum" %}</div>
+                  {% if salon|is_time_based %}
+                    {% with per_hour=s|price_per_hour_display %}
+                      {% if per_hour %}
+                        <div class="price-sub">≈ {{ per_hour }} {% trans "sum" %}</div>
+                      {% endif %}
+                    {% endwith %}
+                  {% endif %}
+                {% endif %}
               </div>
-              <div class="col-12 col-md-4 text-md-end d-flex flex-row flex-md-column justify-content-between align-items-end mt-2 mt-md-0">
-                <div class="price-tag mb-md-2">{{ s.price }} {% trans "sum" %}</div>
-                <button class="btn btn-add load-booking-btn" 
-                        type="button" 
-                        data-salon-id="{{ salon.id }}" 
-                        data-svc-id="{{ s.id }}">
-                  {% trans "Book" %}
-                </button>
-              </div>
+              <button class="btn-add load-booking-btn"
+                      type="button"
+                      data-salon-id="{{ salon.id }}"
+                      data-svc-id="{{ s.id }}">
+                {% if salon|is_restaurant %}{% trans "Reserve" %}
+                {% elif salon|is_time_based %}{% trans "Rent" %}
+                {% else %}{% trans "Book" %}{% endif %}
+              </button>
             </div>
           </div>
         {% empty %}
-          <div class="alert alert-warning">{% trans "No services yet." %}</div>
+          <div class="alert alert-warning mb-0">
+            {% if salon|is_restaurant %}{% trans "No reservation options yet." %}
+            {% elif salon|is_time_based %}{% trans "No rental options yet." %}
+            {% else %}{% trans "No services yet." %}{% endif %}
+          </div>
         {% endfor %}
       </div>
 
-      <div id="about-section" class="mb-5">
-         <h2 class="category-title">{% trans "About" %}</h2>
-         <div class="text-muted">
-            {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
-            {{ salon_desc|linebreaks|default:"No description provided." }}
-         </div>
-         <div class="flex-grow-1">
-                {{ salon.location.full_address|default:salon.address }}
-                {% if salon.location.map_link %}
-          <div class="mt-3 d-grid">
-            <a href="{{ salon.location.map_link }}" target="_blank" 
-              class="btn btn-light border shadow-sm rounded-pill d-flex align-items-center justify-content-center py-2 transition-all"
-              style="font-weight: 600; color: var(--booksy-dark); background-color: #ffffff;">
-              <i class="bi bi-map-fill text-primary me-2"></i> 
-              {% trans "View on Map" %}
-            </a>
-          </div>
-                {% endif %}
-              </div>
+      {# ================== RESOURCES ================== #}
+      {% if masters %}
+      <div id="resources-section" class="mb-4">
+        <h2 class="category-title">
+          <i class="bi {{ salon|resource_icon }}"></i>
+          {{ salon|resource_label_plural }}
+          <span class="count-badge">{{ masters|length }}</span>
+        </h2>
+
+        <div class="resource-grid">
+          {% for m in masters %}
+            <div class="resource-chip">
+              <i class="bi {{ salon|resource_icon }}"></i>
+              <span>{{ m.name }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# ================== ABOUT ================== #}
+      <div id="about-section" class="mb-4">
+        <h2 class="category-title">{% trans "About" %}</h2>
+        <div class="about-text break-anywhere">
+          {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
+          {{ salon_desc|linebreaks|default:_("No description provided.") }}
+        </div>
+
+        {% if salon.location.map_link %}
+          <a href="{{ salon.location.map_link }}" target="_blank" rel="noopener" class="map-btn">
+            <i class="bi bi-map-fill text-primary"></i>
+            <span>{% trans "View on Map" %}</span>
+          </a>
+        {% endif %}
       </div>
     </div>
 
+    {# ================== DESKTOP SIDEBAR ================== #}
     <div class="col-lg-4 d-none d-lg-block">
-      <div class="venue-card shadow-sm">
-        <div class="venue-body">
-          <h5 class="fw-bold mb-3">{% trans "Venue Info" %}</h5>
-          <div class="contact-row">
-            <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
-            <div class="flex-grow-1">
-              {{ salon.location.full_address|default:salon.address }}
+      <div class="venue-sidebar">
+        <div class="venue-card">
+          <div class="venue-body">
+            <h5 class="venue-title">{% trans "Venue Info" %}</h5>
+
+            <div class="contact-row">
+              <div class="icon-circle"><i class="bi bi-geo-alt"></i></div>
+              <div class="contact-text">{{ salon.location.full_address|default:salon.address }}</div>
             </div>
-          </div>
-          <div class="contact-row">
-            <div class="icon-circle"><i class="bi bi-telephone"></i></div>
-            <div>{{ salon.phone }}</div>
-          </div>
-          <hr class="my-4 text-muted">
-          <h6 class="fw-bold mb-3">{% trans "Opening Hours" %}</h6>
-          {% if working_hours %}
+
+            <div class="contact-row">
+              <div class="icon-circle"><i class="bi bi-telephone"></i></div>
+              <div class="contact-text">
+                <a href="tel:{{ salon.phone }}">{{ salon.phone }}</a>
+              </div>
+            </div>
+
+            {% if masters %}
+            <div class="contact-row">
+              <div class="icon-circle"><i class="bi {{ salon|resource_icon }}"></i></div>
+              <div class="contact-text">
+                <strong>{{ masters|length }} {{ salon|resource_label_plural }}</strong>
+                <div class="text-muted small">{% trans "Available for booking" %}</div>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if working_hours %}
+            <hr class="my-3">
+            <h6 class="venue-title" style="font-size: 0.95rem;">{% trans "Opening Hours" %}</h6>
             {% for wh in working_hours %}
-            <div class="working-hours-row">
-              <span class="day-name">{{ wh.get_weekday_display }}</span>
-              <span class="hours-val {% if today_weekday == wh.weekday %}hours-today{% endif %}">
-                {% if wh.is_closed %}{% trans "Closed" %}{% else %}{{ wh.open_time|time:"H:i" }} - {{ wh.close_time|time:"H:i" }}{% endif %}
-              </span>
-            </div>
+              <div class="working-hours-row">
+                <span class="day-name">{{ wh.get_weekday_display }}</span>
+                <span class="{% if today_weekday == wh.weekday %}hours-today{% endif %}">
+                  {% if wh.is_closed %}{% trans "Closed" %}{% else %}{{ wh.open_time|time:"H:i" }}–{{ wh.close_time|time:"H:i" }}{% endif %}
+                </span>
+              </div>
             {% endfor %}
-          {% endif %}
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
 
+{# ===== GALLERY MODAL ===== #}
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
+  <div class="modal-dialog modal-fullscreen-sm-down modal-xl modal-dialog-centered">
     <div class="modal-content bg-dark border-0">
       <div class="modal-header border-0">
-        <h5 class="modal-title text-white">{{ salon.name }} {% trans "Gallery" %}</h5>
+        <h5 class="modal-title text-white break-anywhere">{{ salon.name }}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body p-0">
@@ -330,13 +690,13 @@
           <div class="carousel-inner">
             {% if salon.photos.all %}
               {% for p in salon.photos.all %}
-              <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                <img src="{{ p.image.url }}" class="d-block w-100" style="object-fit: cover; max-height: 80vh;">
-              </div>
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                  <img src="{{ p.image.url }}" alt="">
+                </div>
               {% endfor %}
             {% else %}
               <div class="carousel-item active">
-                <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=1200" class="d-block w-100" alt="Demo">
+                <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&q=80&w=1200" alt="">
               </div>
             {% endif %}
           </div>
@@ -352,13 +712,19 @@
   </div>
 </div>
 
+{# ===== BOOKING DRAWER ===== #}
 <div class="offcanvas offcanvas-end" tabindex="-1" id="bookingDrawer" aria-labelledby="bookingDrawerLabel">
   <div class="offcanvas-header border-bottom">
-    <h5 class="offcanvas-title fw-bold" id="bookingDrawerLabel">{% trans "Booking" %}</h5>
+    <h5 class="offcanvas-title fw-bold" id="bookingDrawerLabel">
+      {% if salon|is_restaurant %}{% trans "Reservation" %}
+      {% elif salon|is_time_based %}{% trans "Rental" %}
+      {% else %}{% trans "Booking" %}{% endif %}
+    </h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
   </div>
   <div class="offcanvas-body" id="drawerContent"></div>
 </div>
+
 {% endblock content %}
 
 {% block extra_js %}
@@ -387,12 +753,9 @@
       }
     }
 
-    // Attach click event to body to catch dynamically loaded buttons if any
     document.addEventListener('click', function (event) {
       const btn = event.target.closest('.load-booking-btn');
-      if (btn) {
-        openBooking(btn.dataset.salonId, btn.dataset.svcId);
-      }
+      if (btn) openBooking(btn.dataset.salonId, btn.dataset.svcId);
     });
 
     function initBookingScripts(salonId, serviceId) {
@@ -408,7 +771,7 @@
         if (!masterEl.value || !dateEl.value) return;
 
         slotsBox.innerHTML = "";
-        hint.textContent = "{% trans "Checking availability..." %}";
+        hint.textContent = "{% trans 'Checking availability...' %}";
 
         const base = slotsTemplate.replace("11111", salonId).replace("22222", serviceId);
         const url = `${base}?master=${encodeURIComponent(masterEl.value)}&date=${encodeURIComponent(dateEl.value)}`;
@@ -418,17 +781,16 @@
           const data = await res.json();
 
           if (!data.slots || data.slots.length === 0) {
-            hint.textContent = "{% trans "No free slots for this date." %}";
+            hint.textContent = "{% trans 'No free slots for this date.' %}";
             return;
           }
 
-          hint.textContent = "{% trans "Select a time:" %}";
+          hint.textContent = "{% trans 'Select a time:' %}";
           data.slots.forEach(t => {
             const b = document.createElement("button");
             b.type = "button";
             b.className = "btn btn-sm btn-outline-dark m-1 px-3 py-2";
             b.textContent = t;
-
             b.addEventListener("click", () => {
               timeEl.value = t;
               slotsBox.querySelectorAll("button").forEach(x => {
@@ -438,19 +800,16 @@
               b.classList.remove("btn-outline-dark");
               b.classList.add("btn-dark");
             });
-
             slotsBox.appendChild(b);
           });
         } catch (e) {
-          hint.textContent = "{% trans "Error loading slots." %}";
+          hint.textContent = "{% trans 'Error loading slots.' %}";
         }
       }
 
       masterEl.addEventListener("change", loadSlots);
       dateEl.addEventListener("change", loadSlots);
-      
-      // Trigger if values are pre-selected
-      if(masterEl.value && dateEl.value) loadSlots();
+      if (masterEl.value && dateEl.value) loadSlots();
     }
   });
 </script>

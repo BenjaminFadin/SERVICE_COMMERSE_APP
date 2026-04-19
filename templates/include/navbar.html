@@ -10,10 +10,11 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center">
-
+                    {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'marketplace:owner_dashboard' %}">{% trans "Для бизнеса" %}</a>
                     </li>
+                    {% endif %}
         <li class="nav-item dropdown ms-lg-2">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 {% if request.LANGUAGE_CODE == 'ru' %}

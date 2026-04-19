@@ -1,0 +1,154 @@
+{% extends "base.html" %}{% load i18n %}{% load i18n_fields %}
+
+{% block title %}{% trans "My Bookings" %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { background-color: #F7F7F9; }
+  .navbar {
+  padding: 0.75rem 0;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #000;
+}
+
+.nav-link {
+  font-weight: 600;
+  color: var(--booksy-dark);
+  margin-left: 1rem;
+  transition: color 0.2s;
+}
+
+.nav-link:hover,
+.nav-link.show {
+  color: var(--booksy-teal);
+}
+
+/* --- Avatar & Hover Dropdown Logic --- */
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--booksy-dark);
+  font-size: 1.4rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.nav-avatar:hover,
+.dropdown-hover:hover .nav-avatar {
+  background-color: #e4e6eb;
+  border-color: var(--booksy-teal);
+  color: var(--booksy-teal);
+}
+
+@media (min-width: 992px) {
+  .dropdown-hover { position: relative; }
+  .dropdown-hover .dropdown-menu {
+    top: 100% !important;
+    right: 0 !important;
+    left: auto !important;
+    margin-top: 10px !important;
+    display: none;
+  }
+  .dropdown-hover:hover .dropdown-menu,
+  .dropdown-hover .dropdown-menu.show {
+    display: block;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+}
+
+  .booking-card {
+    background: #fff; border-radius: 12px; border: 1px solid #eee;
+    padding: 1rem; margin-bottom: 1rem; word-wrap: break-word;
+  }
+  .status-badge {
+    font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;
+  }
+  .status-pending { background: #fff3cd; color: #856404; }
+  .status-confirmed { background: #d4edda; color: #155724; }
+  
+  /* Prevent horizontal scroll on mobile */
+  .table-responsive { border: none; }
+  @media (max-width: 767px) { .desktop-view { display: none; } }
+  @media (min-width: 768px) { .mobile-view { display: none; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="h4 fw-bold mb-4">{% trans "My Bookings" %}</h1>
+
+  <ul class="nav nav-pills mb-4" role="tablist">
+    <li class="nav-item"><button class="nav-link active rounded-pill px-4 me-2" data-bs-toggle="tab" data-bs-target="#up">{% trans "Upcoming" %}</button></li>
+    <li class="nav-item"><button class="nav-link rounded-pill px-4" data-bs-toggle="tab" data-bs-target="#past">{% trans "Past" %}</button></li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane fade show active" id="up">
+      <div class="mobile-view">
+        {% for b in upcoming %}
+        <div class="booking-card">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="small fw-bold text-primary">{{ b.start_time|date:"d M, H:i" }}</span>
+            <span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span>
+          </div>
+          <div class="fw-bold">{% i18n b.service "name" request.LANGUAGE_CODE %}</div>
+          <div class="small text-muted mb-3">{{ b.salon.name }}</div>
+          <a href="{% url 'marketplace:salon_detail' b.salon.id %}" class="btn btn-sm btn-dark w-100 rounded-pill">{% trans "View Details" %}</a>
+        </div>
+        {% empty %}
+        <p class="text-center text-muted py-5">{% trans "No upcoming bookings." %}</p>
+        {% endfor %}
+      </div>
+
+      <div class="desktop-view card border-0 shadow-sm rounded-4 overflow-hidden">
+        <table class="table table-hover mb-0">
+          <thead class="bg-light">
+            <tr class="small text-uppercase">
+              <th class="ps-4">{% trans "Service" %}</th>
+              <th>{% trans "Salon" %}</th>
+              <th>{% trans "Time" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th class="text-end pe-4">{% trans "Action" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in upcoming %}
+            <tr>
+              <td class="ps-4 fw-bold">{% i18n b.service "name" request.LANGUAGE_CODE %}</td>
+              <td>{{ b.salon.name }}</td>
+              <td>{{ b.start_time|date:"d M, H:i" }}</td>
+              <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span></td>
+              <td class="text-end pe-4"><a href="{% url 'marketplace:salon_detail' b.salon.id %}" class="btn btn-sm btn-dark">{% trans "View" %}</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-pane fade" id="past">
+       <div class="mobile-view">
+         {% for b in past %}
+         <div class="booking-card opacity-75">
+            <div class="fw-bold">{% i18n b.service "name" request.LANGUAGE_CODE %}</div>
+            <div class="small text-muted">{{ b.start_time|date:"d M Y" }} • {{ b.salon.name }}</div>
+         </div>
+         {% endfor %}
+       </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

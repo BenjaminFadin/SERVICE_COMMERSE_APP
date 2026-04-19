@@ -13,14 +13,16 @@ class EmailOrUsernameModelBackend(ModelBackend):
         if username is None:
             username = kwargs.get(User.USERNAME_FIELD)
         
-        try:
-            # Look for the user by username OR email
-            user = User.objects.get(Q(username__iexact=username) | Q(email__iexact=username))
-        except User.DoesNotExist:
-            # Run the default password hasher once to reduce the risk of 
-            # timing attacks (preventing user enumeration)
+        # CHANGE THIS: Use .filter().first() instead of .get()
+        user = User.objects.filter(
+            Q(username__iexact=username) | Q(email__iexact=username)
+        ).first()
+        
+        if user and user.check_password(password) and self.user_can_authenticate(user):
+            return user
+        
+        # If no user found, run password hasher to prevent timing attacks
+        if not user:
             User().set_password(password)
-        else:
-            if user.check_password(password) and self.user_can_authenticate(user):
-                return user
+            
         return None

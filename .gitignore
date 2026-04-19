@@ -366,7 +366,6 @@ pyrightconfig.json
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
 [Bb]in
-[Ii]nclude
 [Ll]ib
 [Ll]ib64
 [Ll]ocal
@@ -398,15 +397,12 @@ pip-selfcheck.json
 *.cer
 *.csr
 *.css
-*.htm
-*.html
 *.js
 *.jsp
 *.php
 *.rss
 *.wasm
 *.wat
-*.xhtml
 
 # End of https://www.toptal.com/developers/gitignore/api/python,django,pycharm+all,visualstudiocode,venv,jupyternotebooks,web
 .env

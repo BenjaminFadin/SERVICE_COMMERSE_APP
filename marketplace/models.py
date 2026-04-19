@@ -131,8 +131,7 @@ class Salon(MultilingualMixin, models.Model):
         verbose_name_plural = "Салоны"
 
     def __str__(self):
-        from django.utils.translation import get_language
-        return self.get_i18n("name", get_language())
+        return self.name
 
 
 class Address(models.Model):
