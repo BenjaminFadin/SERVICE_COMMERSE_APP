@@ -13,3 +13,4 @@ requests==2.32.4
 whitenoise==6.7.0
 xlsxwriter==3.2.9
 gunicorn==23.0.0
+django-seed==0.3.1

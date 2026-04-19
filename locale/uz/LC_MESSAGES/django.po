@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-02-07 17:44+0500\n"
+"POT-Creation-Date: 2026-04-19 12:58+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,36 +26,40 @@ msgstr ""
 msgid "Verification Code"
 msgstr ""
 
-#: accounts/views.py:76
+#: accounts/views.py:80
 msgid "Welcome back! You are now logged in."
 msgstr ""
 
-#: accounts/views.py:80
+#: accounts/views.py:84
 msgid "Invalid credentials. Please check your username/email and password."
 msgstr ""
 
-#: accounts/views.py:84
+#: accounts/views.py:88
 msgid "Username or Email"
 msgstr ""
 
-#: accounts/views.py:188
+#: accounts/views.py:192
 msgid "Invalid code. Please try again."
 msgstr ""
 
-#: accounts/views.py:207
+#: accounts/views.py:211
 msgid "User session lost."
 msgstr ""
 
-#: accounts/views.py:234
+#: accounts/views.py:238
 msgid "Password updated. Please log in."
 msgstr ""
 
-#: accounts/views.py:240
+#: accounts/views.py:244
 msgid "Reset code expired or already used."
 msgstr ""
 
-#: accounts/views.py:262
-msgid "Your profile has been updated!"
+#: accounts/views.py:310
+msgid "Settings updated successfully!"
+msgstr ""
+
+#: accounts/views.py:313
+msgid "Please fix the errors below."
 msgstr ""
 
 #: config/settings.py:138
@@ -70,225 +74,339 @@ msgstr ""
 msgid "Uzbek"
 msgstr ""
 
-#: marketplace/models.py:143 templates/marketplace/booking_success.html:213
+#: marketplace/models.py:142 templates/marketplace/booking_success.html:213
 #: templates/marketplace/my_bookings.html:121
 msgid "Salon"
 msgstr ""
 
-#: marketplace/models.py:146
+#: marketplace/models.py:145
 msgid "Full Address"
 msgstr ""
 
-#: marketplace/models.py:150
+#: marketplace/models.py:149
 msgid "Latitude"
 msgstr ""
 
-#: marketplace/models.py:153
+#: marketplace/models.py:152
 msgid "Longitude"
 msgstr ""
 
-#: marketplace/models.py:157
+#: marketplace/models.py:156
 msgid "Map Link"
 msgstr ""
 
-#: marketplace/models.py:160
+#: marketplace/models.py:159
 msgid "Address"
 msgstr ""
 
-#: marketplace/models.py:161
+#: marketplace/models.py:160
 msgid "Addresses"
 msgstr ""
 
-#: marketplace/models.py:261
+#: marketplace/models.py:260
 msgid "Monday"
 msgstr ""
 
-#: marketplace/models.py:262
+#: marketplace/models.py:261
 msgid "Tuesday"
 msgstr ""
 
-#: marketplace/models.py:263
+#: marketplace/models.py:262
 msgid "Wednesday"
 msgstr ""
 
-#: marketplace/models.py:264
+#: marketplace/models.py:263
 msgid "Thursday"
 msgstr ""
 
-#: marketplace/models.py:265
+#: marketplace/models.py:264
 msgid "Friday"
 msgstr ""
 
-#: marketplace/models.py:266
+#: marketplace/models.py:265
 msgid "Saturday"
 msgstr ""
 
-#: marketplace/models.py:267
+#: marketplace/models.py:266
 msgid "Sunday"
 msgstr ""
 
-#: marketplace/models.py:272 templates/include/working_hours_loop.html:19
-#: templates/marketplace/salon_detail.html:230
-#: templates/marketplace/salon_detail.html:310
+#: marketplace/models.py:271 templates/accounts/settings.html:249
+#: templates/include/working_hours_loop.html:19
+#: templates/marketplace/salon_detail.html:583
+#: templates/marketplace/salon_detail.html:730
 msgid "Closed"
 msgstr ""
 
-#: marketplace/models.py:273
+#: marketplace/models.py:272
 msgid "Open time"
 msgstr ""
 
-#: marketplace/models.py:274
+#: marketplace/models.py:273
 msgid "Close time"
 msgstr ""
 
-#: marketplace/models.py:278 marketplace/models.py:279
+#: marketplace/models.py:277 marketplace/models.py:278
 msgid "Salon working hours"
 msgstr ""
 
-#: marketplace/models.py:285
+#: marketplace/models.py:284
 msgid "If not closed, open_time and close_time are required."
 msgstr ""
 
-#: marketplace/models.py:287
+#: marketplace/models.py:286
 msgid "Open time must be earlier than close time."
 msgstr ""
 
-#: templates/accounts/settings.html:81 templates/include/navbar.html:75
-#: templates/include/navbar.html:90
+#: marketplace/templatetags/venue_labels.py:36
+#: marketplace/templatetags/venue_labels.py:37
+msgid "Court"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:36
+#: marketplace/templatetags/venue_labels.py:37
+msgid "Courts"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:38
+msgid "Station"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:38
+msgid "Stations"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:39
+#: marketplace/templatetags/venue_labels.py:40
+msgid "Table"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:39
+#: marketplace/templatetags/venue_labels.py:40
+msgid "Tables"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:70
+msgid "Master"
+msgstr ""
+
+#: marketplace/templatetags/venue_labels.py:76
+msgid "Masters"
+msgstr ""
+
+#: templates/accounts/settings.html:170 templates/include/navbar.html:76
+#: templates/include/navbar.html:91
 msgid "Settings"
 msgstr ""
 
-#: templates/accounts/settings.html:82
-msgid "Update your personal and professional profile"
+#: templates/accounts/settings.html:171
+msgid "Manage your profile and business"
 msgstr ""
 
-#: templates/accounts/settings.html:90
-msgid "Personal Info"
+#: templates/accounts/settings.html:194
+msgid "Personal Information"
 msgstr ""
 
-#: templates/accounts/settings.html:106
+#: templates/accounts/settings.html:198
+msgid "Upload Photo"
+msgstr ""
+
+#: templates/accounts/settings.html:204
 msgid "Full Name"
 msgstr ""
 
-#: templates/accounts/settings.html:110
+#: templates/accounts/settings.html:208
 msgid "Phone Number"
 msgstr ""
 
-#: templates/accounts/settings.html:114
+#: templates/accounts/settings.html:212
 msgid "First Name"
 msgstr ""
 
-#: templates/accounts/settings.html:118
+#: templates/accounts/settings.html:216
 msgid "Last Name"
 msgstr ""
 
-#: templates/accounts/settings.html:127
-msgid "Preferences"
+#: templates/accounts/settings.html:231
+msgid "Working Hours"
 msgstr ""
 
-#: templates/accounts/settings.html:130
+#: templates/accounts/settings.html:237
+msgid "Set your salon's weekly opening hours. Toggle 'Closed' for days off."
+msgstr ""
+
+#: templates/accounts/settings.html:274
+msgid "No salon yet"
+msgstr ""
+
+#: templates/accounts/settings.html:276
+msgid "Once you have a salon, you'll be able to set its working hours here."
+msgstr ""
+
+#: templates/accounts/settings.html:288
+msgid "App Preferences"
+msgstr ""
+
+#: templates/accounts/settings.html:292
 msgid "Telegram ID"
 msgstr ""
 
-#: templates/accounts/settings.html:132
-msgid "Used for booking notifications."
+#: templates/accounts/settings.html:296
+msgid "System Language"
 msgstr ""
 
-#: templates/accounts/settings.html:135
-msgid "Language"
+#: templates/accounts/settings.html:305
+msgid "Professional Details"
 msgstr ""
 
-#: templates/accounts/settings.html:144
-msgid "Service Provider Details"
-msgstr ""
-
-#: templates/accounts/settings.html:147
+#: templates/accounts/settings.html:308
 msgid "Company Name"
 msgstr ""
 
-#: templates/accounts/settings.html:151
-msgid "Website"
+#: templates/accounts/settings.html:312
+msgid "Bio"
 msgstr ""
 
-#: templates/accounts/settings.html:155
-msgid "Professional Bio"
-msgstr ""
-
-#: templates/accounts/settings.html:164
-msgid "Save All Changes"
+#: templates/accounts/settings.html:321
+msgid "Save Settings"
 msgstr ""
 
 #: templates/business/dashboard.html:7
 msgid "Business Dashboard"
 msgstr ""
 
-#: templates/business/dashboard.html:67
+#: templates/business/dashboard.html:133
 msgid "Owner Management"
 msgstr ""
 
-#: templates/business/dashboard.html:71
+#: templates/business/dashboard.html:137
 msgid "Exit to Market"
 msgstr ""
 
-#: templates/business/dashboard.html:83
+#: templates/business/dashboard.html:149
 msgid "No Active Salon"
 msgstr ""
 
-#: templates/business/dashboard.html:84
+#: templates/business/dashboard.html:150
 msgid "It seems you haven't linked a business profile to your account yet."
 msgstr ""
 
-#: templates/business/dashboard.html:124
+#: templates/business/dashboard.html:190
 msgid "Schedule Overview"
 msgstr ""
 
-#: templates/business/dashboard.html:130
+#: templates/business/dashboard.html:197
+#: templates/include/booking_table.html:80
+#: templates/include/booking_table.html:163
+msgid "Pending"
+msgstr ""
+
+#: templates/business/dashboard.html:204
 msgid "Today"
 msgstr ""
 
-#: templates/business/dashboard.html:133
+#: templates/business/dashboard.html:207
 #: templates/marketplace/my_bookings.html:94
 msgid "Upcoming"
 msgstr ""
 
-#: templates/business/dashboard.html:136
+#: templates/business/dashboard.html:210
 msgid "History"
 msgstr ""
 
-#: templates/business/dashboard.html:155
+#: templates/business/dashboard.html:233
 msgid "Performance Stats"
 msgstr ""
 
-#: templates/business/dashboard.html:163
+#: templates/business/dashboard.html:241
 msgid "Bookings Today"
 msgstr ""
 
-#: templates/business/dashboard.html:173
+#: templates/business/dashboard.html:251
 msgid "Scheduled Future"
 msgstr ""
 
-#: templates/business/dashboard.html:187
+#: templates/business/dashboard.html:271
 msgid "Primary Business Owner"
+msgstr ""
+
+#: templates/include/booking_table.html:64
+#: templates/include/booking_table.html:147
+msgid "Accept"
+msgstr ""
+
+#: templates/include/booking_table.html:70
+#: templates/include/booking_table.html:153
+msgid "Are you sure you want to decline this booking?"
+msgstr ""
+
+#: templates/include/booking_table.html:73
+#: templates/include/booking_table.html:156
+msgid "Decline"
+msgstr ""
+
+#: templates/include/booking_table.html:78
+#: templates/include/booking_table.html:161
+msgid "Confirmed"
+msgstr ""
+
+#: templates/include/booking_table.html:82
+#: templates/include/booking_table.html:165
+msgid "Cancelled"
+msgstr ""
+
+#: templates/include/booking_table.html:84
+#: templates/include/booking_table.html:167
+msgid "Completed"
+msgstr ""
+
+#: templates/include/booking_table.html:93
+#: templates/include/booking_table.html:177
+msgid "No records found for this section."
+msgstr ""
+
+#: templates/include/booking_table.html:106
+msgid "Client"
+msgstr ""
+
+#: templates/include/booking_table.html:107
+msgid "Service / Master"
+msgstr ""
+
+#: templates/include/booking_table.html:108
+#: templates/marketplace/my_bookings.html:122
+msgid "Time"
+msgstr ""
+
+#: templates/include/booking_table.html:110
+#: templates/marketplace/my_bookings.html:124
+msgid "Action"
+msgstr ""
+
+#: templates/include/booking_table.html:110
+#: templates/marketplace/booking_success.html:217
+#: templates/marketplace/my_bookings.html:123
+msgid "Status"
 msgstr ""
 
 #: templates/include/navbar.html:15
 msgid "Для бизнеса"
 msgstr ""
 
-#: templates/include/navbar.html:61
+#: templates/include/navbar.html:62
 msgid "Войти"
 msgstr ""
 
-#: templates/include/navbar.html:76
+#: templates/include/navbar.html:77
 msgid "My Booking"
 msgstr ""
 
-#: templates/include/navbar.html:93 templates/marketplace/my_bookings.html:3
+#: templates/include/navbar.html:94 templates/marketplace/my_bookings.html:3
 #: templates/marketplace/my_bookings.html:91
 msgid "My Bookings"
 msgstr ""
 
-#: templates/include/navbar.html:97
+#: templates/include/navbar.html:98
 msgid "Logout"
 msgstr ""
 
@@ -319,11 +437,6 @@ msgstr ""
 
 #: templates/marketplace/booking_success.html:206
 msgid "You will receive a notification once they confirm your time."
-msgstr ""
-
-#: templates/marketplace/booking_success.html:217
-#: templates/marketplace/my_bookings.html:123
-msgid "Status"
 msgstr ""
 
 #: templates/marketplace/booking_success.html:219
@@ -441,99 +554,147 @@ msgstr ""
 msgid "Service"
 msgstr ""
 
-#: templates/marketplace/my_bookings.html:122
-msgid "Time"
-msgstr ""
-
-#: templates/marketplace/my_bookings.html:124
-msgid "Action"
-msgstr ""
-
 #: templates/marketplace/my_bookings.html:134
 msgid "View"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:177
-msgid "Show all photos"
+#: templates/marketplace/salon_detail.html:12
+msgid "Salons"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:198
-msgid "Category"
+#: templates/marketplace/salon_detail.html:499
+msgid "Photos"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:206
+#: templates/marketplace/salon_detail.html:531
+msgid "Your reservation will be held for 30 minutes. Please arrive on time."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:540
+#: templates/marketplace/salon_detail.html:782
+msgid "Reservation"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:541
+#: templates/marketplace/salon_detail.html:783
+msgid "Rental"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:542
 msgid "Services"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:207
-#: templates/marketplace/salon_detail.html:268
+#: templates/marketplace/salon_detail.html:551
+#: templates/marketplace/salon_detail.html:679
 msgid "About"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:213
-#: templates/marketplace/salon_detail.html:292
+#: templates/marketplace/salon_detail.html:560
+#: templates/marketplace/salon_detail.html:699
 msgid "Venue Info"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:224
-#: templates/marketplace/salon_detail.html:304
+#: templates/marketplace/salon_detail.html:578
+#: templates/marketplace/salon_detail.html:725
 msgid "Opening Hours"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:240
+#: templates/marketplace/salon_detail.html:595
+msgid "Reservation Options"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:596
+msgid "Rental Options"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:597
 msgid "Featured Services"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:249
+#: templates/marketplace/salon_detail.html:612
+msgid "Hold time"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:612
+#: templates/marketplace/salon_detail.html:618
 msgid "min"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:252
+#: templates/marketplace/salon_detail.html:615
+msgid "h"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:626
+msgid "Free"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:628
+#: templates/marketplace/salon_detail.html:632
 msgid "sum"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:257
+#: templates/marketplace/salon_detail.html:642
+msgid "Reserve"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:643
+msgid "Rent"
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:644
 #: templates/marketplace/salon_list.html:381
 msgid "Book"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:263
+#: templates/marketplace/salon_detail.html:650
+msgid "No reservation options yet."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:651
+msgid "No rental options yet."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:652
 msgid "No services yet."
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:281
+#: templates/marketplace/salon_detail.html:682
+msgid "No description provided."
+msgstr ""
+
+#: templates/marketplace/salon_detail.html:688
 msgid "View on Map"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:325
-msgid "Gallery"
+#: templates/marketplace/salon_detail.html:718
+msgid "Available for booking"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:357
+#: templates/marketplace/salon_detail.html:784
 msgid "Booking"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:375
+#: templates/marketplace/salon_detail.html:804
 msgid "Loading..."
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:386
+#: templates/marketplace/salon_detail.html:815
 msgid "Failed to load booking form."
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:411
+#: templates/marketplace/salon_detail.html:837
 msgid "Checking availability..."
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:421
+#: templates/marketplace/salon_detail.html:847
 msgid "No free slots for this date."
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:425
+#: templates/marketplace/salon_detail.html:851
 msgid "Select a time:"
 msgstr ""
 
-#: templates/marketplace/salon_detail.html:445
+#: templates/marketplace/salon_detail.html:869
 msgid "Error loading slots."
 msgstr ""
 
