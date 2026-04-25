@@ -79,7 +79,7 @@ VENUES = [
         "name_ru": "Большой теннис",
         "name_en": "Big Tennis",
         "name_uz": "Katta tennis",
-        "icon": "bi bi-circle",
+        "icon": "bi bi-dribbble",
         "sub": [
             ("Хард корты",      "Hard Courts",     "Qattiq maydonlar"),
             ("Грунтовые корты", "Clay Courts",     "Tuproq maydonlar"),
@@ -132,7 +132,7 @@ VENUES = [
         "name_ru": "Бильярд",
         "name_en": "Billiard",
         "name_uz": "Bilyard",
-        "icon": "bi bi-circle-fill",
+        "icon": "bi-bullseye",
         "sub": [
             ("Русская пирамида", "Russian Pyramid", "Rus piramidasi"),
             ("Американский пул", "American Pool",   "Amerikan pul"),
