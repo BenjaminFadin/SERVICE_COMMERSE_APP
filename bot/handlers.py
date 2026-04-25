@@ -2,18 +2,18 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 
-from config import config
-from database import (
+from bot.config import config
+from bot.database import (
     get_or_create_user,
     update_user_language,
     get_user_language,
 )
-from keyboards import (
+from bot.keyboards import (
     language_keyboard,
     main_menu_keyboard,
     website_inline_keyboard,
 )
-from locales import get_text, TEXTS
+from bot.locales import get_text, TEXTS
 
 router = Router()
 
@@ -21,7 +21,7 @@ router = Router()
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     # Save / update user in database
-    user = await get_or_create_user(message.from_user)
+    await get_or_create_user(message.from_user)
 
     # Show language selection
     await message.answer(

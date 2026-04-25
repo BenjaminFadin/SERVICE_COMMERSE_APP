@@ -21,11 +21,15 @@ def load_config() -> Config:
 
     db_url = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
 
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    if not bot_token:
+        raise ValueError("TELEGRAM_BOT_TOKEN is not set in .env file")
+
     return Config(
-        bot_token=os.getenv("TELEGRAM_BOT_TOKEN"),
-        website_url=os.getenv("WEBSITE_URL", "https://example.com"),
+        bot_token=bot_token,
+        website_url=os.getenv("WEBSITE_URL", "http://170.168.6.169/"),
         db_url=db_url,
     )
 
-config = load_config()
 
+config = load_config()

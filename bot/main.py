@@ -6,9 +6,9 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from config import config
-from database import init_db
-from handlers import router
+from bot.config import config
+from bot.database import init_db
+from bot.handlers import router
 
 
 async def main():
@@ -40,4 +40,3 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         print("Bot stopped")
-        
