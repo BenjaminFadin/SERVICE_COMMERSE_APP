@@ -69,18 +69,15 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect("marketplace:home")
 
-    # ✅ Get next URL from GET or POST
     next_url = request.GET.get('next') or request.POST.get('next', '')
 
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
-        
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             messages.success(request, _("Welcome back! You are now logged in."))
-            # ✅ Redirect to next URL if exists, otherwise home
-            return redirect(next_url or "marketplace:home")
+            return redirect(next_url or "marketplace:home")  # ✅ redirect to next
         else:
             messages.error(request, _("Invalid credentials. Please check your username/email and password."))
     else:
@@ -88,10 +85,9 @@ def login_view(request):
         form.fields['username'].label = _("Username or Email")
 
     return render(request, "accounts/auth_combined.html", {
-        "form": form,
-        "next": next_url,   # ✅ Pass next to template
+        "login_form": form,   # ✅ renamed to login_form to match template
+        "next": next_url,     # ✅ pass next
     })
-    
 
 def logout_view(request):
     # If you want logout only via POST (more secure):

@@ -30,7 +30,7 @@
 
             <div class="col-md-6 auth-form-col">
                 <a href="{% url 'marketplace:home' %}" class="auth-logo">ibron</a>
-
+                    
                 <div id="loginSection">
                     <h1 class="auth-title">С возвращением</h1>
                     <p class="auth-subtitle">Войдите, чтобы управлять бронированиями.</p>
@@ -52,6 +52,7 @@
 
                     <form method="POST">
                         {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}">
 
                         <div class="mb-3">
                             <label class="form-label">Email / Имя пользователя</label>
