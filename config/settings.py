@@ -155,8 +155,10 @@ MEDIA_URL = '/media/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-STATIC_ROOT = f'/var/www/{DOMAIN_NAME}/static/'
-MEDIA_ROOT = f'/var/www/{DOMAIN_NAME}/media/'
+# STATIC_ROOT = f'/var/www/{DOMAIN_NAME}/static/'
+STATIC_ROOT = BASE_DIR / 'static'
+# MEDIA_ROOT = f'/var/www/{DOMAIN_NAME}/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
