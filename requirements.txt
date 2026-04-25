@@ -1,8 +1,10 @@
-cryptography==46.0.4
+aiogram==3.13.1
+asyncpg==0.30.0
 Django==4.2.26
 django-allauth==65.13.1
 django-mptt==0.14.0
-openpyxl==3.1.5
+django-seed==0.3.1
+gunicorn==23.0.0
 pandas==2.0.3
 pillow==10.4.0
 psycopg==3.2.13
@@ -10,7 +12,6 @@ psycopg-binary==3.2.13
 PyJWT==2.9.0
 python-dotenv==1.0.1
 requests==2.32.4
+SQLAlchemy==2.0.49
 whitenoise==6.7.0
 xlsxwriter==3.2.9
-gunicorn==23.0.0
-django-seed==0.3.1
