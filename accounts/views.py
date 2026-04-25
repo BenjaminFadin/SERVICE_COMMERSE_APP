@@ -69,25 +69,29 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect("marketplace:home")
 
+    # ✅ Get next URL from GET or POST
+    next_url = request.GET.get('next') or request.POST.get('next', '')
+
     if request.method == "POST":
-        # AuthenticationForm handles the backend call automatically 
-        # based on your AUTHENTICATION_BACKENDS setting
         form = AuthenticationForm(request, data=request.POST)
         
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             messages.success(request, _("Welcome back! You are now logged in."))
-            return redirect("marketplace:home")
+            # ✅ Redirect to next URL if exists, otherwise home
+            return redirect(next_url or "marketplace:home")
         else:
-            # We don't specify if it was the email or password that was wrong for security
             messages.error(request, _("Invalid credentials. Please check your username/email and password."))
     else:
         form = AuthenticationForm(request)
-        # Optional: Change the label of the username field to be more descriptive
         form.fields['username'].label = _("Username or Email")
 
-    return render(request, "accounts/auth_combined.html", {"form": form})
+    return render(request, "accounts/auth_combined.html", {
+        "form": form,
+        "next": next_url,   # ✅ Pass next to template
+    })
+    
 
 def logout_view(request):
     # If you want logout only via POST (more secure):
