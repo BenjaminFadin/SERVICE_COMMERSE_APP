@@ -47,6 +47,19 @@ class Profile(models.Model):
     full_name = models.CharField(max_length=150, blank=True)
     phone = models.CharField(max_length=30, blank=True)
     avatar = models.ImageField(upload_to="avatars/", blank=True, null=True)
+    GENDER_CHOICES = (
+        ("", "—"),
+        ("male", "Мужской"),
+        ("female", "Женский"),
+        ("other", "Другой"),
+    )
+    gender = models.CharField(
+        max_length=10,
+        choices=GENDER_CHOICES,
+        blank=True,
+        default="",
+        verbose_name="Пол",
+    )
 
     # Example: role can be "customer" / "provider"
     ROLE_CHOICES = (

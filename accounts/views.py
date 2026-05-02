@@ -126,7 +126,8 @@ def auth_view(request):
             register_form = UserSignUpForm(request.POST) 
             if register_form.is_valid():
                 user = register_form.save()
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
                 # messages.success(request, "Account created! Welcome.")
                 return redirect("marketplace:home")
             else:

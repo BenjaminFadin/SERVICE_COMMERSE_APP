@@ -7,14 +7,39 @@ from .models import Profile
 User = get_user_model()
 
 class UserSignUpForm(forms.Form):
-    # CHANGED: Replaced business_name with full_name
-    full_name = forms.CharField(
-        label="Full Name",
-        max_length=150,
+    first_name = forms.CharField(
+        label="First Name",
+        max_length=30,
         widget=forms.TextInput(
             attrs={
                 "class": "form-control form-control-sm",
-                "placeholder": "John Doe",
+                "placeholder": "John",
+                "required": "required",
+            }
+        ),
+    )
+
+    last_name = forms.CharField(
+        label="Last Name",
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control form-control-sm",
+                "placeholder": "Doe",
+                "required": "required",
+            }
+        ),
+    )
+
+    phone_number = forms.CharField(
+        label="Phone Number",
+        max_length=30,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control form-control-sm",
+                "placeholder": "+998 90 123 45 67",
+                "type": "tel",
+                "required": "required",
             }
         ),
     )
@@ -25,6 +50,7 @@ class UserSignUpForm(forms.Form):
             attrs={
                 "class": "form-control form-control-sm",
                 "placeholder": "you@example.com",
+                "required": "required",
             }
         ),
     )
@@ -35,6 +61,7 @@ class UserSignUpForm(forms.Form):
             attrs={
                 "class": "form-control form-control-sm",
                 "placeholder": "Create a password",
+                "required": "required",
             }
         ),
         help_text="At least 8 characters, including a number.",
@@ -46,6 +73,7 @@ class UserSignUpForm(forms.Form):
             attrs={
                 "class": "form-control form-control-sm",
                 "placeholder": "Repeat password",
+                "required": "required",
             }
         ),
     )
@@ -82,30 +110,34 @@ class UserSignUpForm(forms.Form):
 
     def save(self):
         """
-        Creates a User (customer) and updates Profile.full_name.
+        Creates a User (customer) and updates Profile with name + phone.
         """
         email = self.cleaned_data["email"].lower()
         password = self.cleaned_data["password1"]
-        full_name = self.cleaned_data["full_name"]
+        first_name = self.cleaned_data["first_name"]
+        last_name = self.cleaned_data["last_name"]
+        phone_number = self.cleaned_data["phone_number"]
 
         # 1. Create the User
         user = User.objects.create_user(
-            username=email,  # username is the email
+            username=email,
             email=email,
             password=password,
+            first_name=first_name,
+            last_name=last_name,
         )
 
         # 2. Update the Profile (created via signals)
         try:
             profile = user.profile
-            profile.full_name = full_name
-            profile.role = "customer"  # CHANGED: Set role to customer
+            profile.full_name = f"{first_name} {last_name}".strip()
+            profile.phone = phone_number
+            profile.role = "customer"
             profile.save()
         except Exception:
             pass
 
         return user
-
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(
         label="Email",
@@ -167,9 +199,10 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'avatar', 'full_name', 'phone', 'language', 
+            'avatar', 'phone', 'gender', 'language',
             'telegram_id', 'bio', 'company_name', 'website'
         ]
+
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -182,6 +215,11 @@ class ProfileUpdateForm(forms.ModelForm):
         # Special styling for Textarea
         if 'bio' in self.fields:
             self.fields['bio'].widget.attrs.update({'class': 'form-control rounded-4', 'rows': 3})
+
+        # Gender uses a select widget — needs form-select instead of form-control
+        if 'gender' in self.fields:
+            self.fields['gender'].widget.attrs.update({'class': 'form-select rounded-pill'})
+            self.fields['gender'].required = False
 
         # --- SET INITIAL VALUES FROM USER OBJECT ---
         if user:

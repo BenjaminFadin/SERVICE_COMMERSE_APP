@@ -97,44 +97,57 @@
                     {% endif %}
 
                     <form method="POST">
-                        {% csrf_token %}
+                    {% csrf_token %}
 
-                        <div class="mb-3">
-                            <label class="form-label">{{ register_form.full_name.label }}</label>
-                            {{ register_form.full_name }}
-                            <div class="text-danger small">{{ register_form.full_name.errors }}</div>
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label">{{ register_form.first_name.label }}</label>
+                            {{ register_form.first_name }}
+                            <div class="text-danger small">{{ register_form.first_name.errors }}</div>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">{{ register_form.email.label }}</label>
-                            {{ register_form.email }}
-                            <div class="text-danger small">{{ register_form.email.errors }}</div>
+                        <div class="col-6">
+                            <label class="form-label">{{ register_form.last_name.label }}</label>
+                            {{ register_form.last_name }}
+                            <div class="text-danger small">{{ register_form.last_name.errors }}</div>
                         </div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">{{ register_form.password1.label }}</label>
-                            {{ register_form.password1 }}
-                            <div class="text-danger small">{{ register_form.password1.errors }}</div>
-                            <small class="text-muted">{{ register_form.password1.help_text }}</small>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ register_form.phone_number.label }}</label>
+                        {{ register_form.phone_number }}
+                        <div class="text-danger small">{{ register_form.phone_number.errors }}</div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">{{ register_form.password2.label }}</label>
-                            {{ register_form.password2 }}
-                            <div class="text-danger small">{{ register_form.password2.errors }}</div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ register_form.email.label }}</label>
+                        {{ register_form.email }}
+                        <div class="text-danger small">{{ register_form.email.errors }}</div>
+                    </div>
 
-                        <div class="form-check mb-3">
-                            {{ register_form.accept_terms }}
-                            <label class="form-check-label small text-muted" for="termsCheck">
-                                Я соглашаюсь с <a href="#" class="text-dark fw-semibold">Условиями использования</a> и
-                                <a href="#" class="text-dark fw-semibold">Политикой конфиденциальности</a>.
-                            </label>
-                            <div class="text-danger small">{{ register_form.accept_terms.errors }}</div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ register_form.password1.label }}</label>
+                        {{ register_form.password1 }}
+                        <div class="text-danger small">{{ register_form.password1.errors }}</div>
+                        <small class="text-muted">{{ register_form.password1.help_text }}</small>
+                    </div>
 
-                        <button type="submit" name="register_submit" class="btn btn-auth">Создать аккаунт</button>
-                    </form>
+                    <div class="mb-3">
+                        <label class="form-label">{{ register_form.password2.label }}</label>
+                        {{ register_form.password2 }}
+                        <div class="text-danger small">{{ register_form.password2.errors }}</div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        {{ register_form.accept_terms }}
+                        <label class="form-check-label small text-muted" for="termsCheck">
+                            Я соглашаюсь с <a href="#" class="text-dark fw-semibold">Условиями использования</a> и
+                            <a href="#" class="text-dark fw-semibold">Политикой конфиденциальности</a>.
+                        </label>
+                        <div class="text-danger small">{{ register_form.accept_terms.errors }}</div>
+                    </div>
+
+                    <button type="submit" name="register_submit" class="btn btn-auth">Создать аккаунт</button>
+                </form>
 
                     <div class="divider">Или через соцсети</div>
 

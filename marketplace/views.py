@@ -12,7 +12,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from .forms import BookingForm
 from .models import Appointment, Category, Master, Salon, Service
-from .utils import get_available_slots, send_telegram_message
+from .utils import get_available_slots, send_telegram_message, can_book_pc_quantity
 
 
 def search_view(request):
@@ -35,6 +35,19 @@ def search_view(request):
         results = results.filter(address__icontains=location)
 
     return render(request, 'search_results.html', {'results': results, 'query': query})
+
+def _salon_is_pc_club(salon):
+    """Detect PC clubs by category slug (fast, no DB column needed)."""
+    PC_CLUB_SLUGS = {
+        "pc-club", "pc-clubs", "computer-club", "pc",
+        "kompyuter-klub", "obychnye-pk",
+    }
+    cat = getattr(salon, "category", None)
+    while cat is not None:
+        if cat.slug in PC_CLUB_SLUGS:
+            return True
+        cat = cat.parent
+    return False
 
 def home(request):
     categories = Category.objects.filter(parent__isnull=True)
@@ -144,44 +157,65 @@ def salon_detail(request, salon_id):
 def booking_start(request, salon_id, service_id):
     salon = get_object_or_404(Salon, pk=salon_id)
     service = get_object_or_404(Service, pk=service_id, salon=salon)
+    is_pc_club = _salon_is_pc_club(salon)
 
     if request.method == "POST":
-        form = BookingForm(request.POST, salon=salon)
+        form = BookingForm(request.POST, salon=salon, is_pc_club=is_pc_club)
         if form.is_valid():
-            master = form.cleaned_data["master"]
             start_dt = form.build_start_datetime()
+            quantity = form.cleaned_data.get("quantity") or 1
 
-            slots = get_available_slots(
-                salon=salon,
-                master=master,
-                service=service,
-                date_obj=form.cleaned_data["date"],
-            )
-
-            if start_dt not in slots:
-                form.add_error(None, "Selected time is no longer available.")
+            if is_pc_club:
+                ok, available = can_book_pc_quantity(salon, service, start_dt, quantity)
+                if not ok:
+                    form.add_error(None, f"Only {available} PC(s) available at this time.")
+                else:
+                    Appointment.objects.create(
+                        client=request.user,
+                        salon=salon,
+                        master=None,
+                        service=service,
+                        start_time=start_dt,
+                        status="pending",
+                        comment=form.cleaned_data.get("comment", ""),
+                        quantity=quantity,
+                    )
+                    return redirect("marketplace:booking_success", salon_id=salon.id)
             else:
-                # Create the appointment with 'pending' status.
-                # Telegram notifications are handled by the post_save signal
-                # in signals.py — do not duplicate here.
-                Appointment.objects.create(
-                    client=request.user,
+                master = form.cleaned_data["master"]
+                slots = get_available_slots(
                     salon=salon,
                     master=master,
                     service=service,
-                    start_time=start_dt,
-                    status="pending",
-                    comment=form.cleaned_data.get("comment", ""),
+                    date_obj=form.cleaned_data["date"],
                 )
-                return redirect("marketplace:booking_success", salon_id=salon.id)
-
+                if start_dt not in slots:
+                    form.add_error(None, "Selected time is no longer available.")
+                else:
+                    Appointment.objects.create(
+                        client=request.user,
+                        salon=salon,
+                        master=master,
+                        service=service,
+                        start_time=start_dt,
+                        status="pending",
+                        comment=form.cleaned_data.get("comment", ""),
+                        quantity=1,
+                    )
+                    return redirect("marketplace:booking_success", salon_id=salon.id)
     else:
-        form = BookingForm(salon=salon, initial={"date": timezone.localdate()})
+        initial = {"date": timezone.localdate()}
+        if is_pc_club:
+            try:
+                initial["quantity"] = int(request.GET.get("quantity", 1))
+            except (TypeError, ValueError):
+                initial["quantity"] = 1
+        form = BookingForm(salon=salon, is_pc_club=is_pc_club, initial=initial)
 
     return render(
         request,
         "marketplace/booking_start.html",
-        {"salon": salon, "service": service, "form": form},
+        {"salon": salon, "service": service, "form": form, "is_pc_club": is_pc_club},
     )
 
 @login_required

@@ -201,10 +201,6 @@
 
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label class="form-label">{% trans "Full Name" %}</label>
-                                {{ form.full_name }}
-                            </div>
-                            <div class="col-12 col-md-6">
                                 <label class="form-label">{% trans "Phone Number" %}</label>
                                 {{ form.phone }}
                             </div>
@@ -215,6 +211,10 @@
                             <div class="col-6">
                                 <label class="form-label">{% trans "Last Name" %}</label>
                                 {{ form.last_name }}
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">{% trans "Gender" %}</label>
+                                {{ form.gender }}
                             </div>
                         </div>
                     </div>
@@ -265,16 +265,6 @@
                             </div>
                             {% endfor %}
                         </div>
-                    </div>
-                </div>
-                {% else %}
-                <div class="card settings-card border-dashed">
-                    <div class="card-body p-4 text-center">
-                        <i class="bi bi-shop fs-1 text-muted opacity-50 d-block mb-2"></i>
-                        <h6 class="fw-bold mb-1">{% trans "No salon yet" %}</h6>
-                        <p class="small text-muted mb-0">
-                            {% trans "Once you have a salon, you'll be able to set its working hours here." %}
-                        </p>
                     </div>
                 </div>
                 {% endif %}

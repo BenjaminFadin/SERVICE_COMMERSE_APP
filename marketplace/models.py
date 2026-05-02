@@ -7,13 +7,14 @@ from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.translation import get_language
+from django.core.validators import MinValueValidator
 from mptt.models import MPTTModel, TreeForeignKey
 
 
 def salon_logo_upload_to(instance, filename):
     # 1. Split the name and extension
     name, ext = os.path.splitext(filename)
-    
+
     # 2. Truncate the original name to the first 20 characters
     short_name = name[:20]
     
@@ -309,6 +310,12 @@ class Appointment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
     comment = models.TextField(blank=True, verbose_name="Комментарий")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+    quantity = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        verbose_name="Количество ПК",
+        help_text="Количество ПК для PC-клубов. Для остальных салонов всегда 1."
+    )
 
     class Meta:
         verbose_name = "Запись"

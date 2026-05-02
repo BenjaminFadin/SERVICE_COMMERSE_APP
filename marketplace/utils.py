@@ -94,6 +94,37 @@ def get_available_slots(*, salon, master, service, date_obj, interval_minutes=15
 
     return candidates
 
+def _pcs_booked_at(salon, start_dt, end_dt):
+    """Count PCs booked during [start_dt, end_dt) at this salon."""
+    from .models import Appointment
+    from datetime import timedelta
+
+    overlapping = Appointment.objects.filter(
+        salon=salon,
+        status__in=["pending", "confirmed"],
+        start_time__lt=end_dt,
+    )
+    total = 0
+    for appt in overlapping:
+        if not appt.service:
+            continue
+        appt_end = appt.start_time + timedelta(minutes=appt.service.duration_minutes)
+        if appt_end > start_dt:
+            total += getattr(appt, "quantity", 1) or 1
+    return total
+
+
+def can_book_pc_quantity(salon, service, start_dt, quantity):
+    """Returns (ok: bool, available_count: int)."""
+    from .models import Master
+    from datetime import timedelta
+
+    total_pcs = Master.objects.filter(salon=salon, is_active=True).count()
+    end_dt = start_dt + timedelta(minutes=service.duration_minutes)
+    booked = _pcs_booked_at(salon, start_dt, end_dt)
+    available = total_pcs - booked
+    return (available >= quantity, available)
+
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
 
