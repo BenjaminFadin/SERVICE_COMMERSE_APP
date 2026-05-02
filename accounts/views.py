@@ -122,16 +122,18 @@ def auth_view(request):
         # --- REGISTER LOGIC (User) ---
         elif 'register_submit' in request.POST:
             active_section = 'register'
-            # CHANGED: Use UserSignUpForm
-            register_form = UserSignUpForm(request.POST) 
+            register_form = UserSignUpForm(request.POST)
             if register_form.is_valid():
                 user = register_form.save()
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-
-                # messages.success(request, "Account created! Welcome.")
                 return redirect("marketplace:home")
             else:
-                messages.error(request, "Registration failed. Please fix the errors.")
+                # Show the actual errors so user knows what went wrong
+                print("REGISTRATION ERRORS:", register_form.errors.as_json())
+                for field, errs in register_form.errors.items():
+                    for err in errs:
+                        messages.error(request, f"{field}: {err}")
+
 
     context = {
         "login_form": login_form,

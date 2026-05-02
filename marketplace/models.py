@@ -348,3 +348,28 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.client} -> {self.service} ({timezone.localtime(self.start_time).strftime('%d.%m %H:%M')})"
+
+
+class BusinessLead(models.Model):
+    STATUS_CHOICES = [
+        ("new", "Новая"),
+        ("contacted", "Связались"),
+        ("converted", "Конверсия"),
+        ("rejected", "Отклонена"),
+    ]
+
+    phone = models.CharField(max_length=30, verbose_name="Телефон")
+    description = models.TextField(verbose_name="Описание")
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="new",
+        verbose_name="Статус"
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+
+    class Meta:
+        verbose_name = "Заявка на добавление бизнеса"
+        verbose_name_plural = "Заявки на добавление бизнеса"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.phone} ({self.created_at:%Y-%m-%d %H:%M})"

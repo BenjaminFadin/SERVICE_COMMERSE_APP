@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from mptt.admin import DraggableMPTTAdmin
-from .models import Category, Salon, Master, Service, Appointment, SalonWorkingHours, SalonPhoto, Address
+from .models import Category, Salon, Master, Service, Appointment, SalonWorkingHours, SalonPhoto, Address, BusinessLead
 
 
 class ParentCategoryFilter(admin.SimpleListFilter):
@@ -85,3 +85,12 @@ class SalonWorkingHoursAdmin(admin.ModelAdmin):
 
 admin.site.register(SalonPhoto)
 admin.site.register(Address)
+
+
+@admin.register(BusinessLead)
+class BusinessLeadAdmin(admin.ModelAdmin):
+    list_display = ("phone", "status", "created_at")
+    list_filter = ("status", "created_at")
+    search_fields = ("phone", "description")
+    readonly_fields = ("created_at",)
+    list_editable = ("status",)

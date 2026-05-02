@@ -21,3 +21,4 @@ Topson_2024
 Fazliddin44
 1
 
+git reset --hard

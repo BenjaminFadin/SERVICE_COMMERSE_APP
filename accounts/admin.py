@@ -23,6 +23,7 @@ class ProfileInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
     list_display = ('username', 'email', 'get_role', 'is_staff')
+    ordering = ('-date_joined',)
     
     def get_role(self, obj):
         # Check if profile exists to avoid crash if something went wrong

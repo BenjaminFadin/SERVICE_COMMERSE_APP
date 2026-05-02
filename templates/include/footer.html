@@ -13,7 +13,7 @@
                     <a href="#" class="social-link"><i class="bi bi-linkedin"></i></a>
                 </div>
             </div>
-        
+            
             <div class="col-6 col-lg-2 col-md-4">
                 <h6 class="text-uppercase fw-bold mb-4 small">О ibron</h6>
                 <ul class="list-unstyled">
@@ -23,7 +23,7 @@
                     <li class="mb-2"><a href="#" class="footer-nav-link">Контакты</a></li>
                 </ul>
             </div>
-
+            
             <div class="col-6 col-lg-3 col-md-4">
                 <h6 class="text-uppercase fw-bold mb-4 small">Пользователям</h6>
                 <ul class="list-unstyled">
@@ -39,7 +39,10 @@
                 <div class="business-card p-3 rounded-3 bg-light">
                     <p class="small fw-bold mb-2">Станьте партнером ebook</p>
                     <p class="small text-muted mb-3">Управляйте своим бизнесом и привлекайте новых клиентов.</p>
-                    <a href="#" class="btn btn-sm btn-outline-dark w-100 fw-bold">Добавить бизнес</a>
+                    <a href="#" class="btn btn-sm btn-outline-dark w-100 fw-bold"
+                        data-bs-toggle="modal" data-bs-target="#addBusinessModal">
+                        Добавить бизнес
+                    </a>
                 </div>
             </div>
         </div>
@@ -55,3 +58,237 @@
         </div>
     </div>
 </footer>
+
+
+
+<!-- ===== ADD BUSINESS MODAL ===== -->
+<div class="modal fade" id="addBusinessModal" tabindex="-1" aria-labelledby="addBusinessModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold" id="addBusinessModalLabel">Добавить бизнес</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="text-muted small mb-3">
+          Оставьте заявку — мы свяжемся с вами и поможем разместить ваш бизнес на платформе.
+        </p>
+
+        <!-- Success message (hidden until success) -->
+        <div id="leadSuccess" class="alert alert-success d-none" role="alert"></div>
+
+        <!-- Error alert (hidden until error) -->
+        <div id="leadError" class="alert alert-danger d-none" role="alert"></div>
+
+        <form id="businessLeadForm" novalidate>
+          {% csrf_token %}
+
+        <div class="mb-3">
+        <label for="leadPhone" class="form-label">Телефон <span class="text-danger">*</span></label>
+        <input type="tel" class="form-control" id="leadPhone" name="phone"
+                placeholder="+998 90 123 45 67"
+                maxlength="17"
+                required>
+        <div class="invalid-feedback" id="leadPhoneError"></div>
+        <small class="form-text text-muted" id="leadPhoneHint">Формат: +998 XX XXX XX XX</small>
+        </div>      
+
+          <div class="mb-3">
+            <label for="leadDescription" class="form-label">Описание бизнеса <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="leadDescription" name="description"
+                      rows="4" placeholder="Расскажите о вашем бизнесе..." required></textarea>
+            <div class="invalid-feedback" id="leadDescriptionError"></div>
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100 fw-bold" id="leadSubmitBtn">
+            Отправить заявку
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const form        = document.getElementById('businessLeadForm');
+  const successBox  = document.getElementById('leadSuccess');
+  const errorBox    = document.getElementById('leadError');
+  const submitBtn   = document.getElementById('leadSubmitBtn');
+  const phoneInput  = document.getElementById('leadPhone');
+  const descInput   = document.getElementById('leadDescription');
+  const phoneError  = document.getElementById('leadPhoneError');
+  const descError   = document.getElementById('leadDescriptionError');
+
+  if (!form) return;
+
+  function clearErrors() {
+    errorBox.classList.add('d-none');
+    errorBox.textContent = '';
+    phoneInput.classList.remove('is-invalid');
+    descInput.classList.remove('is-invalid');
+    phoneError.textContent = '';
+    descError.textContent = '';
+  }
+
+  function showFieldErrors(errors) {
+    if (errors.phone) {
+      phoneInput.classList.add('is-invalid');
+      phoneError.textContent = errors.phone.join(' ');
+    }
+    if (errors.description) {
+      descInput.classList.add('is-invalid');
+      descError.textContent = errors.description.join(' ');
+    }
+  }
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    clearErrors();
+    successBox.classList.add('d-none');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Отправка...';
+
+    const formData = new FormData(form);
+    const csrf = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+      const res = await fetch("{% url 'marketplace:submit_business_lead' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrf,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.ok) {
+        // Success
+        form.reset();
+        successBox.textContent = data.message || 'Спасибо! Мы свяжемся с вами.';
+        successBox.classList.remove('d-none');
+        // Auto-close modal after 2.5s
+        setTimeout(() => {
+          const modalEl = document.getElementById('addBusinessModal');
+          const modal = bootstrap.Modal.getInstance(modalEl);
+          if (modal) modal.hide();
+          successBox.classList.add('d-none');
+        }, 2500);
+      } else if (data.errors) {
+        showFieldErrors(data.errors);
+      } else {
+        errorBox.textContent = 'Произошла ошибка. Попробуйте позже.';
+        errorBox.classList.remove('d-none');
+      }
+    } catch (err) {
+      errorBox.textContent = 'Ошибка сети. Проверьте соединение.';
+      errorBox.classList.remove('d-none');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Отправить заявку';
+    }
+  });
+})();
+
+// ===== UZ PHONE LIVE FORMATTING & VALIDATION =====
+// Valid UZ mobile operator codes (first 2 digits after 998)
+const UZ_OPERATOR_CODES = [
+  '20',           // Humans
+  '33', '88',     // Ucell
+  '50', '77',     // Perfectum / Beeline reserve
+  '55',           // UMS
+  '90', '91',     // Beeline
+  '93', '94',     // Ucell
+  '95', '99',     // UzMobile
+  '97', '98',     // Mobiuz
+];
+
+function formatUzPhone(value) {
+  // Strip everything except digits
+  let digits = value.replace(/\D/g, '');
+
+  // Auto-prepend 998 if user typed local format
+  if (digits.length > 0 && !digits.startsWith('998')) {
+    if (digits.startsWith('8') && digits.length === 9) {
+      digits = '998' + digits.substring(1);
+    } else if (digits.length <= 9) {
+      digits = '998' + digits;
+    }
+  }
+
+  // Cap at 12 digits (998 + 9)
+  digits = digits.substring(0, 12);
+
+  // Build formatted string: +998 XX XXX XX XX
+  let formatted = '+998';
+  if (digits.length > 3)  formatted += ' ' + digits.substring(3, 5);
+  if (digits.length > 5)  formatted += ' ' + digits.substring(5, 8);
+  if (digits.length > 8)  formatted += ' ' + digits.substring(8, 10);
+  if (digits.length > 10) formatted += ' ' + digits.substring(10, 12);
+
+  return { formatted, digits };
+}
+
+function validateUzPhone(digits) {
+  if (digits.length === 0)  return { ok: false, msg: '' };
+  if (digits.length < 12)   return { ok: false, msg: 'Введите полный номер: +998 XX XXX XX XX' };
+  if (!digits.startsWith('998')) return { ok: false, msg: 'Номер должен начинаться с +998' };
+
+  const operator = digits.substring(3, 5);
+  if (!UZ_OPERATOR_CODES.includes(operator)) {
+    return { ok: false, msg: 'Неверный код оператора (' + operator + ')' };
+  }
+  return { ok: true, msg: '' };
+}
+
+phoneInput.addEventListener('input', function (e) {
+  const cursorAtEnd = (e.target.selectionStart === e.target.value.length);
+  const { formatted, digits } = formatUzPhone(e.target.value);
+  e.target.value = formatted;
+
+  // Keep cursor at end while typing (simplest, works for most cases)
+  if (cursorAtEnd) {
+    e.target.setSelectionRange(formatted.length, formatted.length);
+  }
+
+  // Live validation feedback
+  const result = validateUzPhone(digits);
+  if (digits.length === 0) {
+    // Empty — clear styling
+    phoneInput.classList.remove('is-invalid', 'is-valid');
+    phoneError.textContent = '';
+  } else if (result.ok) {
+    phoneInput.classList.remove('is-invalid');
+    phoneInput.classList.add('is-valid');
+    phoneError.textContent = '';
+  } else {
+    phoneInput.classList.remove('is-valid');
+    phoneInput.classList.add('is-invalid');
+    phoneError.textContent = result.msg;
+  }
+});
+
+// Pre-fill +998 on focus if empty (better UX)
+phoneInput.addEventListener('focus', function () {
+  if (phoneInput.value.trim() === '') {
+    phoneInput.value = '+998 ';
+  }
+});
+
+// Block form submit if phone is invalid (extra safety)
+form.addEventListener('submit', function (e) {
+  const digits = phoneInput.value.replace(/\D/g, '');
+  const result = validateUzPhone(digits);
+  if (!result.ok) {
+    e.preventDefault();
+    e.stopPropagation();
+    phoneInput.classList.add('is-invalid');
+    phoneError.textContent = result.msg || 'Введите корректный номер.';
+    phoneInput.focus();
+  }
+}, true);  // capture phase — runs before the AJAX submit handler
+</script>
+

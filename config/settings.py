@@ -87,18 +87,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://codewithfadin.uz',
+    'https://www.codewithfadin.uz',
+    'http://codewithfadin.uz',
+    'http://www.codewithfadin.uz',
+]
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-# Template for PostgreSQL database configuration
 
 DATABASES = {
     "default": {
@@ -187,6 +183,10 @@ UNT_PROVIDERS = {
     }
 }
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 
 # settings.py
 
@@ -214,3 +214,4 @@ DEFAULT_FROM_EMAIL = config.get('DEFAULT_FROM_EMAIL')
 
 TELEGRAM_BOT_TOKEN = config.get('TELEGRAM_BOT_TOKEN')
 
+BUSINESS_LEADS_TELEGRAM_ID = config.get('BUSINESS_LEADS_TELEGRAM_ID')

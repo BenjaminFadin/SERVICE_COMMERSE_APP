@@ -9,8 +9,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+from django.core.mail import send_mail
 
-from .forms import BookingForm
+from .forms import BookingForm, BusinessLeadForm
 from .models import Appointment, Category, Master, Salon, Service
 from .utils import get_available_slots, send_telegram_message, can_book_pc_quantity
 
@@ -459,3 +461,47 @@ def cancel_booking(request, appointment_id):
         messages.error(request, "This booking cannot be cancelled.")
         
     return redirect('marketplace:my_bookings')
+
+
+@require_POST
+def submit_business_lead(request):
+    """Handle 'Add Business' popup form. Saves lead + sends Telegram notification."""
+    form = BusinessLeadForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({"ok": False, "errors": form.errors}, status=400)
+
+    lead = form.save()
+
+    # Send Telegram notification to admin
+    chat_id = getattr(settings, "BUSINESS_LEADS_TELEGRAM_ID", None)
+    bot_token = getattr(settings, "TELEGRAM_BOT_TOKEN", None)
+
+    print("=" * 60)
+    print(f"[LEAD #{lead.pk}] Sending Telegram notification...")
+    print(f"  chat_id   = {chat_id!r}")
+    print(f"  bot_token = {'SET (' + str(len(bot_token)) + ' chars)' if bot_token else 'MISSING'}")
+
+    if not chat_id:
+        print(f"[LEAD #{lead.pk}] BUSINESS_LEADS_TELEGRAM_ID is not set in .env")
+    elif not bot_token:
+        print(f"[LEAD #{lead.pk}] TELEGRAM_BOT_TOKEN is not set in .env")
+    else:
+        try:
+            text = (
+                "<b>🆕 Новая заявка на добавление бизнеса</b>\n\n"
+                f"📞 <b>Телефон:</b> {lead.phone}\n"
+                f"📝 <b>Описание:</b>\n{lead.description}\n\n"
+                f"🕒 {lead.created_at:%Y-%m-%d %H:%M}\n"
+                f"🆔 ID: {lead.pk}"
+            )
+            ok = send_telegram_message(str(chat_id), text)
+            print(f"[LEAD #{lead.pk}] send_telegram_message returned: {ok}")
+        except Exception as e:
+            print(f"[LEAD #{lead.pk}] Exception: {e}")
+
+    print("=" * 60)
+
+    return JsonResponse({
+        "ok": True,
+        "message": "Спасибо! Мы свяжемся с вами в ближайшее время.",
+    })

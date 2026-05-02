@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.forms import modelformset_factory
 
-from .models import Master, SalonWorkingHours
+from .models import Master, SalonWorkingHours, BusinessLead
 
 
 class BookingForm(forms.Form):
@@ -66,16 +66,42 @@ class BookingForm(forms.Form):
         return timezone.make_aware(naive, timezone.get_current_timezone())
 
 class SalonWorkingHoursForm(forms.ModelForm):
+    open_time = forms.TimeField(
+        required=False,
+        input_formats=['%H:%M', '%H:%M:%S'],
+        widget=forms.TimeInput(
+            attrs={
+                'type': 'time',
+                'class': 'form-control',
+                'step': '60',
+                'lang': 'ru-RU',
+            },
+            format='%H:%M',
+        ),
+    )
+    close_time = forms.TimeField(
+        required=False,
+        input_formats=['%H:%M', '%H:%M:%S'],
+        widget=forms.TimeInput(
+            attrs={
+                'type': 'time',
+                'class': 'form-control',
+                'step': '60',
+                'lang': 'ru-RU',
+            },
+            format='%H:%M',
+        ),
+    )
+
     class Meta:
         model = SalonWorkingHours
         fields = ['weekday', 'is_closed', 'open_time', 'close_time']
         widgets = {
-            'weekday': forms.HiddenInput(),  # We don't want users changing the day index
-            'open_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
-            'close_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'weekday': forms.HiddenInput(),
             'is_closed': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-
+        
+        
 # This factory creates a group of 7 forms (one for each day)
 WorkingHoursFormSet = modelformset_factory(
     SalonWorkingHours,
@@ -83,3 +109,37 @@ WorkingHoursFormSet = modelformset_factory(
     extra=0,  # No extra empty forms
     can_delete=False
 )
+
+
+class BusinessLeadForm(forms.ModelForm):
+    class Meta:
+        model = BusinessLead
+        fields = ["phone", "description"]
+        widgets = {
+            "phone": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "+998 90 123 45 67",
+                "type": "tel",
+                "required": "required",
+            }),
+            "description": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Расскажите о вашем бизнесе...",
+                "required": "required",
+            }),
+        }
+
+    def clean_phone(self):
+        phone = (self.cleaned_data.get("phone") or "").strip()
+        # remove spaces and dashes for length check
+        digits = "".join(c for c in phone if c.isdigit())
+        if len(digits) < 7:
+            raise forms.ValidationError("Введите корректный номер телефона.")
+        return phone
+
+    def clean_description(self):
+        desc = (self.cleaned_data.get("description") or "").strip()
+        if len(desc) < 10:
+            raise forms.ValidationError("Опишите бизнес подробнее (минимум 10 символов).")
+        return desc
