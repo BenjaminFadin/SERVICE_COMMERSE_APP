@@ -54,6 +54,8 @@ def _salon_is_pc_club(salon):
 def home(request):
     categories = Category.objects.filter(parent__isnull=True)
     return render(request, "marketplace/category_list.html", {"categories": categories})
+
+
 def salon_list(request, category_slug=None):
     query = (request.GET.get("q") or "").strip()
     location = (request.GET.get("location") or "").strip()

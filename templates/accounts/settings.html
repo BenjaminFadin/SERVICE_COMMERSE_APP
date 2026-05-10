@@ -62,6 +62,34 @@
             color: var(--booksy-teal);
         }
 
+        /* ===== Telegram steps ===== */
+        .tg-steps {
+            list-style: none;
+            counter-reset: tg;
+        }
+        .tg-steps li { line-height: 1.5; }
+        .tg-steps .step-num {
+            flex: 0 0 28px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #e7f4fd;
+            color: #0088cc;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.85rem;
+        }
+        .tg-steps code {
+            background: #f0f2f5;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--booksy-dark);
+        }
+
         /* Desktop Hover Effect */
         @media (min-width: 992px) {
             .dropdown-hover { position: relative; }
@@ -286,6 +314,64 @@
                 </div>
                 {% endif %}
 
+                <!-- ===== TELEGRAM INSTRUCTIONS CARD ===== -->
+                <div class="card settings-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="card-title-icon" style="background:#e7f4fd;color:#0088cc;">
+                                <i class="bi bi-telegram"></i>
+                            </div>
+                            <h5 class="card-title h6 fw-bold mb-0">{% trans "How to get your Telegram ID" %}</h5>
+                        </div>
+
+                        <p class="small text-muted mb-3">
+                            {% trans "To receive booking notifications in Telegram, you need to enter your Telegram ID in the field above. Follow these simple steps:" %}
+                        </p>
+
+                        <ol class="tg-steps small mb-3 ps-0">
+                            <li class="d-flex mb-3">
+                                <span class="step-num">1</span>
+                                <div>
+                                    {% trans "Open Telegram and start the bot" %}
+                                    <a href="https://t.me/userinfobot" target="_blank" rel="noopener"
+                                    class="fw-bold text-decoration-none">@userinfobot</a>
+                                    {% trans "(click the link or search for it)." %}
+                                </div>
+                            </li>
+                            <li class="d-flex mb-3">
+                                <span class="step-num">2</span>
+                                <div>
+                                    {% trans "Press" %} <strong>Start</strong>
+                                    {% trans "(or send" %} <code>/start</code>{% trans ")." %}
+                                </div>
+                            </li>
+                            <li class="d-flex mb-3">
+                                <span class="step-num">3</span>
+                                <div>
+                                    {% trans "The bot will reply with your info. Copy the number next to" %}
+                                    <strong>Id:</strong>
+                                    {% trans "(example: 123456789)." %}
+                                </div>
+                            </li>
+                            <li class="d-flex">
+                                <span class="step-num">4</span>
+                                <div>
+                                    {% trans "Paste that number into the" %}
+                                    <strong>{% trans "Telegram ID" %}</strong>
+                                    {% trans "field above and click" %}
+                                    <strong>{% trans "Save Settings" %}</strong>.
+                                </div>
+                            </li>
+                        </ol>
+
+                        <a href="https://t.me/userinfobot" target="_blank" rel="noopener"
+                           class="btn btn-outline-primary btn-sm rounded-pill mt-3">
+                            <i class="bi bi-telegram me-1"></i>
+                            {% trans "Open @userinfobot" %}
+                        </a>
+                    </div>
+                </div>
+                <!-- ===== END TELEGRAM INSTRUCTIONS CARD ===== -->
                 <div class="card settings-card">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-center mb-4">
@@ -307,7 +393,7 @@
                     </div>
                 </div>
 
-                <div id="provider-fields" class="card settings-card {% if form.role.value != 'provider' %}d-none{% endif %}">
+
                     <div class="card-body p-4 border-top border-4 border-primary">
                         <h5 class="card-title h6 fw-bold mb-4">{% trans "Professional Details" %}</h5>
                         <div class="row g-3">

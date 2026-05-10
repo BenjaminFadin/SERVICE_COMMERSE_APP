@@ -107,56 +107,107 @@
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        /* --- Search Bar --- */
-        .search-container {
+        /* === Search wrapper & suggestions === */
+        .search-wrapper { position: relative; max-width: 800px; margin: 0 auto; }
+        .search-container { position: relative; }
+        #searchInputGroup { position: relative; }
+
+        .search-suggest {
+            position: absolute;
+            top: calc(100% + 12px);
+            left: 0;
+            right: 0;
             background: #fff;
-            padding: 8px;
-            border-radius: 50px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            padding: 16px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+        }
+
+        .search-suggest.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .suggest-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--booksy-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 10px;
+        }
+
+        .suggest-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+        }
+
+        .suggest-item {
             display: flex;
             align-items: center;
-            max-width: 800px;
-            margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .search-input-group {
-            flex: 1;
-            padding: 0 20px;
-            border-right: 1px solid #eee;
-            position: relative;
-        }
-
-        .search-input-group:last-of-type { border-right: none; }
-
-        .search-label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
             color: var(--booksy-dark);
-            margin-bottom: 2px;
-            text-align: left;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.15s, color 0.15s;
         }
 
-        .search-input {
-            width: 100%;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            color: var(--booksy-gray);
+        .suggest-item:hover {
+            background: var(--bg-light);
+            color: var(--booksy-teal);
         }
 
-        .btn-hero-search {
-            background-color: var(--booksy-teal);
-            color: #fff;
-            font-weight: 700;
-            border: none;
-            border-radius: 40px;
-            padding: 12px 32px;
-            transition: background 0.2s;
+        .suggest-item i {
+            font-size: 1.25rem;
+            width: 36px;
+            height: 36px;
+            background: var(--bg-light);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--booksy-teal);
+            flex-shrink: 0;
         }
 
-        .btn-hero-search:hover { background-color: #008c95; color: #fff; }
+        @media (min-width: 768px) {
+            .suggest-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+        }
 
+        @media (max-width: 767.98px) {
+            .search-suggest {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                margin-top: 12px;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+                max-height: 0;
+                padding: 0 16px;
+                overflow: hidden;
+                transition: max-height 0.25s ease, padding 0.25s ease;
+            }
+            .search-suggest.is-open {
+                max-height: 600px;
+                padding: 16px;
+            }
+            .suggest-grid { grid-template-columns: repeat(2, 1fr); }
+        }
         /* --- Categories --- */
         .category-item {
             text-align: center;
@@ -259,7 +310,7 @@
         @media (max-width: 768px) {
             .hero-title { font-size: 2rem; }
             .search-container { flex-direction: column; border-radius: 12px; padding: 15px; }
-            .search-input-group { width: 100%; border-right: none; border-bottom: 1px solid #eee; padding: 10px 0; margin-bottom: 10px; }
+            .search-input-group { width: 100%; border-right: none; padding: 10px 0; }
         }
     </style>
     {% endblock extra_css %}
@@ -268,70 +319,35 @@
         <div class="container">
             <h1 class="hero-title">Будьте собой.<br>Записывайтесь к лучшим мастерам.</h1>
 
-            <div class="search-container text-start">
-                <div class="search-input-group">
-                    <label class="search-label">ЧТО ВЫ ИЩЕТЕ?</label>
-                    <input type="text" class="search-input" placeholder="Напр. стрижка, маникюр, спа..." value="">
-                </div>
-                <div class="search-input-group">
-                    <label class="search-label">ГДЕ?</label>
-                    <input type="text" class="search-input" placeholder="Город или адрес" value="">
-                </div>
-                <button class="btn btn-hero-search">Найти</button>
-            </div>
-        </div>
-    </section>
+            <form action="{% url 'marketplace:search' %}" method="get" class="search-wrapper" id="searchWrapper">
+                <div class="search-container text-start">
+                    <div class="search-input-group" id="searchInputGroup">
+                        <label class="search-label" for="searchInput">ЧТО ВЫ ИЩЕТЕ?</label>
+                        <input type="text"
+                            id="searchInput"
+                            name="q"
+                            class="search-input"
+                            placeholder="Напр. стрижка, маникюр, спа..."
+                            autocomplete="off">
 
-    <section class="container py-5">
-        <div class="row g-4 justify-content-center">
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-scissors"></i></div>
-                    <div class="cat-title">Парикмахерские</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-person-badge"></i></div>
-                    <div class="cat-title">Барбершопы</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-palette"></i></div>
-                    <div class="cat-title">Ногтевой сервис</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-magic"></i></div>
-                    <div class="cat-title">Уход за кожей</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-eye"></i></div>
-                    <div class="cat-title">Брови и Ресницы</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-heart-pulse"></i></div>
-                    <div class="cat-title">Массаж</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-brush"></i></div>
-                    <div class="cat-title">Макияж</div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3 col-lg-2">
-                <a href="#" class="category-item">
-                    <div class="cat-icon-box"><i class="bi bi-stars"></i></div>
-                    <div class="cat-title">Тату и Пирсинг</div>
-                </a>
-            </div>
+                        <!-- Categories dropdown -->
+                        <div class="search-suggest" id="searchSuggest">
+                            <div class="suggest-header">Популярные категории</div>
+                            <div class="suggest-grid">
+                                {% for cat in categories %}
+                                    <a href="{% url 'marketplace:search' %}?category={{ cat.slug }}"
+                                    class="suggest-item">
+                                        <i class="{{ cat.icon_class|default:'bi bi-grid' }}"></i>
+                                        <span>{{ cat.name_ru }}</span>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-hero-search">Найти</button>
+                </div>
+            </form>
         </div>
     </section>
     
@@ -410,5 +426,32 @@
             });
         });
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const wrapper = document.getElementById('searchWrapper');
+        const input   = document.getElementById('searchInput');
+        const suggest = document.getElementById('searchSuggest');
+
+        if (!wrapper || !input || !suggest) return;
+
+        function openSuggest()  { suggest.classList.add('is-open'); }
+        function closeSuggest() { suggest.classList.remove('is-open'); }
+
+        input.addEventListener('focus', openSuggest);
+        input.addEventListener('click', openSuggest);
+
+        document.addEventListener('click', function (e) {
+            if (!wrapper.contains(e.target)) closeSuggest();
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeSuggest();
+                input.blur();
+            }
+        });
+    });
+</script>
+
     {% endblock extra_js %}
 {% endblock content %}

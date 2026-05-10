@@ -107,25 +107,27 @@
 }
 
 /* --- Search Bar --- */
+.search-wrapper {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .search-container {
   background: #fff;
   padding: 8px;
   border-radius: 50px;
   display: flex;
   align-items: center;
-  max-width: 800px;
-  margin: 0 auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 
 .search-input-group {
   flex: 1;
   padding: 0 20px;
-  border-right: 1px solid #eee;
   position: relative;
 }
-
-.search-input-group:last-of-type { border-right: none; }
 
 .search-label {
   display: block;
@@ -142,6 +144,7 @@
   outline: none;
   font-size: 1rem;
   color: var(--booksy-gray);
+  background: transparent;
 }
 
 .btn-hero-search {
@@ -157,6 +160,71 @@
 .btn-hero-search:hover {
   background-color: #008c95;
   color: #fff;
+}
+
+/* --- Search Suggestions Dropdown --- */
+.search-suggest {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+
+.search-suggest.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.suggest-header {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--booksy-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 8px 10px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 10px;
+}
+
+/* --- Suggestion chips --- */
+.suggest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #F5F5F7;
+  color: var(--booksy-dark);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: #fff;
+  color: var(--booksy-teal);
+  border-color: var(--booksy-teal);
+}
+
+.chip:active {
+  transform: scale(0.97);
 }
 
 /* --- Categories --- */
@@ -225,13 +293,43 @@
     border-top: 1px solid #eee;
     margin-top: 10px;
   }
-  .btn-hero-search { width: 100%; margin-top: 10px; }
 }
 
 @media (max-width: 768px) {
   .hero-title { font-size: 2rem; }
-  .search-container { flex-direction: column; border-radius: 12px; padding: 15px; }
-  .search-input-group { width: 100%; border-right: none; border-bottom: 1px solid #eee; padding: 10px 0; margin-bottom: 10px; }
+
+  .search-container {
+    flex-direction: column;
+    border-radius: 16px;
+    padding: 12px;
+    gap: 10px;
+  }
+  .search-input-group {
+    width: 100%;
+    padding: 8px 12px;
+  }
+  .btn-hero-search {
+    width: 100%;
+    padding: 14px;
+  }
+
+  /* Mobile dropdown becomes inline collapsible block */
+  .search-suggest {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    margin-top: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    max-height: 0;
+    padding: 0 16px;
+    overflow: hidden;
+    transition: max-height 0.25s ease, padding 0.25s ease;
+  }
+  .search-suggest.is-open {
+    max-height: 600px;
+    padding: 16px;
+  }
 }
 </style>
 {% endblock extra_css %}
@@ -243,27 +341,34 @@
             {% trans "Будьте собой." %}<br>
             {% trans "Записывайтесь к лучшим мастерам." %}
         </h1>
-    <form action="{% url 'marketplace:salon_list' %}" method="GET" class="search-container text-start">
-        <div class="search-input-group">
-            <label class="search-label">{% trans "ЧТО ВЫ ИЩЕТЕ?" %}</label>
-            <input type="text" 
-                  name="q" 
-                  class="search-input" 
-                  placeholder="{% trans 'Напр. стрижка, маникюр, спа...' %}"
-                  value="{{ search_query|default:'' }}">
-        </div>
-        
-        <div class="search-input-group">
-            <label class="search-label">{% trans "ГДЕ?" %}</label>
-            <input type="text" 
-                  name="location" 
-                  class="search-input" 
-                  placeholder="{% trans 'Город или адрес' %}"
-                  value="{{ search_location|default:'' }}">
-        </div>
-        
-        <button type="submit" class="btn btn-hero-search">{% trans "Найти?" %}</button>
-    </form>
+
+        <form action="{% url 'marketplace:salon_search' %}" method="get" class="search-wrapper" id="searchWrapper">
+            <div class="search-container text-start">
+                <div class="search-input-group" id="searchInputGroup">
+                    <label class="search-label" for="searchInput">{% trans "ЧТО ВЫ ИЩЕТЕ?" %}</label>
+                    <input type="text"
+                           id="searchInput"
+                           name="q"
+                           class="search-input"
+                           placeholder="{% trans 'Напр. стрижка, маникюр, спа...' %}"
+                           autocomplete="off">
+
+                    <!-- Categories chips dropdown -->
+                    <div class="search-suggest" id="searchSuggest">
+                        <div class="suggest-header">{% trans "Популярные категории" %}</div>
+                        <div class="suggest-chips">
+                            {% for cat in categories %}
+                                <a href="{% url 'marketplace:salon_list_by_category' cat.slug %}" class="chip">
+                                    {{ cat.name_ru }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-hero-search">{% trans "Найти" %}</button>
+            </div>
+        </form>
     </div>
 </section>
 
@@ -355,7 +460,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const navCollapse = document.querySelector('.navbar-collapse');
         // Check if element exists before initializing
-        if(navCollapse) {
+        if (navCollapse) {
             const navLinks = document.querySelectorAll('.nav-link:not(.dropdown-toggle)');
             const bsCollapse = new bootstrap.Collapse(navCollapse, {toggle: false});
             navLinks.forEach(link => {
@@ -366,5 +471,32 @@
         }
     });
 </script>
-{% endblock extra_js %}
 
+<script>
+    // ===== Search dropdown behavior =====
+    document.addEventListener('DOMContentLoaded', function () {
+        const wrapper = document.getElementById('searchWrapper');
+        const input   = document.getElementById('searchInput');
+        const suggest = document.getElementById('searchSuggest');
+
+        if (!wrapper || !input || !suggest) return;
+
+        function openSuggest()  { suggest.classList.add('is-open'); }
+        function closeSuggest() { suggest.classList.remove('is-open'); }
+
+        input.addEventListener('focus', openSuggest);
+        input.addEventListener('click', openSuggest);
+
+        document.addEventListener('click', function (e) {
+            if (!wrapper.contains(e.target)) closeSuggest();
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeSuggest();
+                input.blur();
+            }
+        });
+    });
+</script>
+{% endblock extra_js %}
