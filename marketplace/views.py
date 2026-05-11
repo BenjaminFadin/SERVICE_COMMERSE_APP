@@ -1,5 +1,6 @@
+import io
 from datetime import datetime
-
+from django.http import HttpResponse
 from django.db.models import Q, Exists, OuterRef, Prefetch
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
@@ -156,7 +157,7 @@ def salon_detail(request, salon_id):
             "today_weekday": timezone.localtime().weekday() # Returns 0-6
         },
     )
-    
+
 @login_required
 def booking_start(request, salon_id, service_id):
     salon = get_object_or_404(Salon, pk=salon_id)
@@ -168,7 +169,7 @@ def booking_start(request, salon_id, service_id):
         if form.is_valid():
             start_dt = form.build_start_datetime()
             quantity = form.cleaned_data.get("quantity") or 1
-
+            
             if is_pc_club:
                 ok, available = can_book_pc_quantity(salon, service, start_dt, quantity)
                 if not ok:
@@ -182,7 +183,7 @@ def booking_start(request, salon_id, service_id):
                         start_time=start_dt,
                         status="pending",
                         comment=form.cleaned_data.get("comment", ""),
-                        quantity=quantity,
+                        quantity=quantity
                     )
                     return redirect("marketplace:booking_success", salon_id=salon.id)
             else:
@@ -204,7 +205,7 @@ def booking_start(request, salon_id, service_id):
                         start_time=start_dt,
                         status="pending",
                         comment=form.cleaned_data.get("comment", ""),
-                        quantity=1,
+                        quantity=1
                     )
                     return redirect("marketplace:booking_success", salon_id=salon.id)
     else:
@@ -437,12 +438,16 @@ def api_slots(request, salon_id, service_id):
 @login_required
 def my_bookings(request):
     now = timezone.now()
-    
-    # Get appointments where the current user is the client
-    bookings = Appointment.objects.filter(client=request.user).select_related('salon', 'service', 'master')
-    
-    upcoming_bookings = bookings.filter(start_time__gte=now).order_by('start_time')
-    past_bookings = bookings.filter(start_time__lt=now).order_by('-start_time')
+    bookings = Appointment.objects.filter(client=request.user).select_related('salon', 'service', 'master', 'plan')
+
+    # Upcoming = anything not yet past AND not cancelled/completed
+    upcoming_bookings = bookings.filter(
+        start_time__gte=now,
+    ).exclude(status__in=["cancelled", "completed"]).order_by('start_time')
+
+    past_bookings = bookings.filter(
+        start_time__lt=now
+    ).order_by('-start_time')
 
     return render(request, 'marketplace/my_bookings.html', {
         'upcoming': upcoming_bookings,
@@ -506,4 +511,190 @@ def submit_business_lead(request):
     return JsonResponse({
         "ok": True,
         "message": "Спасибо! Мы свяжемся с вами в ближайшее время.",
+    })
+
+
+# QR SIDE
+def qr_checkout(request, salon_id, token):
+    """
+    Customer scans QR → most recent pending/confirmed booking at this salon
+    is auto-completed.
+    """
+    salon = get_object_or_404(Salon, pk=salon_id, qr_token=token)
+
+    if not request.user.is_authenticated:
+        # Redirect to login, then back here
+        login_url = "/accounts/auth/?next=" + request.path
+        return redirect(login_url)
+
+    # Find most recent active booking at this salon for this user
+    appt = (
+        Appointment.objects
+        .filter(client=request.user, salon=salon, status__in=["pending", "confirmed"])
+        .order_by("-start_time")
+        .first()
+    )
+
+    if not appt:
+        return render(request, "marketplace/qr_result.html", {
+            "salon": salon,
+            "success": False,
+            "title": "Нет активных записей",
+            "message": "У вас нет активных бронирований в этом заведении.",
+        })
+
+    # Mark as completed
+    appt.status = "completed"
+    appt.save(update_fields=["status"])
+
+    # Optional: notify salon owner via Telegram
+    try:
+        owner_profile = getattr(salon.owner, "profile", None)
+        if owner_profile and owner_profile.telegram_id:
+            send_telegram_message(
+                owner_profile.telegram_id,
+                (
+                    "<b>✅ Визит завершён</b>\n\n"
+                    f"Клиент: {request.user.get_full_name() or request.user.username}\n"
+                    f"Заведение: {salon.name}\n"
+                    f"Бронь #{appt.id}\n"
+                    "Статус изменён на «Выполнено» через QR-код."
+                ),
+            )
+    except Exception as e:
+        print(f"QR telegram notify error: {e}")
+
+    return render(request, "marketplace/qr_result.html", {
+        "salon": salon,
+        "appointment": appt,
+        "success": True,
+        "title": "Спасибо за визит!",
+        "message": f"Ваше бронирование в «{salon.name}» отмечено как завершённое.",
+    })
+
+
+@login_required
+def qr_code_image(request, salon_id):
+    """
+    Returns PNG of the salon's QR code.
+    Only salon owner can access.
+    """
+    import qrcode
+    salon = get_object_or_404(Salon, pk=salon_id)
+
+    if salon.owner != request.user and not request.user.is_staff:
+        return HttpResponse("Forbidden", status=403)
+
+    # Build the full URL the QR points to
+    qr_url = request.build_absolute_uri(
+        f"/qr/{salon.id}/{salon.qr_token}/"
+    )
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(qr_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#101928", back_color="white")
+
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    response = HttpResponse(buffer.getvalue(), content_type="image/png")
+    response["Content-Disposition"] = f'inline; filename="qr_{salon.id}.png"'
+    return response
+
+
+@login_required
+def qr_print_page(request, salon_id):
+    """
+    Printable page with the QR code, salon name, instructions.
+    Owner downloads/prints this and sticks it on the wall.
+    """
+    salon = get_object_or_404(Salon, pk=salon_id)
+
+    if salon.owner != request.user and not request.user.is_staff:
+        return HttpResponse("Forbidden", status=403)
+
+    qr_url = request.build_absolute_uri(
+        f"/qr/{salon.id}/{salon.qr_token}/"
+    )
+
+    return render(request, "marketplace/qr_print.html", {
+        "salon": salon,
+        "qr_url": qr_url,
+    })
+
+@login_required
+@require_POST
+def qr_complete_booking(request, appointment_id):
+    """
+    AJAX endpoint called from the 'My Bookings' page after the user scans a QR.
+    Expects POST body: {salon_id, token}
+    Verifies that the scanned salon matches the booking's salon, then marks completed.
+    """
+    appt = get_object_or_404(
+        Appointment.objects.select_related("salon"),
+        pk=appointment_id,
+        client=request.user,
+    )
+
+    salon_id = request.POST.get("salon_id")
+    token = request.POST.get("token", "").strip()
+
+    if not salon_id or not token:
+        return JsonResponse({"ok": False, "error": "Missing salon_id or token"}, status=400)
+
+    # Verify scanned QR matches the booking's salon
+    try:
+        salon_id_int = int(salon_id)
+    except ValueError:
+        return JsonResponse({"ok": False, "error": "Invalid salon_id"}, status=400)
+
+    if appt.salon_id != salon_id_int:
+        return JsonResponse({
+            "ok": False,
+            "error": "QR-код не совпадает с этим бронированием. Сканируйте код в правильном заведении."
+        }, status=400)
+
+    if appt.salon.qr_token != token:
+        return JsonResponse({
+            "ok": False,
+            "error": "Неверный QR-код."
+        }, status=400)
+
+    if appt.status not in ("pending", "confirmed"):
+        return JsonResponse({
+            "ok": False,
+            "error": f"Бронирование уже имеет статус «{appt.get_status_display()}»."
+        }, status=400)
+
+    # Complete it
+    appt.status = "completed"
+    appt.save(update_fields=["status"])
+
+    # Optional: telegram notify owner
+    try:
+        owner_profile = getattr(appt.salon.owner, "profile", None)
+        if owner_profile and owner_profile.telegram_id:
+            send_telegram_message(
+                owner_profile.telegram_id,
+                (
+                    "<b>✅ Визит завершён (QR)</b>\n\n"
+                    f"Клиент: {request.user.get_full_name() or request.user.username}\n"
+                    f"Заведение: {appt.salon.name}\n"
+                    f"Бронь #{appt.id}"
+                ),
+            )
+    except Exception as e:
+        print(f"QR telegram notify error: {e}")
+
+    return JsonResponse({
+        "ok": True,
+        "message": "Визит подтверждён! Статус: Выполнено.",
+        "appointment_id": appt.id,
     })

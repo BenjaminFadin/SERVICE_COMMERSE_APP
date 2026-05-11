@@ -86,7 +86,7 @@ class Category(MultilingualMixin, MPTTModel):
     name_ru = models.CharField(max_length=100, verbose_name="Название (RU)")
     name_en = models.CharField(max_length=100, blank=True, verbose_name="Название (EN)")
     name_uz = models.CharField(max_length=100, blank=True, verbose_name="Название (UZ)")
-
+    is_pc_club = models.BooleanField(default=False, verbose_name="Это ПК клуб?")
     slug = models.SlugField(unique=True, verbose_name="URL метка")
     icon_class = models.CharField(
         max_length=80,
@@ -124,12 +124,26 @@ class Salon(MultilingualMixin, models.Model):
     address = models.TextField(verbose_name="Адрес")
     phone = models.CharField(max_length=20, verbose_name="Телефон салона")
     logo = models.ImageField(upload_to=salon_logo_upload_to, blank=True, null=True)
-    
+    qr_token = models.CharField(
+        max_length=32,
+        unique=True,
+        blank=True,
+        verbose_name="QR-токен",
+        help_text="Уникальный токен для QR-кода завершения визита. Генерируется автоматически."
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
 
     class Meta:
         verbose_name = "Салон"
         verbose_name_plural = "Салоны"
+
+    def save(self, *args, **kwargs):
+        # Auto-generate token on first save
+        if not self.qr_token:
+            import secrets
+            self.qr_token = secrets.token_urlsafe(16).replace("-", "").replace("_", "")[:24]
+        super().save(*args, **kwargs)
+
 
     def __str__(self):
         return self.name
@@ -290,7 +304,60 @@ class SalonWorkingHours(models.Model):
         # get_weekday_display() will now automatically return the translated choice
         return f"{self.salon} - {self.get_weekday_display()}"
     
-    
+class PCPlan(MultilingualMixin, models.Model):
+    """
+    Tariff plan for PC clubs (Standard, VIP, VIP+, Best, etc.).
+    Each plan has ONE price per hour. Total = price_per_hour * hours * quantity.
+    """
+    salon = models.ForeignKey(
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='pc_plans',
+        verbose_name="Салон (PC клуб)"
+    )
+
+    name_ru = models.CharField(max_length=100, verbose_name="Название (RU)")
+    name_en = models.CharField(max_length=100, blank=True, verbose_name="Название (EN)")
+    name_uz = models.CharField(max_length=100, blank=True, verbose_name="Название (UZ)")
+
+    description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
+    description_en = models.TextField(blank=True, verbose_name="Описание (EN)")
+    description_uz = models.TextField(blank=True, verbose_name="Описание (UZ)")
+
+    price_per_hour = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        verbose_name="Цена за час",
+        help_text="Цена за один ПК в час (sum)"
+    )
+
+    icon_class = models.CharField(
+        max_length=80,
+        blank=True,
+        default="bi bi-pc-display",
+        verbose_name="Иконка"
+    )
+    color = models.CharField(
+        max_length=20,
+        blank=True,
+        default="#00A3AD",
+        help_text="Hex (e.g. #00A3AD)",
+        verbose_name="Цвет"
+    )
+    sort_order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
+    is_active = models.BooleanField(default=True, verbose_name="Активен")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Тариф PC клуба"
+        verbose_name_plural = "Тарифы PC клуба"
+        ordering = ['sort_order', 'id']
+
+    def __str__(self):
+        return f"{self.salon.name} — {self.name_ru}"
+
+
+
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Ожидает'),
@@ -303,7 +370,19 @@ class Appointment(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='appointments', verbose_name="Салон")
     master = models.ForeignKey(Master, on_delete=models.SET_NULL, null=True, related_name='appointments', verbose_name="Мастер")
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, verbose_name="Услуга")
-
+    plan = models.ForeignKey(
+        'PCPlan',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='appointments',
+        verbose_name="Тариф (PC клуб)"
+    )
+    hours = models.PositiveIntegerField(
+        default=1,
+        validators=[MinValueValidator(1)],
+        verbose_name="Часы",
+        help_text="Количество часов аренды (для PC клубов)"
+    )
     start_time = models.DateTimeField(verbose_name="Время начала")
     end_time = models.DateTimeField(verbose_name="Время окончания", blank=True, null=True)
 
@@ -316,6 +395,7 @@ class Appointment(models.Model):
         verbose_name="Количество ПК",
         help_text="Количество ПК для PC-клубов. Для остальных салонов всегда 1."
     )
+    
 
     class Meta:
         verbose_name = "Запись"

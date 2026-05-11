@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}QR код | {{ salon.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.print-wrap {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.print-salon-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+.print-subtitle { color: #75767A; font-size: 1rem; margin-bottom: 24px; }
+.print-qr-img {
+  width: 320px;
+  height: 320px;
+  max-width: 100%;
+  border: 8px solid #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  margin: 16px auto;
+  display: block;
+}
+.print-instructions {
+  background: #F7F7F9;
+  border-radius: 14px;
+  padding: 18px;
+  text-align: left;
+  margin-top: 20px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+.print-instructions h6 { font-weight: 700; margin-bottom: 10px; }
+.print-instructions ol { margin: 0; padding-left: 20px; }
+
+.print-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: center;
+}
+.print-actions a, .print-actions button {
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 1px solid #ddd;
+  background: #fff;
+  text-decoration: none;
+  color: #101928;
+  cursor: pointer;
+}
+.print-actions .btn-print { background: #00A3AD; color: #fff; border-color: #00A3AD; }
+
+@media print {
+  body * { visibility: hidden; }
+  .print-wrap, .print-wrap * { visibility: visible; }
+  .print-wrap { position: absolute; left: 0; top: 0; box-shadow: none; }
+  .print-actions, .navbar, footer { display: none !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="print-wrap">
+  <div class="print-salon-name">{{ salon.name }}</div>
+  <p class="print-subtitle">{% trans "Отсканируйте QR-код после посещения" %}</p>
+
+  <img src="{% url 'marketplace:qr_code_image' salon.id %}"
+       alt="QR код"
+       class="print-qr-img">
+
+  <div class="text-muted small">
+    <code>{{ qr_url }}</code>
+  </div>
+
+  <div class="print-instructions">
+    <h6>{% trans "Инструкция для клиентов" %}:</h6>
+    <ol>
+      <li>{% trans "Откройте камеру телефона" %}</li>
+      <li>{% trans "Наведите на QR-код" %}</li>
+      <li>{% trans "Перейдите по ссылке (войдите в аккаунт если нужно)" %}</li>
+      <li>{% trans "Ваше бронирование автоматически отметится как «Выполнено»" %}</li>
+    </ol>
+  </div>
+
+  <div class="print-actions">
+    <a href="{% url 'marketplace:qr_code_image' salon.id %}" download="qr_{{ salon.id }}.png">
+      <i class="bi bi-download me-1"></i> {% trans "Скачать PNG" %}
+    </a>
+    <button onclick="window.print()" class="btn-print">
+      <i class="bi bi-printer me-1"></i> {% trans "Распечатать" %}
+    </button>
+  </div>
+</div>
+{% endblock content %}

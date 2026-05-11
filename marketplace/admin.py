@@ -52,7 +52,7 @@ class MasterInline(admin.TabularInline):
 
 @admin.register(Salon)
 class SalonAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'city_display', 'phone', 'category')
+    list_display = ('name', 'owner', 'city_display', 'phone', 'category', 'qr_token')
     search_fields = ('name', 'owner__email', 'phone')
     
     # Use the custom filter class here

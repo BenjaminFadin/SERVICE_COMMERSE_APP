@@ -32,6 +32,8 @@ DEBUG = config.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', '').split(',')
 
+CSRF_TRUSTED_ORIGINS = config.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -87,12 +89,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://codewithfadin.uz',
-    'https://www.codewithfadin.uz',
-    'http://codewithfadin.uz',
-    'http://www.codewithfadin.uz',
-]
 
 
 
@@ -184,8 +180,9 @@ UNT_PROVIDERS = {
 }
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 
 # settings.py
