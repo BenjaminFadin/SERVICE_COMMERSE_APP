@@ -94,6 +94,7 @@ class Category(MultilingualMixin, MPTTModel):
         default="bi bi-grid",
         verbose_name="Bootstrap icon class"
     )
+
     
     class MPTTMeta:
         order_insertion_by = ['name_ru']
@@ -286,7 +287,7 @@ class SalonWorkingHours(models.Model):
     is_closed = models.BooleanField(default=False, verbose_name=_("Closed"))
     open_time = models.TimeField(null=True, blank=True, verbose_name=_("Open time"))
     close_time = models.TimeField(null=True, blank=True, verbose_name=_("Close time"))
-    
+
     class Meta:
         unique_together = ("salon", "weekday")
         verbose_name = _("Salon working hours")
@@ -303,59 +304,6 @@ class SalonWorkingHours(models.Model):
     def __str__(self):
         # get_weekday_display() will now automatically return the translated choice
         return f"{self.salon} - {self.get_weekday_display()}"
-    
-class PCPlan(MultilingualMixin, models.Model):
-    """
-    Tariff plan for PC clubs (Standard, VIP, VIP+, Best, etc.).
-    Each plan has ONE price per hour. Total = price_per_hour * hours * quantity.
-    """
-    salon = models.ForeignKey(
-        Salon,
-        on_delete=models.CASCADE,
-        related_name='pc_plans',
-        verbose_name="Салон (PC клуб)"
-    )
-
-    name_ru = models.CharField(max_length=100, verbose_name="Название (RU)")
-    name_en = models.CharField(max_length=100, blank=True, verbose_name="Название (EN)")
-    name_uz = models.CharField(max_length=100, blank=True, verbose_name="Название (UZ)")
-
-    description_ru = models.TextField(blank=True, verbose_name="Описание (RU)")
-    description_en = models.TextField(blank=True, verbose_name="Описание (EN)")
-    description_uz = models.TextField(blank=True, verbose_name="Описание (UZ)")
-
-    price_per_hour = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        verbose_name="Цена за час",
-        help_text="Цена за один ПК в час (sum)"
-    )
-
-    icon_class = models.CharField(
-        max_length=80,
-        blank=True,
-        default="bi bi-pc-display",
-        verbose_name="Иконка"
-    )
-    color = models.CharField(
-        max_length=20,
-        blank=True,
-        default="#00A3AD",
-        help_text="Hex (e.g. #00A3AD)",
-        verbose_name="Цвет"
-    )
-    sort_order = models.PositiveIntegerField(default=0, verbose_name="Порядок")
-    is_active = models.BooleanField(default=True, verbose_name="Активен")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Тариф PC клуба"
-        verbose_name_plural = "Тарифы PC клуба"
-        ordering = ['sort_order', 'id']
-
-    def __str__(self):
-        return f"{self.salon.name} — {self.name_ru}"
-
 
 
 class Appointment(models.Model):
@@ -370,13 +318,6 @@ class Appointment(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, related_name='appointments', verbose_name="Салон")
     master = models.ForeignKey(Master, on_delete=models.SET_NULL, null=True, related_name='appointments', verbose_name="Мастер")
     service = models.ForeignKey(Service, on_delete=models.SET_NULL, null=True, verbose_name="Услуга")
-    plan = models.ForeignKey(
-        'PCPlan',
-        on_delete=models.SET_NULL,
-        null=True, blank=True,
-        related_name='appointments',
-        verbose_name="Тариф (PC клуб)"
-    )
     hours = models.PositiveIntegerField(
         default=1,
         validators=[MinValueValidator(1)],

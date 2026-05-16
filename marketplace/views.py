@@ -360,7 +360,7 @@ def owner_dashboard(request):
 
     bookings_past = base_query.filter(start_time__date__lt=today)\
         .select_related("client", "service", "master", "plan").order_by('-start_time')
-
+    
     return render(request, "business/dashboard.html", {
         "salon": target_salon,
         "bookings_pending": bookings_pending,
@@ -469,7 +469,7 @@ def _user_can_manage_appointment(user, appointment):
 def ajax_booking_form(request, salon_id, service_id):
     salon = get_object_or_404(Salon, pk=salon_id)
     service = get_object_or_404(Service, pk=service_id, salon=salon)
-
+    
     form = BookingForm(salon=salon, initial={"date": timezone.localdate()})
     form.fields["master"].queryset = Master.objects.filter(salon=salon, is_active=True)
 

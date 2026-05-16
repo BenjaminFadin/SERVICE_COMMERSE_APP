@@ -93,7 +93,7 @@ class Command(BaseCommand):
                 longitude=69.2406,
                 map_link="https://yandex.com/maps/"
             )
-
+        
             # Create 24/7 Working Hours
             for day in range(7):
                 SalonWorkingHours.objects.create(

@@ -408,7 +408,7 @@
   .working-hours-row:last-child { margin-bottom: 0; }
   .day-name { color: var(--booksy-dark); }
   .hours-today { color: #1aa06d; font-weight: 700; }
-
+  
   /* ===== RESOURCE GRID (courts/PCs/tables) ===== */
   .resource-grid {
     display: grid;
@@ -547,9 +547,6 @@
             <a class="nav-link" href="#resources-section">{{ salon|resource_label_plural }}</a>
           </li>
           {% endif %}
-          <li class="nav-item">
-            <a class="nav-link" href="#about-section">{% trans "About" %}</a>
-          </li>
         </ul>
       </div>
 
@@ -653,7 +650,22 @@
           </div>
         {% endfor %}
       </div>
+      
+      {# ================== ABOUT ================== #}
+      <div id="about-section" class="mb-4">
+        <h2 class="category-title">{% trans "About" %}</h2>
+        <div class="about-text break-anywhere">
+          {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
+          {{ salon_desc|linebreaks|default:_("No description provided.") }}
+        </div>
 
+        {% if salon.location.map_link %}
+          <a href="{{ salon.location.map_link }}" target="_blank" rel="noopener" class="map-btn">
+            <i class="bi bi-map-fill text-primary"></i>
+            <span>{% trans "View on Map" %}</span>
+          </a>
+        {% endif %}
+      </div>
       {# ================== RESOURCES ================== #}
       {% if masters %}
       <div id="resources-section" class="mb-4">
@@ -674,21 +686,7 @@
       </div>
       {% endif %}
 
-      {# ================== ABOUT ================== #}
-      <div id="about-section" class="mb-4">
-        <h2 class="category-title">{% trans "About" %}</h2>
-        <div class="about-text break-anywhere">
-          {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
-          {{ salon_desc|linebreaks|default:_("No description provided.") }}
-        </div>
 
-        {% if salon.location.map_link %}
-          <a href="{{ salon.location.map_link }}" target="_blank" rel="noopener" class="map-btn">
-            <i class="bi bi-map-fill text-primary"></i>
-            <span>{% trans "View on Map" %}</span>
-          </a>
-        {% endif %}
-      </div>
     </div>
 
     {# ================== DESKTOP SIDEBAR ================== #}

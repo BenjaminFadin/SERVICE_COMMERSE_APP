@@ -1,15 +1,10 @@
 """
 Unified marketplace seeder.
 
-Replaces the previous three separate commands:
-  - seed_marketplace
-  - seed_venues
-  - seed_pc_clubs
-
+Replaces the previous separate commands.
 Seeds the database with:
   - Salon categories (beauty, tennis, billiard, restaurants, PC clubs)
   - Salons with auto-generated QR tokens
-  - PC Plans (Standard / VIP / VIP+) for PC clubs (is_pc_club categories)
   - Services + Masters + Working Hours
   - Sample appointments
 
@@ -34,15 +29,12 @@ from faker import Faker
 
 from marketplace.models import (
     Category, Salon, Service, Master, SalonWorkingHours,
-    Address, PCPlan, Appointment,
+    Address, Appointment,
 )
 
 
 # ---------------------------------------------------------------------------
 # VENUE DEFINITIONS
-# ---------------------------------------------------------------------------
-# is_pc_club: True for any category that should use the PCPlan booking flow
-#             (quantity + hours + plans) instead of regular services.
 # ---------------------------------------------------------------------------
 
 BEAUTY_HIERARCHY = [
@@ -67,7 +59,6 @@ VENUES = [
         "name_en": "Paddle Tennis",
         "name_uz": "Paddl-tennis",
         "icon": "bi bi-trophy",
-        "is_pc_club": False,
         "sub": [
             ("Крытые корты",   "Indoor Courts",   "Yopiq maydonlar"),
             ("Открытые корты", "Outdoor Courts",  "Ochiq maydonlar"),
@@ -95,7 +86,6 @@ VENUES = [
         "name_en": "Big Tennis",
         "name_uz": "Katta tennis",
         "icon": "bi bi-dribbble",
-        "is_pc_club": False,
         "sub": [
             ("Хард корты",      "Hard Courts",     "Qattiq maydonlar"),
             ("Грунтовые корты", "Clay Courts",     "Tuproq maydonlar"),
@@ -115,7 +105,7 @@ VENUES = [
     },
 
     # ------------------------------------------------------------------
-    # 💻 COMPUTER CAFE / PC CLUB (is_pc_club = True !)
+    # 💻 COMPUTER CAFE / PC CLUB
     # ------------------------------------------------------------------
     {
         "slug": "computer-cafe",
@@ -123,7 +113,6 @@ VENUES = [
         "name_en": "Computer Cafe",
         "name_uz": "Kompyuter klubi",
         "icon": "bi bi-pc-display",
-        "is_pc_club": True,
         "sub": [
             ("Игровые ПК",  "Gaming PCs",   "O'yin kompyuterlari"),
             ("VIP-кабины",  "VIP Booths",   "VIP kabinalari"),
@@ -132,14 +121,12 @@ VENUES = [
         ],
         "resource_prefix": ("ПК", "PC", "PC"),
         "resource_count": 15,
-        # For PC clubs we DO NOT create Services — we create PCPlans instead (see pc_plans below)
-        "services": [],
-        "pc_plans": [
-            # (name_ru, price_per_hour, color, icon)
-            ("Стандарт",   12_000, "#00A3AD", "bi bi-pc-display"),
-            ("VIP",        25_000, "#FFD700", "bi bi-gem"),
-            ("VIP+",       35_000, "#6A5ACD", "bi bi-stars"),
-            ("Ночной",     50_000, "#DC3545", "bi bi-moon-stars"),
+        "services": [
+            ("1 час игры (Standard)", "1 hour play (Standard)", "1 soat o'yin (Standard)", 60,  15_000),
+            ("3 часа игры (Standard)", "3 hours play (Standard)", "3 soat o'yin (Standard)", 180, 40_000),
+            ("Пакет Ночь (Standard)", "Night Pack (Standard)", "Tungi paket (Standard)", 480, 80_000),
+            ("1 час игры (VIP)", "1 hour play (VIP)", "1 soat o'yin (VIP)", 60, 25_000),
+            ("3 часа игры (VIP)", "3 hours play (VIP)", "3 soat o'yin (VIP)", 180, 65_000),
         ],
         "open":  time(0, 0),
         "close": time(23, 59),
@@ -155,7 +142,6 @@ VENUES = [
         "name_en": "Billiard",
         "name_uz": "Bilyard",
         "icon": "bi bi-bullseye",
-        "is_pc_club": False,
         "sub": [
             ("Русская пирамида", "Russian Pyramid", "Rus piramidasi"),
             ("Американский пул", "American Pool",   "Amerikan pul"),
@@ -169,7 +155,7 @@ VENUES = [
             ("VIP-зал (3 часа)", "VIP room (3h)", "VIP-xona (3s)", 180, 180_000),
         ],
         "open":  time(12, 0),
-        "close": time(2, 0),  # closes at 2am — clamped to 23:59
+        "close": time(2, 0),
         "brand_pool": ["Pyramid Hall", "Pool Kings", "Classic Billiard", "VIP Cue"],
     },
 
@@ -182,7 +168,6 @@ VENUES = [
         "name_en": "Restaurants",
         "name_uz": "Restoranlar",
         "icon": "bi bi-cup-hot",
-        "is_pc_club": False,
         "sub": [
             ("Европейская кухня", "European Cuisine", "Yevropa oshxonasi"),
             ("Азиатская кухня",   "Asian Cuisine",    "Osiyo oshxonasi"),
@@ -220,7 +205,7 @@ def generate_qr_token() -> str:
 # ---------------------------------------------------------------------------
 
 class Command(BaseCommand):
-    help = "Seed marketplace with all categories: beauty, tennis, billiard, restaurants, PC clubs."
+    help = "Seed marketplace with categories: beauty, tennis, billiard, restaurants, PC clubs."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -232,7 +217,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--reset",
             action="store_true",
-            help="Wipe ALL existing categories, salons, plans, appointments before seeding.",
+            help="Wipe ALL existing categories, salons, services, appointments before seeding.",
         )
         parser.add_argument(
             "--skip-beauty",
@@ -255,7 +240,6 @@ class Command(BaseCommand):
         if opts["reset"]:
             self.stdout.write(self.style.WARNING("--reset: wiping marketplace data..."))
             Appointment.objects.all().delete()
-            PCPlan.objects.all().delete()
             Service.objects.all().delete()
             Master.objects.all().delete()
             SalonWorkingHours.objects.all().delete()
@@ -276,12 +260,6 @@ class Command(BaseCommand):
         demo_owner, _ = User.objects.get_or_create(
             username="demo_venue_owner",
             defaults={"email": "demo_owner@example.com"},
-        )
-
-        # Get/create user 'a' for PC clubs (as in original seed_pc_clubs)
-        user_a, _ = User.objects.get_or_create(
-            username="a",
-            defaults={"email": "a@example.com"},
         )
 
         clients = list(User.objects.filter(is_staff=False)[:20])
@@ -305,9 +283,6 @@ class Command(BaseCommand):
             self._seed_venues(fake, demo_owner, salons_per_sub)
 
         self.stdout.write(self.style.SUCCESS("\n✅ Database seeded successfully!"))
-        self.stdout.write(
-            "All salons have auto-generated QR tokens (visible in admin)."
-        )
 
     # =====================================================================
     # BEAUTY SEEDING
@@ -352,7 +327,6 @@ class Command(BaseCommand):
                     qr_token=generate_qr_token(),
                 )
 
-                # Working hours 9–21 every day
                 for day in range(7):
                     SalonWorkingHours.objects.create(
                         salon=salon, weekday=day,
@@ -360,7 +334,6 @@ class Command(BaseCommand):
                         is_closed=False,
                     )
 
-                # Masters
                 masters = [
                     Master.objects.create(
                         salon=salon,
@@ -370,7 +343,6 @@ class Command(BaseCommand):
                     for _ in range(2)
                 ]
 
-                # Services
                 services = []
                 for tier in ["Стандарт", "Премиум", "VIP"]:
                     s = Service.objects.create(
@@ -381,7 +353,6 @@ class Command(BaseCommand):
                     )
                     services.append(s)
 
-                # Sample appointments
                 self._quick_appointments(clients, salon, masters, services)
 
     # =====================================================================
@@ -397,11 +368,10 @@ class Command(BaseCommand):
                 slug=venue["slug"],
                 icon=venue["icon"],
                 parent=None,
-                is_pc_club=venue.get("is_pc_club", False),
+                is_pc_club=False, # Now False for PC Club
             )
-            tag = " 🎮 [PC CLUB]" if venue.get("is_pc_club") else ""
             self.stdout.write(self.style.SUCCESS(
-                f"📂 Parent: {parent.name_ru} ({parent.slug}){tag}"
+                f"📂 Parent: {parent.name_ru} ({parent.slug})"
             ))
 
             for sub_ru, sub_en, sub_uz in venue["sub"]:
@@ -412,7 +382,7 @@ class Command(BaseCommand):
                     slug=self._unique_slug(f"{venue['slug']}-{slugify(sub_en)}"),
                     icon=venue["icon"],
                     parent=parent,
-                    is_pc_club=venue.get("is_pc_club", False),
+                    is_pc_club=False, # Now False for PC Club
                 )
                 self.stdout.write(f"   └─ {sub.name_ru}")
 
@@ -424,18 +394,10 @@ class Command(BaseCommand):
                         venue=venue,
                     )
 
-                    # Resources (PCs / tables / courts)
                     self._create_resources(salon, venue)
-
-                    # Working hours
                     self._create_working_hours(salon, venue)
-
-                    if venue.get("is_pc_club"):
-                        # PC clubs use PCPlans instead of Services
-                        self._create_pc_plans(salon, venue)
-                    else:
-                        # Regular venues use Services
-                        self._create_services(salon, venue)
+                    # All venues now use Services
+                    self._create_services(salon, venue)
 
     # =====================================================================
     # HELPERS
@@ -497,7 +459,6 @@ class Command(BaseCommand):
         return salon
 
     def _create_resources(self, salon, venue):
-        """Create 'Master' rows representing courts / PCs / tables."""
         prefix_ru, prefix_en, prefix_uz = venue["resource_prefix"]
         count = venue["resource_count"]
 
@@ -527,25 +488,10 @@ class Command(BaseCommand):
                 duration_minutes=duration,
             )
 
-    def _create_pc_plans(self, salon, venue):
-        """Create PC plans for PC club salons."""
-        plans = venue.get("pc_plans", [])
-        for i, (name_ru, price_per_hour, color, icon) in enumerate(plans):
-            PCPlan.objects.create(
-                salon=salon,
-                name_ru=name_ru,
-                price_per_hour=Decimal(price_per_hour),
-                color=color,
-                icon_class=icon,
-                sort_order=i,
-                is_active=True,
-            )
-
     def _create_working_hours(self, salon, venue):
         open_t = venue["open"]
         close_t = venue["close"]
 
-        # Clamp close to 23:59 if it goes past midnight
         if close_t <= open_t:
             close_t = time(23, 59)
 
@@ -565,7 +511,6 @@ class Command(BaseCommand):
         return f"+{p[:12]}"
 
     def _quick_appointments(self, clients, salon, masters, services):
-        """Create 5 sample appointments for beauty salons (skips on errors)."""
         if not clients or not masters or not services:
             return
         for _ in range(5):
@@ -583,7 +528,6 @@ class Command(BaseCommand):
                 )
             except Exception:
                 continue
-
 
 # =============================================================================
 # USAGE
