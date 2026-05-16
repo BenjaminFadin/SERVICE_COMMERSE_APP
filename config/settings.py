@@ -148,7 +148,7 @@ MEDIA_URL = '/media/'
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # STATIC_ROOT = f'/var/www/{DOMAIN_NAME}/static/'
-STATIC_ROOT = BASE_DIR / 'static'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 # MEDIA_ROOT = f'/var/www/{DOMAIN_NAME}/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
