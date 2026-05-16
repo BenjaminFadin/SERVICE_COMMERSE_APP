@@ -22,15 +22,8 @@ urlpatterns = [
     path("business/booking/<int:appointment_id>/accept/", views.accept_booking, name="accept_booking"),
     path("business/booking/<int:appointment_id>/decline/", views.decline_booking, name="decline_booking"),
 
-    # QR Scan side
-    # Customer scan endpoint — short URL because it's embedded in the QR
-    path("qr/<int:salon_id>/<str:token>/", views.qr_checkout, name="qr_checkout"),
-    path("appointment/<int:appointment_id>/qr-complete/", views.qr_complete_booking, name="qr_complete_booking"),
-    # Owner-only — view the QR image directly (for embedding)
-    path("salon/<int:salon_id>/qr.png", views.qr_code_image, name="qr_code_image"),
-
-    # Owner-only — printable QR page
-    path("salon/<int:salon_id>/qr/print/", views.qr_print_page, name="qr_print_page"),
+    # STATUS CHANGING FOR PROVIDER
+    path("appointment/<int:appointment_id>/status/", views.appointment_change_status, name="appointment_change_status"),
 
 
     path('ajax/booking-form/<int:salon_id>/<int:service_id>/', views.ajax_booking_form, name='ajax_booking_form'),

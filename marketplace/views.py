@@ -18,6 +18,104 @@ from .models import Appointment, Category, Master, Salon, Service
 from .utils import get_available_slots, send_telegram_message, can_book_pc_quantity
 
 
+def auto_complete_overdue_appointments(salon=None, user=None):
+    """
+    Lazy auto-complete:
+    Find confirmed appointments whose end time has passed and mark them completed.
+    Optionally scope to a single salon (for owner dashboard) or a single user (for my_bookings).
+    """
+    from datetime import timedelta
+    now = timezone.now()
+
+    qs = Appointment.objects.filter(status="confirmed")
+    if salon:
+        qs = qs.filter(salon=salon)
+    if user:
+        qs = qs.filter(client=user)
+
+    # Limit to recent ones (avoid scanning whole history)
+    qs = qs.filter(start_time__gte=now - timedelta(days=7))
+
+    updated_count = 0
+    for appt in qs:
+        # Compute end time priority: end_time > hours > service.duration > 1h default
+        end_dt = appt.end_time
+        if not end_dt:
+            if appt.service:
+                end_dt = appt.start_time + timedelta(minutes=appt.service.duration_minutes)
+            elif appt.hours:
+                end_dt = appt.start_time + timedelta(hours=appt.hours)
+            else:
+                end_dt = appt.start_time + timedelta(hours=1)
+
+        if end_dt < now:
+            appt.status = "completed"
+            appt.save(update_fields=["status"])
+            updated_count += 1
+    return updated_count
+
+
+@login_required
+@require_POST
+def appointment_change_status(request, appointment_id):
+    """
+    Owner-only: accept or cancel a pending booking.
+    Allowed transitions:
+      - pending -> confirmed (accept)
+      - pending -> cancelled (cancel)
+    """
+    appt = get_object_or_404(
+        Appointment.objects.select_related("salon", "client", "service", "plan"),
+        pk=appointment_id,
+    )
+
+    # Permission: only the salon owner (or staff)
+    if appt.salon.owner != request.user and not request.user.is_staff:
+        return JsonResponse({"ok": False, "error": "Доступ запрещён."}, status=403)
+
+    new_status = request.POST.get("status", "").strip()
+    if appt.status != "pending":
+        return JsonResponse({
+            "ok": False,
+            "error": f"Нельзя изменить статус с «{appt.get_status_display()}». Действие доступно только для ожидающих бронирований."
+        }, status=400)
+
+    if new_status not in ("confirmed", "cancelled"):
+        return JsonResponse({
+            "ok": False,
+            "error": "Недопустимое действие."
+        }, status=400)
+
+    appt.status = new_status
+    appt.save(update_fields=["status"])
+
+    # Notify client via Telegram
+    try:
+        client_profile = getattr(appt.client, "profile", None)
+        if client_profile and client_profile.telegram_id:
+            labels = {
+                "confirmed": "✅ Ваше бронирование подтверждено",
+                "cancelled": "❌ Ваше бронирование отменено заведением",
+            }
+            send_telegram_message(
+                client_profile.telegram_id,
+                (
+                    f"<b>{labels.get(new_status, new_status)}</b>\n\n"
+                    f"Заведение: {appt.salon.name}\n"
+                    f"Время: {timezone.localtime(appt.start_time).strftime('%Y-%m-%d %H:%M')}\n"
+                    f"Бронь #{appt.id}"
+                ),
+            )
+    except Exception as e:
+        print(f"Telegram notify error: {e}")
+
+    return JsonResponse({
+        "ok": True,
+        "status": new_status,
+        "status_display": appt.get_status_display(),
+        "appointment_id": appt.id,
+    })
+
 def search_view(request):
     query = request.GET.get('q', '').strip()
     location = request.GET.get('location', '').strip()
@@ -230,45 +328,46 @@ def booking_success(request, salon_id):
 
 @login_required
 def owner_dashboard(request):
-    # Get all salons owned by this user
     salons = request.user.salons.all()
-
-    # Check if the user is a Master (via the profile relation you created earlier)
     master_profile = getattr(request.user, 'master_profile', None)
 
-    # If not a salon owner and not a master, they shouldn't be here
     if not salons.exists() and not master_profile:
         return render(request, "business/dashboard.html", {"salon": None, "bookings_today": []})
 
     today = timezone.localdate()
 
-    # Base Queryset: Select salon or master context
     if salons.exists():
         target_salon = salons.first()
         base_query = Appointment.objects.filter(salon=target_salon)
+        # Lazy auto-complete: scope to this salon
+        auto_complete_overdue_appointments(salon=target_salon)
     else:
         target_salon = master_profile.salon
         base_query = Appointment.objects.filter(master=master_profile)
+        auto_complete_overdue_appointments(salon=target_salon)
 
-    # NEW: Pending bookings — provider must accept/decline
     bookings_pending = base_query.filter(status="pending").select_related(
-        "client", "client__profile", "service", "master"
+        "client", "client__profile", "service", "master", "plan"
     ).order_by("start_time")
 
-    # Fetching split datasets for the UI
-    bookings_today = base_query.filter(start_time__date=today).select_related("client", "service", "master").order_by('start_time')
+    bookings_today = base_query.filter(start_time__date=today)\
+        .exclude(status="cancelled")\
+        .select_related("client", "service", "master", "plan").order_by('start_time')
 
-    bookings_upcoming = base_query.filter(start_time__date__gt=today).select_related("client", "service", "master").order_by('start_time')
+    bookings_upcoming = base_query.filter(start_time__date__gt=today)\
+        .exclude(status="cancelled")\
+        .select_related("client", "service", "master", "plan").order_by('-start_time')
 
-    bookings_past = base_query.filter(start_time__date__lt=today).select_related("client", "service", "master").order_by('-start_time')
+    bookings_past = base_query.filter(start_time__date__lt=today)\
+        .select_related("client", "service", "master", "plan").order_by('-start_time')
 
     return render(request, "business/dashboard.html", {
         "salon": target_salon,
-        "bookings_pending": bookings_pending,   # <-- NEW
+        "bookings_pending": bookings_pending,
         "bookings_today": bookings_today,
         "bookings_upcoming": bookings_upcoming,
         "bookings_past": bookings_past,
-        "today": today
+        "today": today,
     })
     
 
@@ -438,22 +537,27 @@ def api_slots(request, salon_id, service_id):
 @login_required
 def my_bookings(request):
     now = timezone.now()
-    bookings = Appointment.objects.filter(client=request.user).select_related('salon', 'service', 'master', 'plan')
 
-    # Upcoming = anything not yet past AND not cancelled/completed
+    # Lazy auto-complete: mark overdue confirmed bookings as completed
+    auto_complete_overdue_appointments(user=request.user)
+
+    bookings = Appointment.objects.filter(client=request.user).select_related(
+        'salon', 'service', 'master', 'plan'
+    )
+
+    # Upcoming = not past + not cancelled/completed
     upcoming_bookings = bookings.filter(
         start_time__gte=now,
     ).exclude(status__in=["cancelled", "completed"]).order_by('start_time')
 
     past_bookings = bookings.filter(
-        start_time__lt=now
+        start_time__lt=now,
     ).order_by('-start_time')
 
     return render(request, 'marketplace/my_bookings.html', {
         'upcoming': upcoming_bookings,
         'past': past_bookings,
     })
-
 @login_required
 @require_POST
 def cancel_booking(request, appointment_id):
@@ -514,187 +618,64 @@ def submit_business_lead(request):
     })
 
 
-# QR SIDE
-def qr_checkout(request, salon_id, token):
-    """
-    Customer scans QR → most recent pending/confirmed booking at this salon
-    is auto-completed.
-    """
-    salon = get_object_or_404(Salon, pk=salon_id, qr_token=token)
-
-    if not request.user.is_authenticated:
-        # Redirect to login, then back here
-        login_url = "/accounts/auth/?next=" + request.path
-        return redirect(login_url)
-
-    # Find most recent active booking at this salon for this user
-    appt = (
-        Appointment.objects
-        .filter(client=request.user, salon=salon, status__in=["pending", "confirmed"])
-        .order_by("-start_time")
-        .first()
-    )
-
-    if not appt:
-        return render(request, "marketplace/qr_result.html", {
-            "salon": salon,
-            "success": False,
-            "title": "Нет активных записей",
-            "message": "У вас нет активных бронирований в этом заведении.",
-        })
-
-    # Mark as completed
-    appt.status = "completed"
-    appt.save(update_fields=["status"])
-
-    # Optional: notify salon owner via Telegram
-    try:
-        owner_profile = getattr(salon.owner, "profile", None)
-        if owner_profile and owner_profile.telegram_id:
-            send_telegram_message(
-                owner_profile.telegram_id,
-                (
-                    "<b>✅ Визит завершён</b>\n\n"
-                    f"Клиент: {request.user.get_full_name() or request.user.username}\n"
-                    f"Заведение: {salon.name}\n"
-                    f"Бронь #{appt.id}\n"
-                    "Статус изменён на «Выполнено» через QR-код."
-                ),
-            )
-    except Exception as e:
-        print(f"QR telegram notify error: {e}")
-
-    return render(request, "marketplace/qr_result.html", {
-        "salon": salon,
-        "appointment": appt,
-        "success": True,
-        "title": "Спасибо за визит!",
-        "message": f"Ваше бронирование в «{salon.name}» отмечено как завершённое.",
-    })
-
-
-@login_required
-def qr_code_image(request, salon_id):
-    """
-    Returns PNG of the salon's QR code.
-    Only salon owner can access.
-    """
-    import qrcode
-    salon = get_object_or_404(Salon, pk=salon_id)
-
-    if salon.owner != request.user and not request.user.is_staff:
-        return HttpResponse("Forbidden", status=403)
-
-    # Build the full URL the QR points to
-    qr_url = request.build_absolute_uri(
-        f"/qr/{salon.id}/{salon.qr_token}/"
-    )
-
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_M,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(qr_url)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="#101928", back_color="white")
-
-    buffer = io.BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-
-    response = HttpResponse(buffer.getvalue(), content_type="image/png")
-    response["Content-Disposition"] = f'inline; filename="qr_{salon.id}.png"'
-    return response
-
-
-@login_required
-def qr_print_page(request, salon_id):
-    """
-    Printable page with the QR code, salon name, instructions.
-    Owner downloads/prints this and sticks it on the wall.
-    """
-    salon = get_object_or_404(Salon, pk=salon_id)
-
-    if salon.owner != request.user and not request.user.is_staff:
-        return HttpResponse("Forbidden", status=403)
-
-    qr_url = request.build_absolute_uri(
-        f"/qr/{salon.id}/{salon.qr_token}/"
-    )
-
-    return render(request, "marketplace/qr_print.html", {
-        "salon": salon,
-        "qr_url": qr_url,
-    })
-
 @login_required
 @require_POST
-def qr_complete_booking(request, appointment_id):
+def appointment_change_status(request, appointment_id):
     """
-    AJAX endpoint called from the 'My Bookings' page after the user scans a QR.
-    Expects POST body: {salon_id, token}
-    Verifies that the scanned salon matches the booking's salon, then marks completed.
+    Owner-only: change appointment status.
+    Allowed transitions:
+      - pending   -> confirmed  (accept)
+      - pending   -> cancelled  (decline)
+      - confirmed -> completed  (mark done after visit)
+      - confirmed -> cancelled  (cancel an accepted booking)
     """
     appt = get_object_or_404(
-        Appointment.objects.select_related("salon"),
+        Appointment.objects.select_related("salon", "client", "service", "plan"),
         pk=appointment_id,
-        client=request.user,
     )
 
-    salon_id = request.POST.get("salon_id")
-    token = request.POST.get("token", "").strip()
+    if appt.salon.owner != request.user and not request.user.is_staff:
+        return JsonResponse({"ok": False, "error": "Доступ запрещён."}, status=403)
 
-    if not salon_id or not token:
-        return JsonResponse({"ok": False, "error": "Missing salon_id or token"}, status=400)
-
-    # Verify scanned QR matches the booking's salon
-    try:
-        salon_id_int = int(salon_id)
-    except ValueError:
-        return JsonResponse({"ok": False, "error": "Invalid salon_id"}, status=400)
-
-    if appt.salon_id != salon_id_int:
+    new_status = request.POST.get("status", "").strip()
+    valid_transitions = {
+        "pending":   {"confirmed", "cancelled"},
+        "confirmed": {"completed", "cancelled"},
+    }
+    allowed = valid_transitions.get(appt.status, set())
+    if new_status not in allowed:
         return JsonResponse({
             "ok": False,
-            "error": "QR-код не совпадает с этим бронированием. Сканируйте код в правильном заведении."
+            "error": f"Нельзя изменить статус с «{appt.get_status_display()}» на «{new_status}»."
         }, status=400)
 
-    if appt.salon.qr_token != token:
-        return JsonResponse({
-            "ok": False,
-            "error": "Неверный QR-код."
-        }, status=400)
-
-    if appt.status not in ("pending", "confirmed"):
-        return JsonResponse({
-            "ok": False,
-            "error": f"Бронирование уже имеет статус «{appt.get_status_display()}»."
-        }, status=400)
-
-    # Complete it
-    appt.status = "completed"
+    appt.status = new_status
     appt.save(update_fields=["status"])
 
-    # Optional: telegram notify owner
+    # Notify client via Telegram
     try:
-        owner_profile = getattr(appt.salon.owner, "profile", None)
-        if owner_profile and owner_profile.telegram_id:
+        client_profile = getattr(appt.client, "profile", None)
+        if client_profile and client_profile.telegram_id:
+            labels = {
+                "confirmed": "✅ Ваше бронирование подтверждено",
+                "cancelled": "❌ Ваше бронирование отменено заведением",
+                "completed": "🎉 Ваш визит отмечен как выполненный",
+            }
             send_telegram_message(
-                owner_profile.telegram_id,
+                client_profile.telegram_id,
                 (
-                    "<b>✅ Визит завершён (QR)</b>\n\n"
-                    f"Клиент: {request.user.get_full_name() or request.user.username}\n"
+                    f"<b>{labels.get(new_status, new_status)}</b>\n\n"
                     f"Заведение: {appt.salon.name}\n"
+                    f"Время: {timezone.localtime(appt.start_time).strftime('%Y-%m-%d %H:%M')}\n"
                     f"Бронь #{appt.id}"
                 ),
             )
     except Exception as e:
-        print(f"QR telegram notify error: {e}")
+        print(f"Telegram notify error: {e}")
 
     return JsonResponse({
         "ok": True,
-        "message": "Визит подтверждён! Статус: Выполнено.",
+        "status": new_status,
+        "status_display": appt.get_status_display(),
         "appointment_id": appt.id,
     })

@@ -34,53 +34,9 @@
   .status-completed { background: #cce5ff; color: #004085; }
   .status-cancelled { background: #f8d7da; color: #721c24; }
 
-  .btn-scan {
-    background: #00A3AD;
-    color: #fff;
-    border: none;
-    border-radius: 999px;
-    padding: 8px 18px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.15s;
-  }
-  .btn-scan:hover { background: #008c95; color: #fff; }
-  .btn-scan:disabled { opacity: 0.6; cursor: not-allowed; }
-
   .table-responsive { border: none; }
   @media (max-width: 767px) { .desktop-view { display: none; } }
   @media (min-width: 768px) { .mobile-view { display: none; } }
-
-  /* ===== QR Scanner Modal ===== */
-  #qrScannerBox {
-    width: 100%;
-    min-height: 300px;
-    background: #000;
-    border-radius: 12px;
-    overflow: hidden;
-    position: relative;
-  }
-  #qrScannerBox video,
-  #qrScannerBox canvas {
-    width: 100% !important;
-    height: auto !important;
-    display: block;
-  }
-  .scanner-status {
-    text-align: center;
-    padding: 12px;
-    border-radius: 10px;
-    margin-top: 12px;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-  .scanner-status.idle    { background: #f7f7f9; color: #75767A; }
-  .scanner-status.success { background: #d4edda; color: #155724; }
-  .scanner-status.error   { background: #f8d7da; color: #721c24; }
-  .scanner-status.scanning { background: #fff3cd; color: #856404; }
 </style>
 {% endblock %}
 
@@ -115,30 +71,16 @@
           </div>
           <div class="fw-bold">
             {% if b.plan %}
-              {{ b.plan.name_ru }}
-              <small class="text-muted">({% trans "ПК клуб" %})</small>
+              {{ b.plan.name_ru }} <small class="text-muted">({% trans "ПК клуб" %})</small>
             {% elif b.service %}
               {% i18n b.service "name" request.LANGUAGE_CODE %}
             {% endif %}
           </div>
           <div class="small text-muted mb-3">{{ b.salon.name }}</div>
-
-          <div class="d-grid gap-2">
-            <a href="{% url 'marketplace:salon_detail' b.salon.id %}"
-               class="btn btn-sm btn-outline-dark rounded-pill">
-              {% trans "View Details" %}
-            </a>
-            {% if b.status in "pending,confirmed" %}
-            <button type="button"
-                    class="btn-scan open-scanner"
-                    data-appointment-id="{{ b.id }}"
-                    data-salon-id="{{ b.salon.id }}"
-                    data-salon-name="{{ b.salon.name }}">
-              <i class="bi bi-qr-code-scan"></i>
-              {% trans "Подтвердить визит (QR)" %}
-            </button>
-            {% endif %}
-          </div>
+          <a href="{% url 'marketplace:salon_detail' b.salon.id %}"
+             class="btn btn-sm btn-outline-dark w-100 rounded-pill">
+            {% trans "View Details" %}
+          </a>
         </div>
         {% empty %}
         <p class="text-center text-muted py-5">{% trans "No upcoming bookings." %}</p>
@@ -169,18 +111,9 @@
               <td>{{ b.start_time|date:"d M, H:i" }}</td>
               <td><span class="status-badge status-{{ b.status }}">{{ b.get_status_display }}</span></td>
               <td class="text-end pe-4">
-                <a href="{% url 'marketplace:salon_detail' b.salon.id %}" class="btn btn-sm btn-outline-dark me-1">
+                <a href="{% url 'marketplace:salon_detail' b.salon.id %}" class="btn btn-sm btn-outline-dark">
                   {% trans "View" %}
                 </a>
-                {% if b.status in "pending,confirmed" %}
-                <button type="button"
-                        class="btn-scan open-scanner"
-                        data-appointment-id="{{ b.id }}"
-                        data-salon-id="{{ b.salon.id }}"
-                        data-salon-name="{{ b.salon.name }}">
-                  <i class="bi bi-qr-code-scan"></i> {% trans "QR" %}
-                </button>
-                {% endif %}
               </td>
             </tr>
             {% endfor %}
@@ -211,193 +144,4 @@
     </div>
   </div>
 </div>
-
-<!-- ===== QR Scanner Modal ===== -->
-<div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerLabel">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title fw-bold" id="qrScannerLabel">
-          <i class="bi bi-qr-code-scan me-2"></i>{% trans "Сканировать QR-код" %}
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted small mb-3" id="scannerSalonHint">
-          {% trans "Наведите камеру на QR-код в заведении." %}
-        </p>
-
-        <div id="qrScannerBox"></div>
-
-        <div id="scannerStatus" class="scanner-status idle">
-          {% trans "Откройте доступ к камере и наведите её на QR-код." %}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-          {% trans "Отмена" %}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- html5-qrcode library — opens phone camera and decodes QR -->
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 {% endblock %}
-
-{% block extra_js %}
-<script>
-(function () {
-  const modalEl   = document.getElementById('qrScannerModal');
-  const scannerBoxId = 'qrScannerBox';
-  const statusEl  = document.getElementById('scannerStatus');
-  const hintEl    = document.getElementById('scannerSalonHint');
-  const csrfToken = '{{ csrf_token }}';
-
-  if (!modalEl) return;
-
-  const modal = new bootstrap.Modal(modalEl);
-  let html5QrCode = null;
-  let currentAppointmentId = null;
-  let expectedSalonId = null;
-  let expectedSalonName = '';
-  let scanLocked = false;
-
-  function setStatus(text, cls) {
-    statusEl.className = 'scanner-status ' + (cls || 'idle');
-    statusEl.textContent = text;
-  }
-
-  function parseQrUrl(decodedText) {
-    // Expected URL pattern: .../qr/<salon_id>/<token>/
-    // Examples that should match:
-    //   https://ibron.uz/qr/42/abc123tokenxyz/
-    //   http://127.0.0.1:8000/qr/42/abc123tokenxyz/
-    try {
-      const url = new URL(decodedText);
-      const m = url.pathname.match(/\/qr\/(\d+)\/([A-Za-z0-9]+)\/?$/);
-      if (m) {
-        return { salonId: parseInt(m[1], 10), token: m[2] };
-      }
-    } catch (e) {
-      // not a valid URL — try plain pattern
-      const m = decodedText.match(/\/qr\/(\d+)\/([A-Za-z0-9]+)\/?$/);
-      if (m) {
-        return { salonId: parseInt(m[1], 10), token: m[2] };
-      }
-    }
-    return null;
-  }
-
-  async function stopScanner() {
-    if (html5QrCode) {
-      try { await html5QrCode.stop(); } catch (e) {}
-      try { html5QrCode.clear(); } catch (e) {}
-      html5QrCode = null;
-    }
-  }
-
-  async function startScanner() {
-    html5QrCode = new Html5Qrcode(scannerBoxId);
-    setStatus('{% trans "Запрашиваем доступ к камере..." %}', 'scanning');
-
-    try {
-      await html5QrCode.start(
-        { facingMode: 'environment' },  // back camera
-        {
-          fps: 10,
-          qrbox: { width: 240, height: 240 },
-        },
-        onScanSuccess,
-        () => { /* ignore scan failures — they fire many times per second */ }
-      );
-      setStatus('{% trans "Наведите камеру на QR-код..." %}', 'scanning');
-    } catch (err) {
-      setStatus('{% trans "Не удалось включить камеру. Разрешите доступ в настройках браузера." %}', 'error');
-      console.error(err);
-    }
-  }
-
-  async function onScanSuccess(decodedText) {
-    if (scanLocked) return;
-    scanLocked = true;
-
-    const parsed = parseQrUrl(decodedText);
-    if (!parsed) {
-      setStatus('{% trans "Это не QR-код заведения. Попробуйте ещё раз." %}', 'error');
-      setTimeout(() => { scanLocked = false; setStatus('{% trans "Наведите камеру на QR-код..." %}', 'scanning'); }, 1500);
-      return;
-    }
-
-    if (parsed.salonId !== expectedSalonId) {
-      setStatus(
-        '{% trans "Этот QR-код принадлежит другому заведению." %}',
-        'error'
-      );
-      setTimeout(() => { scanLocked = false; setStatus('{% trans "Наведите камеру на QR-код..." %}', 'scanning'); }, 2000);
-      return;
-    }
-
-    // Valid scan — call backend
-    setStatus('{% trans "Подтверждаем визит..." %}', 'scanning');
-    await stopScanner();
-
-    try {
-      const formData = new FormData();
-      formData.append('salon_id', parsed.salonId);
-      formData.append('token', parsed.token);
-
-      const url = '/marketplace/appointment/' + currentAppointmentId + '/qr-complete/';
-      // ↑ adjust the URL prefix if your marketplace urls.py is mounted differently
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrfToken,
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (res.ok && data.ok) {
-        setStatus('✅ ' + (data.message || '{% trans "Визит подтверждён!" %}'), 'success');
-        setTimeout(() => {
-          modal.hide();
-          window.location.reload();
-        }, 1500);
-      } else {
-        setStatus('❌ ' + (data.error || '{% trans "Ошибка подтверждения." %}'), 'error');
-        scanLocked = false;
-      }
-    } catch (e) {
-      setStatus('{% trans "Ошибка сети. Попробуйте ещё раз." %}', 'error');
-      scanLocked = false;
-    }
-  }
-
-  // Open scanner when user taps the button
-  document.addEventListener('click', function (e) {
-    const btn = e.target.closest('.open-scanner');
-    if (!btn) return;
-
-    currentAppointmentId = btn.dataset.appointmentId;
-    expectedSalonId      = parseInt(btn.dataset.salonId, 10);
-    expectedSalonName    = btn.dataset.salonName || '';
-
-    hintEl.textContent = '{% trans "Сканируйте QR-код в:" %} ' + expectedSalonName;
-    scanLocked = false;
-    setStatus('{% trans "Откройте доступ к камере и наведите её на QR-код." %}', 'idle');
-
-    modal.show();
-    // Start camera AFTER modal is visible (so the video element has size)
-    modalEl.addEventListener('shown.bs.modal', startScanner, { once: true });
-  });
-
-  // Stop camera when modal closes
-  modalEl.addEventListener('hidden.bs.modal', stopScanner);
-})();
-</script>
-{% endblock %}
-

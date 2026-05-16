@@ -1,187 +1,88 @@
-{% load tz %}
 {% load i18n %}
-{% load static %}
 
-<div class="card border-0 shadow-sm" style="border-radius: 15px;">
-    <div class="card-header bg-white py-3 py-md-4 border-0">
-        <h5 class="mb-0 fw-bold d-flex align-items-center">
-            <span class="p-2 bg-light rounded-3 me-2 me-md-3">
-                <i class="bi bi-calendar4-event text-teal"></i>
-            </span>
-            <span class="fs-6 fs-md-5">{{ title }}</span>
-        </h5>
+<div class="dashboard-card overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h6 class="mb-0 fw-bold text-uppercase small text-muted">{{ title }}</h6>
     </div>
-    <div class="card-body p-0">
-
-        {# ============================================= #}
-        {# MOBILE VIEW — stacked cards (hidden on md+)    #}
-        {# ============================================= #}
-        <div class="d-block d-md-none">
-            {% for b in bookings %}
-            <div class="p-3 border-bottom booking-card-mobile">
-
-                {# Top row: client + time #}
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div class="flex-grow-1 pe-2">
-                        <div class="fw-bold" style="color: var(--ibron-dark);">
-                            {{ b.client.get_full_name|default:b.client.username }}
-                        </div>
-                        {% if b.client.profile.phone %}
-                            <a href="tel:{{ b.client.profile.phone }}" class="small text-muted text-decoration-none">
-                                <i class="bi bi-telephone me-1"></i>{{ b.client.profile.phone }}
-                            </a>
-                        {% endif %}
-                    </div>
-                    <div class="text-end">
-                        {% if show_date or show_actions %}
-                            <div class="small text-muted" style="font-size: 0.7rem;">{{ b.start_time|date:"d M" }}</div>
-                        {% endif %}
-                        <div class="fw-bold" style="color: var(--ibron-dark);">{{ b.start_time|localtime|date:"H:i" }}</div>
-                    </div>
-                </div>
-
-                {# Service + master #}
-                <div class="mb-2">
-                    <div class="small fw-semibold text-teal">{{ b.service.name_ru }}</div>
-                    <div class="text-muted small">
-                        <i class="bi bi-person-circle me-1"></i>{{ b.master.name }}
-                    </div>
-                </div>
-
-                {# Comment (if any) #}
-                {% if b.comment %}
-                    <div class="small text-muted fst-italic mb-2">"{{ b.comment|truncatechars:80 }}"</div>
-                {% endif %}
-
-                {# Actions or status #}
-                <div class="mt-2">
-                    {% if show_actions and b.status == 'pending' %}
-                        <div class="d-flex gap-2">
-                            {# Accept: no confirmation #}
-                            <form method="post" action="{% url 'marketplace:accept_booking' b.id %}" class="flex-fill">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-success rounded-pill w-100 fw-bold">
-                                    <i class="bi bi-check-lg"></i> {% trans "Accept" %}
-                                </button>
-                            </form>
-
-                            {# Decline: asks for confirmation #}
-                            <form method="post" action="{% url 'marketplace:decline_booking' b.id %}" class="flex-fill"
-                                  onsubmit="return confirm('{% trans "Are you sure you want to decline this booking?" %}');">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-outline-danger rounded-pill w-100 fw-bold">
-                                    <i class="bi bi-x-lg"></i> {% trans "Decline" %}
-                                </button>
-                            </form>
-                        </div>
-                    {% elif b.status == 'confirmed' %}
-                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">{% trans "Confirmed" %}</span>
-                    {% elif b.status == 'pending' %}
-                        <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill">{% trans "Pending" %}</span>
-                    {% elif b.status == 'cancelled' %}
-                        <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">{% trans "Cancelled" %}</span>
-                    {% elif b.status == 'completed' %}
-                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">{% trans "Completed" %}</span>
-                    {% else %}
-                        <span class="badge bg-light text-muted px-3 py-2 rounded-pill">{{ b.get_status_display }}</span>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">{% trans "Time" %}</th>
+                    {% if show_date %}
+                        <th>{% trans "Date" %}</th>
                     {% endif %}
-                </div>
-            </div>
-            {% empty %}
-            <div class="text-center py-5">
-                <i class="bi bi-calendar-x fs-1 text-muted opacity-25 d-block mb-2"></i>
-                <p class="text-muted small mb-0">{% trans "No records found for this section." %}</p>
-            </div>
-            {% endfor %}
-        </div>
-
-        {# ============================================= #}
-        {# DESKTOP VIEW — table (hidden on mobile)        #}
-        {# ============================================= #}
-        <div class="d-none d-md-block">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead style="background-color: #fafafa;">
-                        <tr>
-                            <th class="ps-4 border-0 small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">{% trans "Client" %}</th>
-                            <th class="border-0 small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">{% trans "Service / Master" %}</th>
-                            <th class="border-0 small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">{% trans "Time" %}</th>
-                            <th class="pe-4 border-0 small text-muted text-uppercase fw-bold text-end" style="font-size: 0.7rem;">
-                                {% if show_actions %}{% trans "Action" %}{% else %}{% trans "Status" %}{% endif %}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="border-top-0">
-                        {% for b in bookings %}
-                        <tr class="booking-row border-bottom">
-                            <td class="ps-4 py-3">
-                                <div class="fw-bold" style="color: var(--ibron-dark);">{{ b.client.get_full_name|default:b.client.username }}</div>
-                                {% if b.client.profile.phone %}
-                                    <div class="small text-muted">
-                                        <i class="bi bi-telephone me-1"></i>{{ b.client.profile.phone }}
-                                    </div>
-                                {% endif %}
-                                {% if b.comment %}
-                                    <div class="small text-muted fst-italic mt-1">"{{ b.comment|truncatechars:60 }}"</div>
-                                {% endif %}
-                            </td>
-                            <td class="py-3">
-                                <div class="small fw-semibold text-teal">{{ b.service.name_ru }}</div>
-                                <div class="text-muted small">
-                                    <i class="bi bi-person-circle me-1"></i>{{ b.master.name }}
-                                </div>
-                            </td>
-                            <td class="py-3">
-                                {% if show_date or show_actions %}
-                                    <div class="small text-muted mb-0" style="font-size: 0.75rem;">{{ b.start_time|date:"d M" }}</div>
-                                {% endif %}
-                                <div class="fw-bold" style="color: var(--ibron-dark);">{{ b.start_time|localtime|date:"H:i" }}</div>
-                            </td>
-                            <td class="pe-4 text-end py-3">
-                                {% if show_actions and b.status == 'pending' %}
-                                    <div class="d-inline-flex gap-2">
-                                        {# Accept: no confirmation #}
-                                        <form method="post" action="{% url 'marketplace:accept_booking' b.id %}" class="d-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">
-                                                <i class="bi bi-check-lg"></i> {% trans "Accept" %}
-                                            </button>
-                                        </form>
-
-                                        {# Decline: asks for confirmation #}
-                                        <form method="post" action="{% url 'marketplace:decline_booking' b.id %}" class="d-inline"
-                                              onsubmit="return confirm('{% trans "Are you sure you want to decline this booking?" %}');">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                                <i class="bi bi-x-lg"></i> {% trans "Decline" %}
-                                            </button>
-                                        </form>
-                                    </div>
-                                {% elif b.status == 'confirmed' %}
-                                    <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">{% trans "Confirmed" %}</span>
-                                {% elif b.status == 'pending' %}
-                                    <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill">{% trans "Pending" %}</span>
-                                {% elif b.status == 'cancelled' %}
-                                    <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill">{% trans "Cancelled" %}</span>
-                                {% elif b.status == 'completed' %}
-                                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">{% trans "Completed" %}</span>
-                                {% else %}
-                                    <span class="badge bg-light text-muted px-3 py-2 rounded-pill">{{ b.get_status_display }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5">
-                                <i class="bi bi-calendar-x fs-1 text-muted opacity-25 d-block mb-2"></i>
-                                <p class="text-muted small mb-0">{% trans "No records found for this section." %}</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
+                    <th>{% trans "Client" %}</th>
+                    <th>{% trans "Service" %}</th>
+                    <th>{% trans "Status" %}</th>
+                    {% if show_actions %}
+                        <th class="text-end pe-4">{% trans "Actions" %}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr id="appt-row-{{ b.id }}">
+                    <td class="ps-4 fw-bold text-teal">
+                        {{ b.start_time|time:"H:i" }}
+                    </td>
+                    {% if show_date %}
+                        <td>{{ b.start_time|date:"d.m.Y" }}</td>
+                    {% endif %}
+                    <td>
+                        <div class="fw-bold">{{ b.client.get_full_name|default:b.client.username }}</div>
+                        <div class="small text-muted">{{ b.client.profile.phone|default:"" }}</div>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ b.service.name }}</span>
+                    </td>
+                    <td>
+                        {# This badge section ensures ALL statuses are visible with colors #}
+                        <span id="appt-status-{{ b.id }}" class="badge rounded-pill 
+                            {% if b.status == 'pending' %}bg-warning text-dark
+                            {% elif b.status == 'confirmed' %}bg-success
+                            {% elif b.status == 'completed' %}bg-info
+                            {% elif b.status == 'cancelled' %}bg-danger
+                            {% else %}bg-secondary{% endif %}">
+                            {{ b.get_status_display }}
+                        </span>
+                    </td>
+                    
+                    {% if show_actions %}
+                    <td class="text-end pe-4">
+                        {% if b.status == "pending" %}
+                            <button type="button" class="btn btn-sm btn-success rounded-pill me-1 appt-action" 
+                                    data-appointment-id="{{ b.id }}" data-new-status="confirmed">
+                                <i class="bi bi-check-lg"></i> {% trans "Accept" %}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill appt-action" 
+                                    data-appointment-id="{{ b.id }}" data-new-status="cancelled">
+                                <i class="bi bi-x-lg"></i> {% trans "Cancel" %}
+                            </button>
+                        {% elif b.status == "confirmed" %}
+                            <button type="button" class="btn btn-sm btn-primary rounded-pill me-1 appt-action" 
+                                    data-appointment-id="{{ b.id }}" data-new-status="completed">
+                                <i class="bi bi-check-circle"></i> {% trans "Complete" %}
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill appt-action" 
+                                    data-appointment-id="{{ b.id }}" data-new-status="cancelled">
+                                <i class="bi bi-x-lg"></i> {% trans "Cancel" %}
+                            </button>
+                        {% else %}
+                            <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="bi bi-calendar2-x fs-1 d-block mb-2"></i>
+                        {% trans "No records found in this section." %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
