@@ -5,6 +5,7 @@ app_name = "marketplace"
 
 urlpatterns = [
     path("", views.home, name="home"),
+    path("nearby/", views.nearby_salons, name="nearby_salons"),
     path("category/<slug:category_slug>/", views.salon_list, name="salon_list_by_category"),
     path("salons/", views.salon_list, name="salon_list"),
     path("salon/<int:salon_id>/", views.salon_detail, name="salon_detail"),

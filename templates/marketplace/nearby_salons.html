@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Салоны рядом — ibron{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --booksy-teal: #00A3AD;
+    --booksy-dark: #101928;
+    --booksy-gray: #75767A;
+    --bg-light: #F7F7F9;
+}
+
+body { background: var(--bg-light); font-family: 'Inter', sans-serif; }
+
+.nearby-header {
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    padding: 24px 0;
+}
+.nearby-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0;
+}
+.nearby-count {
+    color: var(--booksy-gray);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+.salon-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 1px solid #f0f0f0;
+}
+.salon-card:hover {
+    color: inherit;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+.salon-logo {
+    width: 80px; height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg-light);
+}
+.salon-logo-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--booksy-teal);
+    font-size: 1.5rem;
+}
+
+.salon-info { flex: 1; min-width: 0; }
+.salon-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 0 0 4px;
+}
+.salon-category {
+    color: var(--booksy-gray);
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+.salon-address {
+    color: var(--booksy-gray);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+.distance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #E6F7F8;
+    color: var(--booksy-teal);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--booksy-gray);
+}
+.empty-state i {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 16px;
+    display: block;
+}
+.empty-state h3 {
+    color: var(--booksy-dark);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 575.98px) {
+    .salon-card { padding: 12px; gap: 12px; }
+    .salon-logo { width: 64px; height: 64px; }
+    .salon-name { font-size: 0.98rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="nearby-header">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h1 class="nearby-title">
+                    <i class="bi bi-geo-alt-fill text-info me-1"></i>
+                    Салоны рядом с вами
+                </h1>
+                {% if total_found %}
+                <p class="nearby-count mb-0">
+                    Найдено: <strong>{{ total_found }}</strong> · радиус {{ radius_km|floatformat:0 }} км
+                </p>
+                {% endif %}
+            </div>
+            <a href="{% url 'marketplace:home' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> На главную
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+
+    {% if error %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-1"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    {% if salons_with_distance %}
+        {% for item in salons_with_distance %}
+        <a href="{% url 'marketplace:salon_detail' item.salon.id %}" class="salon-card">
+            {% if item.salon.logo %}
+                <img src="{{ item.salon.logo.url }}" alt="{{ item.salon.name }}" class="salon-logo">
+            {% else %}
+                <div class="salon-logo salon-logo-fallback">
+                    <i class="bi bi-shop"></i>
+                </div>
+            {% endif %}
+
+            <div class="salon-info">
+                <h2 class="salon-name">{{ item.salon.name }}</h2>
+                {% if item.salon.category %}
+                    <div class="salon-category">{{ item.salon.category.name_ru }}</div>
+                {% endif %}
+                <div class="salon-address">
+                    <i class="bi bi-geo-alt"></i> {{ item.salon.address }}
+                </div>
+                <div class="distance-badge">
+                    <i class="bi bi-cursor-fill"></i>
+                    {{ item.distance_km }} км
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    {% elif not error %}
+        <div class="empty-state">
+            <i class="bi bi-geo-alt"></i>
+            <h3>Ничего не найдено поблизости</h3>
+            <p>В радиусе {{ radius_km|floatformat:0 }} км нет заведений. Попробуйте увеличить радиус.</p>
+            <a href="?lat={{ user_lat }}&lng={{ user_lng }}&radius=50" class="btn btn-dark rounded-pill px-4">
+                Искать в радиусе 50 км
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

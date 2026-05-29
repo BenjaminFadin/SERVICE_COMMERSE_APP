@@ -542,11 +542,6 @@
               {% else %}{% trans "Services" %}{% endif %}
             </a>
           </li>
-          {% if masters %}
-          <li class="nav-item">
-            <a class="nav-link" href="#resources-section">{{ salon|resource_label_plural }}</a>
-          </li>
-          {% endif %}
         </ul>
       </div>
 
@@ -584,6 +579,22 @@
             {% endif %}
           </div>
         </div>
+      </div>
+
+      {# ================== ABOUT ================== #}
+      <div id="about-section" class="mb-4">
+        <h2 class="category-title">{% trans "About" %}</h2>
+        <div class="about-text break-anywhere">
+          {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
+          {{ salon_desc|linebreaks|default:_("No description provided.") }}
+        </div>
+
+        {% if salon.location.map_link %}
+          <a href="{{ salon.location.map_link }}" target="_blank" rel="noopener" class="map-btn">
+            <i class="bi bi-map-fill text-primary"></i>
+            <span>{% trans "View on Map" %}</span>
+          </a>
+        {% endif %}
       </div>
 
       {# ================== SERVICES ================== #}
@@ -650,42 +661,6 @@
           </div>
         {% endfor %}
       </div>
-      
-      {# ================== ABOUT ================== #}
-      <div id="about-section" class="mb-4">
-        <h2 class="category-title">{% trans "About" %}</h2>
-        <div class="about-text break-anywhere">
-          {% i18n salon "description" request.LANGUAGE_CODE as salon_desc %}
-          {{ salon_desc|linebreaks|default:_("No description provided.") }}
-        </div>
-
-        {% if salon.location.map_link %}
-          <a href="{{ salon.location.map_link }}" target="_blank" rel="noopener" class="map-btn">
-            <i class="bi bi-map-fill text-primary"></i>
-            <span>{% trans "View on Map" %}</span>
-          </a>
-        {% endif %}
-      </div>
-      {# ================== RESOURCES ================== #}
-      {% if masters %}
-      <div id="resources-section" class="mb-4">
-        <h2 class="category-title">
-          <i class="bi {{ salon|resource_icon }}"></i>
-          {{ salon|resource_label_plural }}
-          <span class="count-badge">{{ masters|length }}</span>
-        </h2>
-
-        <div class="resource-grid">
-          {% for m in masters %}
-            <div class="resource-chip">
-              <i class="bi {{ salon|resource_icon }}"></i>
-              <span>{{ m.name }}</span>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-      {% endif %}
-
 
     </div>
 

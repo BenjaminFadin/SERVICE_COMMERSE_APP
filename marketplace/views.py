@@ -1,4 +1,4 @@
-import io
+import math
 from datetime import datetime
 from django.http import HttpResponse
 from django.db.models import Q, Exists, OuterRef, Prefetch
@@ -17,6 +17,57 @@ from .forms import BookingForm, BusinessLeadForm
 from .models import Appointment, Category, Master, Salon, Service
 from .utils import get_available_slots, send_telegram_message, can_book_pc_quantity
 
+
+def _haversine_km(lat1, lng1, lat2, lng2):
+    """Distance between two coordinates in kilometers."""
+    R = 6371  # Earth radius in km
+    rlat1 = math.radians(float(lat1))
+    rlat2 = math.radians(float(lat2))
+    dlat = math.radians(float(lat2) - float(lat1))
+    dlng = math.radians(float(lng2) - float(lng1))
+    a = math.sin(dlat / 2) ** 2 + math.cos(rlat1) * math.cos(rlat2) * math.sin(dlng / 2) ** 2
+    return 2 * R * math.asin(math.sqrt(a))
+
+
+def nearby_salons(request):
+    """Show salons sorted by distance from the user's coordinates."""
+    try:
+        user_lat = float(request.GET.get("lat", ""))
+        user_lng = float(request.GET.get("lng", ""))
+    except (ValueError, TypeError):
+        return render(request, "marketplace/nearby_salons.html", {
+            "error": "Не удалось определить ваше местоположение. Разрешите доступ к геолокации и попробуйте ещё раз.",
+            "salons_with_distance": [],
+        })
+
+    # Optional radius filter (default 20 km)
+    try:
+        radius_km = float(request.GET.get("radius", 20))
+    except (ValueError, TypeError):
+        radius_km = 20
+
+    # Get all salons that have coordinates
+    salons = Salon.objects.select_related("location", "category").filter(
+        location__latitude__isnull=False,
+        location__longitude__isnull=False,
+    )
+
+    results = []
+    for s in salons:
+        dist = _haversine_km(user_lat, user_lng, s.location.latitude, s.location.longitude)
+        if dist <= radius_km:
+            results.append({"salon": s, "distance_km": round(dist, 1)})
+
+    # Sort nearest first
+    results.sort(key=lambda x: x["distance_km"])
+
+    return render(request, "marketplace/nearby_salons.html", {
+        "salons_with_distance": results,
+        "user_lat": user_lat,
+        "user_lng": user_lng,
+        "radius_km": radius_km,
+        "total_found": len(results),
+    })
 
 def auto_complete_overdue_appointments(salon=None, user=None):
     """
@@ -126,7 +177,7 @@ def search_view(request):
     if query:
         # Creative part: Search across multiple related models
         results = results.filter(
-            Q(name_ru__icontains=query) | 
+            Q(name__icontains=query) | 
             Q(category__name_ru__icontains=query) | 
             Q(services__name_ru__icontains=query) |
             Q(description_ru__icontains=query)

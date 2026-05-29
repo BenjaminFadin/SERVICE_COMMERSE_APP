@@ -108,9 +108,84 @@
         }
 
         /* === Search wrapper & suggestions === */
-        .search-wrapper { position: relative; max-width: 800px; margin: 0 auto; }
-        .search-container { position: relative; }
-        #searchInputGroup { position: relative; }
+        .search-wrapper { position: relative; max-width: 850px; margin: 0 auto; }
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            gap: 8px;
+            background: #fff;
+            border-radius: 16px;
+            padding: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        #searchInputGroup {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            padding: 8px 16px;
+        }
+        .search-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--booksy-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+        .search-input {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            color: var(--booksy-dark);
+            background: transparent;
+            padding: 0;
+        }
+        .btn-hero-search {
+            background: var(--booksy-teal);
+            color: #fff;
+            border: none;
+            padding: 0 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+        .btn-hero-search:hover { background: #008c95; color: #fff; }
+
+        .btn-nearby {
+            background: #fff;
+            color: var(--booksy-dark);
+            border: 1px solid #ddd;
+            padding: 0 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .btn-nearby:hover {
+            background: var(--booksy-teal);
+            color: #fff;
+            border-color: var(--booksy-teal);
+        }
+        .btn-nearby:active { transform: scale(0.97); }
+        .btn-nearby.loading { pointer-events: none; opacity: 0.7; }
+        .btn-nearby i { font-size: 1.1rem; }
+
+        #locationStatus {
+            text-align: center;
+            background: rgba(0,0,0,0.4);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 12px;
+        }
 
         .search-suggest {
             position: absolute;
@@ -297,7 +372,6 @@
                 overflow-y: auto;
             }
             .nav-link { margin-left: 0; padding: 10px 0; }
-            .btn-hero-search { width: 100%; margin-top: 10px; }
             
             /* Language Dropdown Mobile Styling */
             .navbar-nav .dropdown-menu {
@@ -309,8 +383,22 @@
 
         @media (max-width: 768px) {
             .hero-title { font-size: 2rem; }
-            .search-container { flex-direction: column; border-radius: 12px; padding: 15px; }
-            .search-input-group { width: 100%; border-right: none; padding: 10px 0; }
+        }
+
+        @media (max-width: 767.98px) {
+            .search-container {
+                flex-direction: column;
+                padding: 12px;
+                gap: 8px;
+            }
+            #searchInputGroup {
+                padding: 8px 12px;
+            }
+            .btn-nearby, .btn-hero-search {
+                width: 100%;
+                justify-content: center;
+                padding: 12px;
+            }
         }
     </style>
     {% endblock extra_css %}
@@ -319,35 +407,42 @@
         <div class="container">
             <h1 class="hero-title">Будьте собой.<br>Записывайтесь к лучшим мастерам.</h1>
 
-            <form action="{% url 'marketplace:search' %}" method="get" class="search-wrapper" id="searchWrapper">
-                <div class="search-container text-start">
-                    <div class="search-input-group" id="searchInputGroup">
-                        <label class="search-label" for="searchInput">ЧТО ВЫ ИЩЕТЕ?</label>
-                        <input type="text"
-                            id="searchInput"
-                            name="q"
-                            class="search-input"
-                            placeholder="Напр. стрижка, маникюр, спа..."
-                            autocomplete="off">
+<form action="{% url 'marketplace:search' %}" method="get" class="search-wrapper" id="searchWrapper">
+    <div class="search-container text-start">
+        <div class="search-input-group" id="searchInputGroup">
+            <label class="search-label" for="searchInput">ЧТО ВЫ ИЩЕТЕ?</label>
+            <input type="text"
+                id="searchInput"
+                name="q"
+                class="search-input"
+                placeholder="Напр. стрижка, маникюр, спа..."
+                autocomplete="off">
 
-                        <!-- Categories dropdown -->
-                        <div class="search-suggest" id="searchSuggest">
-                            <div class="suggest-header">Популярные категории</div>
-                            <div class="suggest-grid">
-                                {% for cat in categories %}
-                                    <a href="{% url 'marketplace:search' %}?category={{ cat.slug }}"
-                                    class="suggest-item">
-                                        <i class="{{ cat.icon_class|default:'bi bi-grid' }}"></i>
-                                        <span>{{ cat.name_ru }}</span>
-                                    </a>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-hero-search">Найти</button>
+            <!-- Categories dropdown -->
+            <div class="search-suggest" id="searchSuggest">
+                <div class="suggest-header">Популярные категории</div>
+                <div class="suggest-grid">
+                    {% for cat in categories %}
+                        <a href="{% url 'marketplace:search' %}?category={{ cat.slug }}"
+                        class="suggest-item">
+                            <i class="{{ cat.icon_class|default:'bi bi-grid' }}"></i>
+                            <span>{{ cat.name_ru }}</span>
+                        </a>
+                    {% endfor %}
                 </div>
-            </form>
+            </div>
+        </div>
+
+        <button type="button" id="btnNearby" class="btn btn-nearby" title="Найти рядом">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span class="d-none d-md-inline ms-1">Рядом</span>
+        </button>
+
+        <button type="submit" class="btn btn-hero-search">Найти</button>
+    </div>
+</form>
+
+<div id="locationStatus" class="text-white small mt-2" style="display:none;"></div>
         </div>
     </section>
     
@@ -452,6 +547,53 @@
         });
     });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('btnNearby');
+    const status = document.getElementById('locationStatus');
+    if (!btn) return;
 
+    const nearbyUrl = "{% url 'marketplace:nearby_salons' %}";
+
+    function setStatus(msg) {
+        status.textContent = msg;
+        status.style.display = 'inline-block';
+    }
+
+    btn.addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            setStatus('Геолокация не поддерживается вашим браузером.');
+            return;
+        }
+
+        btn.classList.add('loading');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> <span class="d-none d-md-inline ms-1">Поиск...</span>';
+        setStatus('Определяем ваше местоположение...');
+
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const lat = position.coords.latitude.toFixed(6);
+                const lng = position.coords.longitude.toFixed(6);
+                window.location.href = nearbyUrl + '?lat=' + lat + '&lng=' + lng;
+            },
+            function (err) {
+                btn.classList.remove('loading');
+                btn.innerHTML = '<i class="bi bi-geo-alt-fill"></i> <span class="d-none d-md-inline ms-1">Рядом</span>';
+
+                let msg = 'Не удалось получить местоположение.';
+                if (err.code === 1) msg = 'Доступ к геолокации запрещён. Разрешите в настройках браузера.';
+                else if (err.code === 2) msg = 'Местоположение недоступно. Проверьте подключение.';
+                else if (err.code === 3) msg = 'Время ожидания истекло. Попробуйте ещё раз.';
+                setStatus(msg);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000,
+            }
+        );
+    });
+});
+</script>
     {% endblock extra_js %}
 {% endblock content %}

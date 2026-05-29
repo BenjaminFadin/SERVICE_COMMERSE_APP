@@ -126,6 +126,9 @@ def can_book_pc_quantity(salon, service, start_dt, quantity):
     return (available >= quantity, available)
 
 
+
+
+
 TELEGRAM_API = "https://api.telegram.org/bot{token}/sendMessage"
 
 
@@ -147,3 +150,6 @@ def send_telegram_message(chat_id: str, text: str):
     except Exception as e:
         print("Telegram error:", e)
         return False
+
+
+

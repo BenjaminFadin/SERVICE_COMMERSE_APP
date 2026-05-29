@@ -162,6 +162,79 @@
   color: #fff;
 }
 
+/* --- Nearby Button --- */
+.btn-nearby {
+  background-color: #fff;
+  color: var(--booksy-teal);
+  font-weight: 700;
+  border: 2px solid var(--booksy-teal);
+  border-radius: 40px;
+  padding: 10px 22px;
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.btn-nearby:hover {
+  background-color: var(--booksy-teal);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btn-nearby:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+.btn-nearby i {
+  font-size: 1.1rem;
+}
+
+.nearby-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Toast for geolocation errors */
+.geo-toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: #dc3545;
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  max-width: 90%;
+  text-align: center;
+}
+
+.geo-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
 /* --- Search Suggestions Dropdown --- */
 .search-suggest {
   position: absolute;
@@ -308,8 +381,21 @@
     width: 100%;
     padding: 8px 12px;
   }
-  .btn-hero-search {
+
+  /* Buttons row on mobile */
+  .search-buttons-row {
+    display: flex;
+    gap: 8px;
     width: 100%;
+  }
+  .btn-nearby {
+    flex: 1;
+    margin-right: 0;
+    padding: 14px 16px;
+    justify-content: center;
+  }
+  .btn-hero-search {
+    flex: 1;
     padding: 14px;
   }
 
@@ -330,6 +416,14 @@
     max-height: 600px;
     padding: 16px;
   }
+}
+
+/* Very small phones — shorter label */
+@media (max-width: 380px) {
+  .btn-nearby .nearby-text-full { display: none; }
+}
+@media (min-width: 381px) {
+  .btn-nearby .nearby-text-short { display: none; }
 }
 </style>
 {% endblock extra_css %}
@@ -366,7 +460,15 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-hero-search">{% trans "Найти" %}</button>
+                <!-- Buttons: nearby + search -->
+                <div class="search-buttons-row">
+                    <button type="button" class="btn btn-nearby" id="nearbyBtn" aria-label="{% trans 'Найти салоны рядом' %}">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span class="nearby-text-full">{% trans "Рядом со мной" %}</span>
+                        <span class="nearby-text-short">{% trans "Рядом" %}</span>
+                    </button>
+                    <button type="submit" class="btn btn-hero-search">{% trans "Найти" %}</button>
+                </div>
             </div>
         </form>
     </div>
@@ -453,6 +555,9 @@
         </div>
     </div>
 </section>
+
+<!-- Toast notification for geolocation errors -->
+<div id="geoToast" class="geo-toast"></div>
 {% endblock content %}
 
 {% block extra_js %}
@@ -496,6 +601,96 @@
                 closeSuggest();
                 input.blur();
             }
+        });
+    });
+</script>
+
+<script>
+    // ===== Nearby salons button — Geolocation =====
+    document.addEventListener('DOMContentLoaded', function () {
+        const nearbyBtn = document.getElementById('nearbyBtn');
+        const toast = document.getElementById('geoToast');
+        if (!nearbyBtn) return;
+
+        // URL of nearby_salons view — change name here if your URL pattern differs
+        const NEARBY_URL = "{% url 'marketplace:nearby_salons' %}";
+
+        function showToast(message) {
+            if (!toast) {
+                alert(message);
+                return;
+            }
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                nearbyBtn.disabled = true;
+                nearbyBtn.dataset.originalHtml = nearbyBtn.innerHTML;
+                nearbyBtn.innerHTML =
+                    '<span class="nearby-spinner"></span>' +
+                    '<span>{% trans "Определяем..." %}</span>';
+            } else {
+                nearbyBtn.disabled = false;
+                if (nearbyBtn.dataset.originalHtml) {
+                    nearbyBtn.innerHTML = nearbyBtn.dataset.originalHtml;
+                }
+            }
+        }
+
+        nearbyBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+
+            if (!('geolocation' in navigator)) {
+                showToast("{% trans 'Ваш браузер не поддерживает геолокацию' %}");
+                return;
+            }
+
+            // HTTPS check (geolocation only works on secure origins, except localhost)
+            if (location.protocol !== 'https:' &&
+                location.hostname !== 'localhost' &&
+                location.hostname !== '127.0.0.1') {
+                showToast("{% trans 'Геолокация работает только на HTTPS' %}");
+                return;
+            }
+
+            setLoading(true);
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    // Redirect to nearby_salons view with coordinates
+                    window.location.href =
+                        NEARBY_URL + '?lat=' + encodeURIComponent(lat) +
+                        '&lng=' + encodeURIComponent(lng);
+                },
+                function (error) {
+                    setLoading(false);
+                    let msg;
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            msg = "{% trans 'Разрешите доступ к геолокации в настройках браузера' %}";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            msg = "{% trans 'Местоположение недоступно. Проверьте GPS / интернет' %}";
+                            break;
+                        case error.TIMEOUT:
+                            msg = "{% trans 'Время ожидания истекло. Попробуйте ещё раз' %}";
+                            break;
+                        default:
+                            msg = "{% trans 'Не удалось определить местоположение' %}";
+                    }
+                    showToast(msg);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 60000
+                }
+            );
         });
     });
 </script>
