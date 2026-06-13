@@ -721,3 +721,33 @@ msgstr ""
 #: templates/marketplace/salon_list.html:406
 msgid "Show All"
 msgstr ""
+
+msgid "Cheapest first"
+msgstr "Cheapest first"
+
+msgid "Most expensive first"
+msgstr "Most expensive first"
+
+msgid "Open now"
+msgstr "Open now"
+
+msgid "Nearest"
+msgstr "Nearest"
+
+msgid "Locating..."
+msgstr "Locating..."
+
+msgid "Geolocation is not supported by your browser."
+msgstr "Geolocation is not supported by your browser."
+
+msgid "Could not get your location. Please allow location access."
+msgstr "Could not get your location. Please allow location access."
+
+msgid "PC Clubs"
+msgstr "PC Clubs"
+
+msgid "Computer clubs"
+msgstr "Computer clubs"
+
+msgid "Choose a club and book a seat online"
+msgstr "Choose a club and book a seat online"

@@ -721,3 +721,33 @@ msgstr ""
 #: templates/marketplace/salon_list.html:406
 msgid "Show All"
 msgstr ""
+
+msgid "Cheapest first"
+msgstr "Энг арзонидан қимматигача"
+
+msgid "Most expensive first"
+msgstr "Энг қимматидан арзонигача"
+
+msgid "Open now"
+msgstr "Ҳозир очиқ"
+
+msgid "Nearest"
+msgstr "Энг яқини"
+
+msgid "Locating..."
+msgstr "Joylashuvingiz aniqlanmoqda..."
+
+msgid "Geolocation is not supported by your browser."
+msgstr "Brauzeringiz geolokatsiyani qo'llab-quvvatlamaydi."
+
+msgid "Could not get your location. Please allow location access."
+msgstr "Joylashuvingizni aniqlab bo'lmadi. Geolokatsiyaga ruxsat bering."
+
+msgid "PC Clubs"
+msgstr "Kompyuter klublar"
+
+msgid "Computer clubs"
+msgstr "Kompyuter klublar"
+
+msgid "Choose a club and book a seat online"
+msgstr "Klub tanlang va o'rningizni onlayn band qiling"

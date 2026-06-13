@@ -723,3 +723,33 @@ msgstr ""
 #: templates/marketplace/salon_list.html:406
 msgid "Show All"
 msgstr ""
+
+msgid "Cheapest first"
+msgstr "Сначала дешевле"
+
+msgid "Most expensive first"
+msgstr "Сначала дороже"
+
+msgid "Open now"
+msgstr "Сейчас открыто"
+
+msgid "Nearest"
+msgstr "Ближайшие"
+
+msgid "Locating..."
+msgstr "Определяю..."
+
+msgid "Geolocation is not supported by your browser."
+msgstr "Геолокация не поддерживается вашим браузером."
+
+msgid "Could not get your location. Please allow location access."
+msgstr "Не удалось получить ваше местоположение. Разрешите доступ к геолокации."
+
+msgid "PC Clubs"
+msgstr "Компьютерные клубы"
+
+msgid "Computer clubs"
+msgstr "Компьютерные клубы"
+
+msgid "Choose a club and book a seat online"
+msgstr "Выберите клуб и забронируйте место онлайн"

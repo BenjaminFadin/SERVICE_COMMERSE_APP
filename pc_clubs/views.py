@@ -1,6 +1,8 @@
+import math
 from datetime import datetime, timedelta
 
 from django.contrib.auth.decorators import login_required
+from django.db.models import Min
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -11,7 +13,20 @@ from marketplace.models import Category
 from .models import PCBooking, PCClub, PCPlan
 
 
+def _haversine_km(lat1, lng1, lat2, lng2):
+    R = 6371
+    rlat1, rlat2 = math.radians(lat1), math.radians(lat2)
+    dlat = math.radians(lat2 - lat1)
+    dlng = math.radians(lng2 - lng1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(rlat1) * math.cos(rlat2) * math.sin(dlng / 2) ** 2
+    return 2 * R * math.asin(math.sqrt(a))
+
+
 def pc_club_list(request, category_slug=None):
+    sort     = (request.GET.get("sort") or "").strip()
+    user_lat = (request.GET.get("lat") or "").strip()
+    user_lng = (request.GET.get("lng") or "").strip()
+
     category = None
     clubs_qs = PCClub.objects.select_related('category').prefetch_related('plans')
 
@@ -27,9 +42,54 @@ def pc_club_list(request, category_slug=None):
                 all_desc = all_desc | pc_cat.get_descendants(include_self=True)
             clubs_qs = clubs_qs.filter(category__in=all_desc)
 
+    # Sorting / filtering
+    if sort == "price_asc":
+        clubs_qs = clubs_qs.annotate(min_price=Min("plans__price_per_hour")).order_by("min_price")
+    elif sort == "price_desc":
+        clubs_qs = clubs_qs.annotate(min_price=Min("plans__price_per_hour")).order_by("-min_price")
+    elif sort == "open_now":
+        now_local = timezone.localtime()
+        clubs_qs = clubs_qs.filter(
+            working_hours__weekday=now_local.weekday(),
+            working_hours__is_closed=False,
+            working_hours__open_time__lte=now_local.time(),
+            working_hours__close_time__gte=now_local.time(),
+        )
+
+    clubs = clubs_qs
+
+    if sort == "nearest" and user_lat and user_lng:
+        try:
+            lat = float(user_lat)
+            lng = float(user_lng)
+            clubs_list = list(clubs_qs.select_related("location"))
+
+            def _dist(c):
+                loc = getattr(c, "location", None)
+                if loc and loc.latitude and loc.longitude:
+                    return _haversine_km(lat, lng, float(loc.latitude), float(loc.longitude))
+                return 99999
+
+            clubs_list.sort(key=_dist)
+            clubs = clubs_list
+        except (ValueError, TypeError):
+            pass
+
+    from urllib.parse import urlencode
+    base_params = {}
+    if user_lat and user_lng:
+        base_params["lat"] = user_lat
+        base_params["lng"] = user_lng
+    qs_prefix = ("?" + urlencode(base_params) + "&") if base_params else "?"
+    sort_base = request.path + qs_prefix
+
     return render(request, 'pc_clubs/list.html', {
-        'clubs': clubs_qs,
+        'clubs': clubs,
         'category': category,
+        'sort': sort,
+        'user_lat': user_lat,
+        'user_lng': user_lng,
+        'sort_base': sort_base,
     })
 
 

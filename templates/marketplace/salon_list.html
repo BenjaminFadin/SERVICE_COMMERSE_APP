@@ -280,25 +280,122 @@
     color: var(--booksy-gray);
     font-weight: 400;
   }
+
+  /* Sort dropdown button */
+  .sort-trigger-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 50px;
+    background: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--booksy-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .sort-trigger-btn::after { display: none; } /* hide Bootstrap caret */
+  .sort-trigger-btn.has-sort {
+    background: var(--booksy-dark);
+    color: #fff;
+    border-color: var(--booksy-dark);
+  }
+  .sort-trigger-btn:hover:not(.has-sort) { background: #f0f2f5; color: var(--booksy-dark); }
+  .sort-trigger-btn.has-sort:hover { background: #1e2a3a; color: #fff; }
+
+  /* Sort dropdown menu */
+  .sort-dropdown-menu {
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    border: 1px solid #e8e8e8;
+    min-width: 220px;
+    padding: 6px 0;
+    margin-top: 6px !important;
+  }
+  .sort-dropdown-menu .dropdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 18px;
+    font-size: 0.9rem;
+    color: var(--booksy-dark);
+    font-weight: 500;
+    border-radius: 0;
+  }
+  .sort-dropdown-menu .dropdown-item:hover { background: #f7f7f9; }
+  .sort-dropdown-menu .dropdown-item.is-active { font-weight: 700; }
 </style>
 {% endblock extra_css %}
 
 {% block content %}
 <div class="filter-wrapper mb-4">
-    <div class="container px-3">
-        <div class="filter-scroll">
-            {% for sub in subcategories %}
-                {% i18n sub "name" request.LANGUAGE_CODE as sub_name %}
-                <a href="{% url 'marketplace:salon_list_by_category' sub.slug %}" 
-                   class="filter-btn {% if category.slug == sub.slug %}active{% endif %}">
-                    {{ sub_name }}
-                </a>
-            {% endfor %}
-
-            <!-- <a href="#" class="filter-btn"><i class="bi bi-calendar4 me-2"></i>Date</a>
-            <a href="#" class="filter-btn"><i class="bi bi-sliders me-2"></i>Filters</a> -->
-        </div>
+  <div class="container px-3">
+    <div class="d-flex align-items-center gap-2" style="padding: 6px 0;">
+      {# Subcategory chips — scrollable #}
+      <div class="filter-scroll mb-0" style="flex: 1; min-width: 0; padding: 6px 0;">
+        {% for sub in subcategories %}
+          {% i18n sub "name" request.LANGUAGE_CODE as sub_name %}
+          <a href="{% url 'marketplace:salon_list_by_category' sub.slug %}"
+             class="filter-btn {% if category.slug == sub.slug %}active{% endif %}">
+            {{ sub_name }}
+          </a>
+        {% endfor %}
+      </div>
+      {# Sort dropdown #}
+      <div class="dropdown flex-shrink-0">
+        <button type="button"
+                class="sort-trigger-btn {% if sort %}has-sort{% endif %} dropdown-toggle"
+                data-bs-toggle="dropdown"
+                data-bs-auto-close="true"
+                aria-expanded="false">
+          <i class="bi bi-sort-down-alt"></i>
+          {% trans "Sort" %}{% if sort %} &middot; 1{% endif %}
+        </button>
+        <ul class="dropdown-menu sort-dropdown-menu dropdown-menu-end">
+          <li>
+            <a class="dropdown-item {% if not sort %}is-active{% endif %}"
+               href="{{ request.path }}{% if search_query %}?q={{ search_query }}{% endif %}">
+              {% trans "Recommended" %}
+              {% if not sort %}<i class="bi bi-check2 text-success"></i>{% endif %}
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item {% if sort == 'price_asc' %}is-active{% endif %}"
+               href="{{ sort_base }}sort=price_asc">
+              {% trans "Cheapest first" %}
+              {% if sort == 'price_asc' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item {% if sort == 'price_desc' %}is-active{% endif %}"
+               href="{{ sort_base }}sort=price_desc">
+              {% trans "Most expensive first" %}
+              {% if sort == 'price_desc' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item {% if sort == 'open_now' %}is-active{% endif %}"
+               href="{{ sort_base }}sort=open_now">
+              {% trans "Open now" %}
+              {% if sort == 'open_now' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+            </a>
+          </li>
+          <li>
+            <button type="button" id="nearestSortBtn"
+                    class="dropdown-item {% if sort == 'nearest' %}is-active{% endif %}"
+                    data-base-url="{{ sort_base }}sort=nearest">
+              {% trans "Nearest" %}
+              {% if sort == 'nearest' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
+  </div>
 </div>
 
 <div class="container px-3">
@@ -413,10 +510,17 @@
 <nav aria-label="Page navigation" class="my-5">
     <ul class="pagination justify-content-center">
         
+        {# Build persistent query string for pagination #}
+        {% with pqs=""  %}
+        {% if search_query %}{% with pqs=pqs|add:"&q="|add:search_query %}{% endwith %}{% endif %}
+        {% if search_location %}{% with pqs=pqs|add:"&location="|add:search_location %}{% endwith %}{% endif %}
+        {% if sort %}{% with pqs=pqs|add:"&sort="|add:sort %}{% endwith %}{% endif %}
+        {% if user_lat %}{% with pqs=pqs|add:"&lat="|add:user_lat|add:"&lng="|add:user_lng %}{% endwith %}{% endif %}
+
         {% if salons.has_previous %}
             <li class="page-item">
-                <a class="page-link text-dark shadow-sm rounded-start-pill px-3" 
-                   href="?page={{ salons.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}">
+                <a class="page-link text-dark shadow-sm rounded-start-pill px-3"
+                   href="?page={{ salons.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if user_lat %}&lat={{ user_lat }}&lng={{ user_lng }}{% endif %}">
                     <i class="bi bi-chevron-left"></i>
                 </a>
             </li>
@@ -433,8 +537,8 @@
                 </li>
             {% elif i > salons.number|add:'-3' and i < salons.number|add:'3' %}
                 <li class="page-item">
-                    <a class="page-link text-dark shadow-sm" 
-                       href="?page={{ i }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}">
+                    <a class="page-link text-dark shadow-sm"
+                       href="?page={{ i }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if user_lat %}&lat={{ user_lat }}&lng={{ user_lng }}{% endif %}">
                         {{ i }}
                     </a>
                 </li>
@@ -443,8 +547,8 @@
 
         {% if salons.has_next %}
             <li class="page-item">
-                <a class="page-link text-dark shadow-sm rounded-end-pill px-3" 
-                   href="?page={{ salons.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}">
+                <a class="page-link text-dark shadow-sm rounded-end-pill px-3"
+                   href="?page={{ salons.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if search_location %}&location={{ search_location }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if user_lat %}&lat={{ user_lat }}&lng={{ user_lng }}{% endif %}">
                     <i class="bi bi-chevron-right"></i>
                 </a>
             </li>
@@ -453,6 +557,7 @@
                 <span class="page-link shadow-sm rounded-end-pill px-3"><i class="bi bi-chevron-right"></i></span>
             </li>
         {% endif %}
+        {% endwith %}
 
     </ul>
 </nav>
@@ -473,6 +578,32 @@
 {% endblock content %}
 
 {% block extra_js %}
+<script>
+(function () {
+  const btn = document.getElementById('nearestSortBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    const baseUrl = btn.dataset.baseUrl;
+    if (!navigator.geolocation) {
+      alert('{% trans "Geolocation is not supported by your browser." %}');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = '{% trans "Locating..." %}';
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        window.location.href = baseUrl + '&lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude;
+      },
+      function () {
+        btn.disabled = false;
+        btn.textContent = '{% trans "Nearest" %}';
+        alert('{% trans "Could not get your location. Please allow location access." %}');
+      },
+      { timeout: 8000 }
+    );
+  });
+})();
+</script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const drawerEl = document.getElementById("bookingDrawer");

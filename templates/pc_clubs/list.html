@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}PC Клубы{% endblock %}
+{% block title %}{% trans "PC Clubs" %}{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -226,6 +227,41 @@ body { background: #f7f7f9; }
 
 .btn-visit:hover { background: var(--pc-teal); color: #fff; }
 
+/* Sort dropdown button */
+.pc-sort-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 999px;
+  font-size: 0.85rem; font-weight: 600;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+  cursor: pointer; transition: all 0.18s;
+  backdrop-filter: blur(4px);
+}
+.pc-sort-btn::after { display: none; }
+.pc-sort-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+.pc-sort-btn.has-sort { background: var(--pc-teal); border-color: var(--pc-teal); }
+/* Sort dropdown menu */
+.pc-sort-menu {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  border: 1px solid #e8e8e8;
+  min-width: 220px;
+  padding: 6px 0;
+  margin-top: 8px !important;
+}
+.pc-sort-menu .dropdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 18px;
+  font-size: 0.9rem;
+  color: #101928;
+  font-weight: 500;
+}
+.pc-sort-menu .dropdown-item:hover { background: #f7f7f9; }
+.pc-sort-menu .dropdown-item.is-active { font-weight: 700; }
+
 .total-pcs-badge {
   position: absolute;
   top: 10px;
@@ -245,9 +281,59 @@ body { background: #f7f7f9; }
   <div class="container">
     <div class="d-flex align-items-center gap-3 mb-2">
       <i class="bi bi-pc-display fs-2 text-info"></i>
-      <h1 class="mb-0">Компьютерные клубы</h1>
+      <h1 class="mb-0">{% trans "Computer clubs" %}</h1>
     </div>
-    <p>Выберите клуб и забронируйте место онлайн</p>
+    <p>{% trans "Choose a club and book a seat online" %}</p>
+
+    {# ── Sort dropdown ── #}
+    <div class="dropdown mt-3">
+      <button type="button"
+              class="pc-sort-btn {% if sort %}has-sort{% endif %} dropdown-toggle"
+              data-bs-toggle="dropdown"
+              data-bs-auto-close="true"
+              aria-expanded="false">
+        <i class="bi bi-sort-down-alt"></i>
+        {% trans "Sort" %}{% if sort %} &middot; 1{% endif %}
+      </button>
+      <ul class="dropdown-menu pc-sort-menu">
+        <li>
+          <a class="dropdown-item {% if not sort %}is-active{% endif %}"
+             href="{{ request.path }}">
+            {% trans "Recommended" %}
+            {% if not sort %}<i class="bi bi-check2 text-success"></i>{% endif %}
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item {% if sort == 'price_asc' %}is-active{% endif %}"
+             href="{{ sort_base }}sort=price_asc">
+            {% trans "Cheapest first" %}
+            {% if sort == 'price_asc' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item {% if sort == 'price_desc' %}is-active{% endif %}"
+             href="{{ sort_base }}sort=price_desc">
+            {% trans "Most expensive first" %}
+            {% if sort == 'price_desc' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item {% if sort == 'open_now' %}is-active{% endif %}"
+             href="{{ sort_base }}sort=open_now">
+            {% trans "Open now" %}
+            {% if sort == 'open_now' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+          </a>
+        </li>
+        <li>
+          <button type="button" id="pcNearestBtn"
+                  class="dropdown-item {% if sort == 'nearest' %}is-active{% endif %}"
+                  data-base-url="{{ sort_base }}sort=nearest">
+            {% trans "Nearest" %}
+            {% if sort == 'nearest' %}<i class="bi bi-check2 text-success"></i>{% endif %}
+          </button>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>
 
@@ -298,4 +384,33 @@ body { background: #f7f7f9; }
   </div>
   {% endif %}
 </div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const btn = document.getElementById('pcNearestBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    const baseUrl = btn.dataset.baseUrl;
+    if (!navigator.geolocation) {
+      alert('{% trans "Geolocation is not supported by your browser." %}');
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = '{% trans "Locating..." %}';
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        window.location.href = baseUrl + '&lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude;
+      },
+      function () {
+        btn.disabled = false;
+        btn.textContent = '{% trans "Nearest" %}';
+        alert('{% trans "Could not get your location. Please allow location access." %}');
+      },
+      { timeout: 8000 }
+    );
+  });
+})();
+</script>
 {% endblock %}

@@ -1,7 +1,7 @@
 import math
 from datetime import datetime
 from django.http import HttpResponse
-from django.db.models import Q, Exists, OuterRef, Prefetch
+from django.db.models import Q, Exists, OuterRef, Prefetch, Min
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib import messages
@@ -207,8 +207,11 @@ def home(request):
 
 
 def salon_list(request, category_slug=None):
-    query = (request.GET.get("q") or "").strip()
+    query    = (request.GET.get("q") or "").strip()
     location = (request.GET.get("location") or "").strip()
+    sort     = (request.GET.get("sort") or "").strip()
+    user_lat = (request.GET.get("lat") or "").strip()
+    user_lng = (request.GET.get("lng") or "").strip()
 
     category = None
     subcategories = None
@@ -223,9 +226,7 @@ def salon_list(request, category_slug=None):
     if category_slug:
         category = get_object_or_404(Category, slug=category_slug)
         categories_to_include = category.get_descendants(include_self=True)
-
         salons_qs = salons_qs.filter(category__in=categories_to_include)
-
         if category.is_leaf_node() and category.parent_id:
             subcategories = category.parent.get_children()
         else:
@@ -236,7 +237,7 @@ def salon_list(request, category_slug=None):
             "id", "slug", "name_ru", "name_en", "name_uz", "icon_class", "parent_id", "level"
         )
 
-    # Search (NO JOIN on services => no duplicates => no DISTINCT)
+    # Search
     if query:
         service_match = Service.objects.filter(
             salon_id=OuterRef("pk"),
@@ -245,9 +246,8 @@ def salon_list(request, category_slug=None):
             Q(name_en__icontains=query) |
             Q(name_uz__icontains=query)
         )
-
         salons_qs = salons_qs.filter(
-            Q(name__icontains=query) |                       # <-- Salon has only "name"
+            Q(name__icontains=query) |
             Q(category__name_ru__icontains=query) |
             Q(category__name_en__icontains=query) |
             Q(category__name_uz__icontains=query) |
@@ -257,16 +257,64 @@ def salon_list(request, category_slug=None):
     if location:
         salons_qs = salons_qs.filter(address__icontains=location)
 
-    # Prefetch only if template actually needs services (otherwise remove this block)
+    # Sorting / filtering
+    if sort == "price_asc":
+        salons_qs = salons_qs.annotate(min_price=Min("services__price")).order_by("min_price")
+    elif sort == "price_desc":
+        salons_qs = salons_qs.annotate(min_price=Min("services__price")).order_by("-min_price")
+    elif sort == "open_now":
+        now_local = timezone.localtime()
+        salons_qs = salons_qs.filter(
+            working_hours__weekday=now_local.weekday(),
+            working_hours__is_closed=False,
+            working_hours__open_time__lte=now_local.time(),
+            working_hours__close_time__gte=now_local.time(),
+        )
+
+    # Prefetch services for card display
     salons_qs = salons_qs.prefetch_related(
         Prefetch(
             "services",
-            queryset=Service.objects.only("id", "salon_id", "name_ru", "name_en", "name_uz", "price", "duration_minutes", "img"),
+            queryset=Service.objects.only(
+                "id", "salon_id", "name_ru", "name_en", "name_uz", "price", "duration_minutes", "img"
+            ),
         )
     )
 
-    paginator = Paginator(salons_qs, 10)
+    # Nearest: Python-side haversine sort (Paginator handles lists too)
+    if sort == "nearest" and user_lat and user_lng:
+        try:
+            lat = float(user_lat)
+            lng = float(user_lng)
+            salons_list = list(salons_qs.select_related("location"))
+
+            def _dist(s):
+                loc = getattr(s, "location", None)
+                if loc and loc.latitude and loc.longitude:
+                    return _haversine_km(lat, lng, float(loc.latitude), float(loc.longitude))
+                return 99999
+
+            salons_list.sort(key=_dist)
+            paginator = Paginator(salons_list, 10)
+        except (ValueError, TypeError):
+            paginator = Paginator(salons_qs, 10)
+    else:
+        paginator = Paginator(salons_qs, 10)
+
     salons_page = paginator.get_page(request.GET.get("page"))
+
+    # Build base URL for sort chips (keeps q/location/lat/lng, strips sort/page)
+    from urllib.parse import urlencode
+    base_params = {}
+    if query:
+        base_params["q"] = query
+    if location:
+        base_params["location"] = location
+    if user_lat and user_lng:
+        base_params["lat"] = user_lat
+        base_params["lng"] = user_lng
+    qs_prefix = ("?" + urlencode(base_params) + "&") if base_params else "?"
+    sort_base = request.path + qs_prefix   # append "sort=xxx" directly
 
     return render(
         request,
@@ -277,6 +325,10 @@ def salon_list(request, category_slug=None):
             "subcategories": subcategories,
             "search_query": query,
             "search_location": location,
+            "sort": sort,
+            "user_lat": user_lat,
+            "user_lng": user_lng,
+            "sort_base": sort_base,
         },
     )
 
