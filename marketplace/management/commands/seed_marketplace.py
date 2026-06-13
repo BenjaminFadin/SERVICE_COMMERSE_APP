@@ -637,6 +637,7 @@ class Command(BaseCommand):
                 },
             )
 
+
     def _seed_salon_photos(self, name, salon):
         h = abs(hash(name))
         for i in range(4):

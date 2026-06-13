@@ -5,15 +5,92 @@
 
 {% block extra_css %}
 <style>
-:root {
-  --pc-teal: #00A3AD;
-  --pc-dark: #101928;
-  --pc-gray: #75767A;
-  --bg-dark: #0d1117;
-}
+:root { --pc-teal: #00A3AD; }
 
 body { background: #f7f7f9; }
+        :root {
+            --booksy-teal: #00A3AD;
+            --booksy-dark: #101928;
+            --booksy-gray: #75767A;
+            --bg-light: #F7F7F9;
+        }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--booksy-dark);
+        }
+
+        /* --- Navbar Styles --- */
+        .navbar {
+            padding: 0.75rem 0;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #000;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: var(--booksy-dark);
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.show {
+            color: var(--booksy-teal);
+        }
+
+        /* --- Avatar & Hover Dropdown Logic (Desktop Only) --- */
+        .nav-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--booksy-dark);
+            font-size: 1.4rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .nav-avatar:hover, .dropdown-hover:hover .nav-avatar {
+            background-color: #e4e6eb;
+            border-color: var(--booksy-teal);
+            color: var(--booksy-teal);
+        }
+
+        /* Desktop Hover Effect */
+        @media (min-width: 992px) {
+            .dropdown-hover { position: relative; }
+            
+            .dropdown-hover .dropdown-menu {
+                top: 100% !important;
+                right: 0 !important;
+                left: auto !important;
+                margin-top: 10px !important;
+                display: none; 
+            }
+
+            .dropdown-hover:hover .dropdown-menu,
+            .dropdown-hover .dropdown-menu.show {
+                display: block;
+                animation: fadeIn 0.2s ease-in-out;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
 .page-hero {
   background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%);
   padding: 48px 0 40px;
