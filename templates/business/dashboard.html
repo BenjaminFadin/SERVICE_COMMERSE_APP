@@ -141,7 +141,7 @@
 </nav>
 
 <main class="container pb-5">
-  {% if not salon %}
+  {% if not has_anything %}
     <div class="row justify-content-center mt-5">
         <div class="col-md-6 text-center">
             <div class="dashboard-card p-5">
@@ -277,6 +277,60 @@
             </div>
         </div>
     </div>
+
+    {# ══════════════ PC CLUB BOOKINGS ══════════════ #}
+    {% if user_pc_clubs.exists %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <hr class="my-2">
+            <div class="d-flex align-items-center gap-3 mb-4 mt-3">
+                <i class="bi bi-pc-display fs-3" style="color:#00A3AD;"></i>
+                <div>
+                    <h4 class="fw-bold mb-0">Компьютерные клубы</h4>
+                    <div class="text-muted small">
+                        {% for pc in user_pc_clubs %}{{ pc.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <ul class="nav nav-pills mb-4" id="pc-pills-tab" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active position-relative" data-bs-toggle="pill" data-bs-target="#pc-pills-pending" type="button">
+                        Ожидают
+                        {% if pc_bookings_pending %}
+                            <span class="badge bg-danger rounded-pill ms-1">{{ pc_bookings_pending|length }}</span>
+                        {% endif %}
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pc-pills-today" type="button">Сегодня</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pc-pills-upcoming" type="button">Предстоящие</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="pill" data-bs-target="#pc-pills-past" type="button">История</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="pc-pills-pending">
+                    {% include "include/pc_booking_table.html" with bookings=pc_bookings_pending title="Ожидают подтверждения" show_actions=True %}
+                </div>
+                <div class="tab-pane fade" id="pc-pills-today">
+                    {% include "include/pc_booking_table.html" with bookings=pc_bookings_today title="Сегодняшние сессии" show_actions=True %}
+                </div>
+                <div class="tab-pane fade" id="pc-pills-upcoming">
+                    {% include "include/pc_booking_table.html" with bookings=pc_bookings_upcoming title="Предстоящие бронирования" show_date=True show_actions=True %}
+                </div>
+                <div class="tab-pane fade" id="pc-pills-past">
+                    {% include "include/pc_booking_table.html" with bookings=pc_bookings_past title="История бронирований" show_date=True %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
   {% endif %}
 </main>
 {% endblock content %}
@@ -339,5 +393,49 @@ document.addEventListener('click', function (e) {
 });
 </script>
 
+
+<script>
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.pc-booking-action');
+    if (!btn) return;
+
+    e.preventDefault();
+    const bookingId = btn.dataset.bookingId;
+    const newStatus = btn.dataset.newStatus;
+    const csrfToken = '{{ csrf_token }}';
+
+    const msg = newStatus === 'confirmed' ? 'Принять это бронирование?' : 'Отклонить это бронирование?';
+    if (!confirm(msg)) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    const url = "{% url 'pc_clubs:booking_change_status' 0 %}".replace('0', bookingId);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: new URLSearchParams({ status: newStatus }),
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.ok) {
+            window.location.reload();
+        } else {
+            alert(data.error || 'Ошибка изменения статуса');
+            btn.disabled = false;
+            btn.innerHTML = 'Ошибка';
+        }
+    })
+    .catch(() => {
+        alert('Сетевая ошибка, попробуйте ещё раз.');
+        btn.disabled = false;
+    });
+});
+</script>
 
 {% endblock extra_js %}

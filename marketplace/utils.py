@@ -152,4 +152,35 @@ def send_telegram_message(chat_id: str, text: str):
         return False
 
 
+def send_sms(phone: str, text: str) -> bool:
+    """Send SMS notification. Set SMS_BACKEND='eskiz' in settings to enable."""
+    phone = (phone or "").strip().replace(" ", "")
+    if not phone:
+        return False
+
+    backend = getattr(settings, "SMS_BACKEND", None)
+
+    if backend == "eskiz":
+        token = getattr(settings, "ESKIZ_TOKEN", "")
+        if not token:
+            print(f"SMS [eskiz]: no ESKIZ_TOKEN, skipping {phone}")
+            return False
+        try:
+            resp = requests.post(
+                "https://notify.eskiz.uz/api/message/sms/send",
+                headers={"Authorization": f"Bearer {token}"},
+                json={"mobile_phone": phone, "message": text, "from": "4546"},
+                timeout=6,
+            )
+            print(f"SMS [eskiz]: {resp.status_code} → {phone}")
+            return resp.status_code == 200
+        except Exception as e:
+            print(f"SMS [eskiz] error: {e}")
+            return False
+
+    # Stub – log only (configure SMS_BACKEND in settings to activate)
+    print(f"SMS [stub] → {phone}: {text[:100]}")
+    return False
+
+
 

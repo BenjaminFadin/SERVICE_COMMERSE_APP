@@ -11,21 +11,45 @@ from django.core.validators import MinValueValidator
 from mptt.models import MPTTModel, TreeForeignKey
 
 
-def salon_logo_upload_to(instance, filename):
-    # 1. Split the name and extension
-    name, ext = os.path.splitext(filename)
-
-    # 2. Truncate the original name to the first 20 characters
-    short_name = name[:20]
-    
-    # 3. Clean the extension (ensure lowercase)
-    ext = ext.lower() or ".jpg"
-    
+def salon_logo_upload_to(instance, filename):  # noqa: ARG001
     now = timezone.localtime()
-    # 4. Return the path: folder/date/short_name + extension
-    # We use uuid.uuid4().hex[:4] or similar if you want to ensure uniqueness 
-    # even with truncated names, but here is the exact logic for 20 chars:
-    return f"salon_logos/{now:%Y/%m/%d}/{short_name}{ext}"
+    return f"salon_logos/{now:%Y/%m/%d}/{uuid.uuid4().hex[:8]}.webp"
+
+
+def salon_cover_upload_to(instance, filename):  # noqa: ARG001
+    now = timezone.localtime()
+    return f"salon_covers/{now:%Y/%m/%d}/{uuid.uuid4().hex[:8]}.webp"
+
+
+def salon_gallery_upload_to(instance, filename):  # noqa: ARG001
+    now = timezone.localtime()
+    return f"salon_photos/{now:%Y/%m/%d}/{uuid.uuid4().hex[:8]}.webp"
+
+
+def _process_image_to_webp(image_field, max_size=400):
+    """Resize uploaded image and convert to WebP. Returns a ContentFile."""
+    from io import BytesIO
+    from django.core.files.base import ContentFile
+    from PIL import Image
+
+    img = Image.open(image_field)
+    img = img.convert("RGB")
+    img.thumbnail((max_size, max_size), Image.LANCZOS)
+    buf = BytesIO()
+    img.save(buf, format="WEBP", quality=85, method=6)
+    buf.seek(0)
+    base = os.path.splitext(os.path.basename(getattr(image_field, "name", "img") or "img"))[0]
+    return ContentFile(buf.read(), name=f"{base}.webp")
+
+
+def _is_new_upload(field):
+    """Return True when field holds a freshly uploaded file (not a saved FieldFile)."""
+    try:
+        from django.core.files.uploadedfile import InMemoryUploadedFile, TemporaryUploadedFile
+        return isinstance(field.file, (InMemoryUploadedFile, TemporaryUploadedFile))
+    except Exception:
+        return False
+
 
 def service_img_upload_to(instance, filename):
     ext = os.path.splitext(filename)[1].lower()
@@ -43,13 +67,6 @@ def master_photo_upload_to(instance, filename):
     now = timezone.localtime()
     unique = uuid.uuid4().hex[:8]
     return f"masters/{now:%Y/%m/%d}/{unique}{ext}"
-
-
-def salon_gallery_upload_to(instance, filename):
-    ext = os.path.splitext(filename)[1].lower() or ".jpg"
-    now = timezone.localtime()
-    # Path: salon_photos/YYYY/MM/DD/salon_id_uuid.ext
-    return f"salon_photos/{now:%Y/%m/%d}/{instance.salon.id}_{uuid.uuid4().hex[:6]}{ext}"
 
 
 class MultilingualMixin(models.Model):
@@ -124,7 +141,10 @@ class Salon(MultilingualMixin, models.Model):
     
     address = models.TextField(verbose_name="Адрес")
     phone = models.CharField(max_length=20, verbose_name="Телефон салона")
-    logo = models.ImageField(upload_to=salon_logo_upload_to, blank=True, null=True)
+    logo = models.ImageField(upload_to=salon_logo_upload_to, blank=True, null=True, verbose_name="Логотип")
+    logo_url = models.URLField(max_length=500, blank=True, verbose_name="URL логотипа (внешний/демо)")
+    cover = models.ImageField(upload_to=salon_cover_upload_to, blank=True, null=True, verbose_name="Обложка")
+    cover_url = models.URLField(max_length=500, blank=True, verbose_name="URL обложки (демо/внешний)")
     qr_token = models.CharField(
         max_length=32,
         unique=True,
@@ -139,10 +159,19 @@ class Salon(MultilingualMixin, models.Model):
         verbose_name_plural = "Салоны"
 
     def save(self, *args, **kwargs):
-        # Auto-generate token on first save
         if not self.qr_token:
             import secrets
             self.qr_token = secrets.token_urlsafe(16).replace("-", "").replace("_", "")[:24]
+        if self.logo and _is_new_upload(self.logo):
+            try:
+                self.logo = _process_image_to_webp(self.logo, max_size=400)
+            except Exception:
+                pass
+        if self.cover and _is_new_upload(self.cover):
+            try:
+                self.cover = _process_image_to_webp(self.cover, max_size=1200)
+            except Exception:
+                pass
         super().save(*args, **kwargs)
 
 
@@ -181,24 +210,20 @@ class Address(models.Model):
 
 class SalonPhoto(models.Model):
     salon = models.ForeignKey(
-        Salon, 
-        on_delete=models.CASCADE, 
-        related_name='photos', 
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='photos',
         verbose_name="Салон"
     )
     image = models.ImageField(
-        upload_to=salon_gallery_upload_to, 
+        upload_to=salon_gallery_upload_to,
+        blank=True,
+        null=True,
         verbose_name="Фото"
     )
-    caption = models.CharField(
-        max_length=100, 
-        blank=True, 
-        verbose_name="Описание (необяз.)"
-    )
-    is_main = models.BooleanField(
-        default=False, 
-        verbose_name="Главное фото?"
-    )
+    photo_url = models.URLField(max_length=500, blank=True, verbose_name="URL фото (демо/внешний)")
+    caption = models.CharField(max_length=100, blank=True, verbose_name="Описание (необяз.)")
+    is_main = models.BooleanField(default=False, verbose_name="Главное фото?")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -206,8 +231,22 @@ class SalonPhoto(models.Model):
         verbose_name_plural = "Фотографии салона"
         ordering = ['-is_main', '-created_at']
 
+    @property
+    def src(self):
+        if self.image:
+            return self.image.url
+        return self.photo_url
+
+    def save(self, *args, **kwargs):
+        if self.image and _is_new_upload(self.image):
+            try:
+                self.image = _process_image_to_webp(self.image, max_size=1200)
+            except Exception:
+                pass
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Photo for {self.salon.name_ru}"
+        return f"Photo for {self.salon.name}"
 
 
 class Service(MultilingualMixin, models.Model):

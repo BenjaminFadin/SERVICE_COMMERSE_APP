@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'mptt',
-    "marketplace.apps.MarketplaceConfig",    
+    "marketplace.apps.MarketplaceConfig",
+    'pc_clubs',
     'accounts',
     
 ]

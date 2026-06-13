@@ -116,7 +116,7 @@ def appointment_change_status(request, appointment_id):
       - pending -> cancelled (cancel)
     """
     appt = get_object_or_404(
-        Appointment.objects.select_related("salon", "client", "service", "plan"),
+        Appointment.objects.select_related("salon", "client", "service"),
         pk=appointment_id,
     )
 
@@ -379,39 +379,80 @@ def booking_success(request, salon_id):
 
 @login_required
 def owner_dashboard(request):
+    from pc_clubs.models import PCClub, PCBooking
+
     salons = request.user.salons.all()
     master_profile = getattr(request.user, 'master_profile', None)
-
-    if not salons.exists() and not master_profile:
-        return render(request, "business/dashboard.html", {"salon": None, "bookings_today": []})
+    user_pc_clubs = PCClub.objects.filter(owner=request.user)
 
     today = timezone.localdate()
 
-    if salons.exists():
-        target_salon = salons.first()
-        base_query = Appointment.objects.filter(salon=target_salon)
-        # Lazy auto-complete: scope to this salon
-        auto_complete_overdue_appointments(salon=target_salon)
-    else:
-        target_salon = master_profile.salon
-        base_query = Appointment.objects.filter(master=master_profile)
-        auto_complete_overdue_appointments(salon=target_salon)
+    # ── Salon bookings ──────────────────────────────────────────────
+    target_salon = None
+    bookings_pending = Appointment.objects.none()
+    bookings_today = Appointment.objects.none()
+    bookings_upcoming = Appointment.objects.none()
+    bookings_past = Appointment.objects.none()
 
-    bookings_pending = base_query.filter(status="pending").select_related(
-        "client", "client__profile", "service", "master", "plan"
-    ).order_by("start_time")
+    if salons.exists() or master_profile:
+        if salons.exists():
+            target_salon = salons.first()
+            base_query = Appointment.objects.filter(salon=target_salon)
+            auto_complete_overdue_appointments(salon=target_salon)
+        else:
+            target_salon = master_profile.salon
+            base_query = Appointment.objects.filter(master=master_profile)
+            auto_complete_overdue_appointments(salon=target_salon)
 
-    bookings_today = base_query.filter(start_time__date=today)\
-        .exclude(status="cancelled")\
-        .select_related("client", "service", "master", "plan").order_by('start_time')
+        bookings_pending = base_query.filter(status="pending").select_related(
+            "client", "client__profile", "service", "master"
+        ).order_by("start_time")
+        bookings_today = (
+            base_query.filter(start_time__date=today)
+            .exclude(status="cancelled")
+            .select_related("client", "service", "master")
+            .order_by("start_time")
+        )
+        bookings_upcoming = (
+            base_query.filter(start_time__date__gt=today)
+            .exclude(status="cancelled")
+            .select_related("client", "service", "master")
+            .order_by("start_time")
+        )
+        bookings_past = (
+            base_query.filter(start_time__date__lt=today)
+            .select_related("client", "service", "master")
+            .order_by("-start_time")
+        )
 
-    bookings_upcoming = base_query.filter(start_time__date__gt=today)\
-        .exclude(status="cancelled")\
-        .select_related("client", "service", "master", "plan").order_by('-start_time')
+    # ── PC club bookings ────────────────────────────────────────────
+    pc_bookings_pending = PCBooking.objects.none()
+    pc_bookings_today = PCBooking.objects.none()
+    pc_bookings_upcoming = PCBooking.objects.none()
+    pc_bookings_past = PCBooking.objects.none()
 
-    bookings_past = base_query.filter(start_time__date__lt=today)\
-        .select_related("client", "service", "master", "plan").order_by('-start_time')
-    
+    if user_pc_clubs.exists():
+        pc_base = (
+            PCBooking.objects
+            .filter(pc_club__in=user_pc_clubs)
+            .select_related("client", "client__profile", "plan", "pc_club")
+        )
+        pc_bookings_pending = pc_base.filter(status="pending").order_by("start_time")
+        pc_bookings_today = (
+            pc_base.filter(start_time__date=today)
+            .exclude(status="cancelled")
+            .order_by("start_time")
+        )
+        pc_bookings_upcoming = (
+            pc_base.filter(start_time__date__gt=today)
+            .exclude(status="cancelled")
+            .order_by("start_time")
+        )
+        pc_bookings_past = pc_base.filter(start_time__date__lt=today).order_by("-start_time")
+
+    # Show "No Active Salon" page only if user has nothing at all
+    has_anything = target_salon or user_pc_clubs.exists()
+
     return render(request, "business/dashboard.html", {
         "salon": target_salon,
         "bookings_pending": bookings_pending,
@@ -419,6 +460,12 @@ def owner_dashboard(request):
         "bookings_upcoming": bookings_upcoming,
         "bookings_past": bookings_past,
         "today": today,
+        "user_pc_clubs": user_pc_clubs,
+        "pc_bookings_pending": pc_bookings_pending,
+        "pc_bookings_today": pc_bookings_today,
+        "pc_bookings_upcoming": pc_bookings_upcoming,
+        "pc_bookings_past": pc_bookings_past,
+        "has_anything": has_anything,
     })
     
 
@@ -593,7 +640,7 @@ def my_bookings(request):
     auto_complete_overdue_appointments(user=request.user)
 
     bookings = Appointment.objects.filter(client=request.user).select_related(
-        'salon', 'service', 'master', 'plan'
+        'salon', 'service', 'master'
     )
 
     # Upcoming = not past + not cancelled/completed
@@ -681,7 +728,7 @@ def appointment_change_status(request, appointment_id):
       - confirmed -> cancelled  (cancel an accepted booking)
     """
     appt = get_object_or_404(
-        Appointment.objects.select_related("salon", "client", "service", "plan"),
+        Appointment.objects.select_related("salon", "client", "service"),
         pk=appointment_id,
     )
 

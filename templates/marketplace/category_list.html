@@ -452,7 +452,7 @@
                         <div class="suggest-header">{% trans "Популярные категории" %}</div>
                         <div class="suggest-chips">
                             {% for cat in categories %}
-                                <a href="{% url 'marketplace:salon_list_by_category' cat.slug %}" class="chip">
+                                <a href="{% if cat.is_pc_club %}{% url 'pc_clubs:list_by_category' cat.slug %}{% else %}{% url 'marketplace:salon_list_by_category' cat.slug %}{% endif %}" class="chip">
                                     {{ cat.name_ru }}
                                 </a>
                             {% endfor %}
@@ -478,7 +478,7 @@
     <div class="row g-4 justify-content-center">
         {% for c in categories %}
             <div class="col-6 col-md-3 col-lg-2">
-                <a href="{% url 'marketplace:salon_list_by_category' c.slug %}" class="category-item">
+                <a href="{% if c.is_pc_club %}{% url 'pc_clubs:list_by_category' c.slug %}{% else %}{% url 'marketplace:salon_list_by_category' c.slug %}{% endif %}" class="category-item">
                     <div class="cat-icon-box">
                         <i class="{% if c.icon_class %}{{ c.icon_class }}{% else %}bi bi-grid{% endif %}"></i>
                     </div>

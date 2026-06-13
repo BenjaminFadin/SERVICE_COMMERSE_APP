@@ -494,7 +494,7 @@
 
 {# ===== COVER IMAGE ===== #}
 <div class="cover-image"
-     style="background-image: url('{% if salon.photos.first %}{{ salon.photos.first.image.url }}{% else %}https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200{% endif %}');">
+     style="background-image: url('{% if salon.cover %}{{ salon.cover.url }}{% elif salon.cover_url %}{{ salon.cover_url }}{% elif salon.photos.first %}{{ salon.photos.first.src }}{% else %}https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1200{% endif %}');">
   <button class="gallery-btn shadow-sm" type="button" data-bs-toggle="modal" data-bs-target="#galleryModal">
     <i class="bi bi-images"></i> {% trans "Photos" %}
   </button>
@@ -509,9 +509,16 @@
       {# ----- PROFILE HEADER ----- #}
       <div class="profile-header">
         <div class="avatar-container">
-          <img class="avatar-img"
-               src="{% if salon.logo %}{{ salon.logo.url }}{% else %}https://images.unsplash.com/photo-1634926878768-2a5b3c426d49?auto=format&fit=crop&q=80&w=200{% endif %}"
-               alt="{{ salon.name }}">
+          {% if salon.logo %}
+          <img class="avatar-img" src="{{ salon.logo.url }}" alt="{{ salon.name }}">
+          {% elif salon.logo_url %}
+          <img class="avatar-img" src="{{ salon.logo_url }}" alt="{{ salon.name }}">
+          {% else %}
+          <div class="avatar-img d-flex align-items-center justify-content-center fw-bold fs-2"
+               style="background:linear-gradient(135deg,#00A3AD,#005f66);color:#fff;border-radius:50%;">
+            {{ salon.name|first|upper }}
+          </div>
+          {% endif %}
         </div>
         <h1 class="biz-title break-anywhere">{{ salon.name }}</h1>
         <p class="biz-address break-anywhere">
@@ -728,7 +735,7 @@
             {% if salon.photos.all %}
               {% for p in salon.photos.all %}
                 <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                  <img src="{{ p.image.url }}" alt="">
+                  <img src="{{ p.src }}" alt="" loading="lazy">
                 </div>
               {% endfor %}
             {% else %}

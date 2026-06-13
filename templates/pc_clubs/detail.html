@@ -1,0 +1,635 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ club.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+:root { --pc-teal: #00A3AD; }
+
+body { background: #f7f7f9; }
+        :root {
+            --booksy-teal: #00A3AD;
+            --booksy-dark: #101928;
+            --booksy-gray: #75767A;
+            --bg-light: #F7F7F9;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--booksy-dark);
+        }
+
+        /* --- Navbar Styles --- */
+        .navbar {
+            padding: 0.75rem 0;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.75rem;
+            color: #000;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: var(--booksy-dark);
+            margin-left: 1rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.show {
+            color: var(--booksy-teal);
+        }
+
+        /* --- Avatar & Hover Dropdown Logic (Desktop Only) --- */
+        .nav-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--booksy-dark);
+            font-size: 1.4rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .nav-avatar:hover, .dropdown-hover:hover .nav-avatar {
+            background-color: #e4e6eb;
+            border-color: var(--booksy-teal);
+            color: var(--booksy-teal);
+        }
+
+        /* Desktop Hover Effect */
+        @media (min-width: 992px) {
+            .dropdown-hover { position: relative; }
+            
+            .dropdown-hover .dropdown-menu {
+                top: 100% !important;
+                right: 0 !important;
+                left: auto !important;
+                margin-top: 10px !important;
+                display: none; 
+            }
+
+            .dropdown-hover:hover .dropdown-menu,
+            .dropdown-hover .dropdown-menu.show {
+                display: block;
+                animation: fadeIn 0.2s ease-in-out;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+/* Hero cover */
+.club-hero-cover {
+  position: relative;
+  height: 280px;
+  background: #0d1117 center/cover no-repeat;
+  overflow: hidden;
+}
+@media (min-width: 768px) { .club-hero-cover { height: 380px; } }
+
+.club-hero-cover-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.72) 100%);
+}
+
+.club-hero-meta {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 20px 20px 24px;
+  color: #fff;
+}
+@media (min-width: 768px) { .club-hero-meta { padding: 28px 40px 32px; } }
+
+.club-logo-lg {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; font-weight: 700; color: #fff;
+  overflow: hidden; flex-shrink: 0;
+}
+@media (min-width: 768px) { .club-logo-lg { width: 88px; height: 88px; font-size: 2.2rem; } }
+.club-logo-lg img { width: 100%; height: 100%; object-fit: cover; }
+.club-hero-meta h1 { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem; margin-bottom: 4px; }
+@media (min-width: 768px) { .club-hero-meta h1 { font-size: 1.9rem; } }
+.club-meta span { font-size: 0.82rem; color: rgba(255,255,255,0.75); margin-right: 14px; }
+
+/* Photo gallery strip */
+.photo-strip {
+  display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px;
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.photo-strip::-webkit-scrollbar { display: none; }
+.photo-strip-item {
+  flex-shrink: 0; width: 160px; height: 110px;
+  border-radius: 10px; overflow: hidden; cursor: pointer;
+  transition: opacity 0.2s;
+}
+@media (min-width: 576px) { .photo-strip-item { width: 200px; height: 130px; } }
+.photo-strip-item img { width: 100%; height: 100%; object-fit: cover; }
+.photo-strip-item:hover { opacity: 0.85; }
+
+/* Plan cards */
+.plan-card {
+  border-radius: 16px;
+  padding: 24px 20px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+  user-select: none;
+}
+.plan-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(255,255,255,0.07);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.plan-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.18); }
+.plan-card:hover::before { opacity: 1; }
+.plan-card.selected { border-color: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); transform: translateY(-4px); }
+
+.plan-icon { font-size: 2rem; margin-bottom: 10px; opacity: 0.9; }
+.plan-name { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 4px; }
+.plan-price { font-size: 1.4rem; font-weight: 800; }
+.plan-price small { font-size: 0.75rem; font-weight: 500; opacity: 0.8; }
+.plan-desc { font-size: 0.8rem; opacity: 0.75; margin-top: 6px; }
+
+/* Working hours */
+.wh-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+.wh-row:last-child { border-bottom: none; }
+.wh-today { font-weight: 700; color: var(--pc-teal); }
+
+/* Booking modal */
+.modal-content { border-radius: 20px; overflow: hidden; }
+.modal-header { background: linear-gradient(135deg, #0d1117, #1a2744); color: #fff; border: none; padding: 20px 24px; }
+.modal-header .btn-close { filter: invert(1); }
+.plan-preview-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 12px; color: #fff;
+  font-weight: 700; font-size: 0.95rem; margin-bottom: 20px;
+}
+
+.form-label { font-weight: 600; font-size: 0.88rem; color: #444; margin-bottom: 4px; }
+.form-control, .form-select {
+  border-radius: 10px; border: 1.5px solid #e0e0e0;
+  padding: 10px 14px; font-size: 0.95rem;
+}
+.form-control:focus, .form-select:focus { border-color: var(--pc-teal); box-shadow: 0 0 0 3px rgba(0,163,173,0.12); }
+
+.qty-control {
+  display: flex; align-items: center; gap: 0;
+  border: 1.5px solid #e0e0e0; border-radius: 10px; overflow: hidden;
+}
+.qty-control button {
+  background: #f5f5f7; border: none; padding: 10px 16px;
+  font-size: 1.1rem; font-weight: 700; cursor: pointer; color: #333;
+  transition: background 0.15s;
+}
+.qty-control button:hover { background: #e9ecef; }
+.qty-control input {
+  border: none; border-left: 1.5px solid #e0e0e0; border-right: 1.5px solid #e0e0e0;
+  text-align: center; width: 60px; padding: 10px 0;
+  font-size: 1rem; font-weight: 700; outline: none;
+}
+
+.cost-summary {
+  background: #f8f9fa; border-radius: 12px; padding: 14px 16px;
+  margin-top: 16px; font-size: 0.9rem;
+}
+.cost-summary .total { font-weight: 800; font-size: 1.1rem; color: var(--pc-teal); }
+
+.btn-confirm-booking {
+  background: var(--pc-teal); color: #fff; border: none;
+  border-radius: 12px; padding: 13px; font-weight: 700;
+  font-size: 1rem; width: 100%; transition: background 0.2s;
+}
+.btn-confirm-booking:hover { background: #008c95; }
+.btn-confirm-booking:disabled { background: #ccc; cursor: not-allowed; }
+
+.alert-booking-error { border-radius: 10px; font-size: 0.9rem; }
+
+/* Success toast */
+.booking-toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: #198754; color: #fff; padding: 14px 28px;
+  border-radius: 50px; font-weight: 600; font-size: 0.95rem;
+  z-index: 9999; opacity: 0; transition: all 0.35s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2); white-space: nowrap;
+}
+.booking-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if booked_success %}
+<div class="alert alert-success alert-dismissible fade show mb-0 rounded-0 text-center" role="alert">
+  <i class="bi bi-check-circle-fill me-2"></i>
+  <strong>Бронирование отправлено!</strong> Ожидайте подтверждения.
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<!-- Hero Cover -->
+<div class="club-hero-cover"
+     style="background-image: url('{% if club.cover %}{{ club.cover.url }}{% elif club.cover_url %}{{ club.cover_url }}{% elif club.photos.first %}{{ club.photos.first.src }}{% else %}https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=1200{% endif %}');">
+  <div class="club-hero-cover-overlay"></div>
+  <div class="club-hero-meta">
+    <div class="d-flex align-items-end gap-3">
+      <div class="club-logo-lg">
+        {% if club.logo %}
+          <img src="{{ club.logo.url }}" alt="{{ club.name }}">
+        {% elif club.logo_url %}
+          <img src="{{ club.logo_url }}" alt="{{ club.name }}">
+        {% else %}
+          {{ club.name|first|upper }}
+        {% endif %}
+      </div>
+      <div class="pb-1">
+        <h1>{{ club.name }}</h1>
+        <div class="club-meta">
+          <span><i class="bi bi-geo-alt me-1"></i>{{ club.address }}</span>
+          <span class="d-none d-sm-inline"><i class="bi bi-telephone me-1"></i>{{ club.phone }}</span>
+          <span><i class="bi bi-pc-display me-1"></i>{{ club.total_pcs }} ПК</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5">
+  <div class="row g-5">
+
+    <!-- LEFT: Plans + description -->
+    <div class="col-lg-8">
+
+      <!-- Plans -->
+      <h2 class="fw-bold mb-4" style="font-family:'Poppins',sans-serif;">
+        <i class="bi bi-grid-3x3-gap me-2 text-info"></i>Выберите тариф
+      </h2>
+
+      {% if plans %}
+      <div class="row g-3 mb-5" id="planGrid">
+        {% for plan in plans %}
+        <div class="col-sm-6 col-md-4">
+          <div class="plan-card"
+               style="background: linear-gradient(135deg, {{ plan.color }}, {{ plan.color }}cc);"
+               data-plan-id="{{ plan.pk }}"
+               data-plan-name="{{ plan.name }}"
+               data-plan-price="{{ plan.price_per_hour }}"
+               data-plan-color="{{ plan.color }}"
+               data-plan-icon="{{ plan.icon_class }}"
+               onclick="selectPlan(this)">
+            <div class="plan-icon"><i class="{{ plan.icon_class }}"></i></div>
+            <div class="plan-name">{{ plan.name }}</div>
+            <div class="plan-price">
+              {{ plan.price_per_hour|floatformat:0 }} <small>сум/час</small>
+            </div>
+            {% if plan.description_ru %}
+            <div class="plan-desc">{{ plan.description_ru }}</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="alert alert-warning">Тарифы не добавлены.</div>
+      {% endif %}
+
+      <!-- Description -->
+      {% if club.description_ru %}
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-info-circle me-2 text-info"></i>О клубе</h5>
+        <p class="text-muted mb-0">{{ club.description_ru }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Photo gallery strip -->
+      {% if club.photos.all %}
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-images me-2 text-info"></i>Фото</h5>
+        <div class="photo-strip">
+          {% for photo in club.photos.all %}
+          <div class="photo-strip-item" onclick="openPhotoModal('{{ photo.src }}')">
+            <img src="{{ photo.src }}" alt="" loading="lazy">
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- RIGHT: Working hours -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 80px;">
+        <h5 class="fw-bold mb-3"><i class="bi bi-clock me-2 text-info"></i>Часы работы</h5>
+        {% for wh in working_hours %}
+        <div class="wh-row {% if wh.weekday == today_weekday %}wh-today{% endif %}">
+          <span>{{ wh.get_weekday_display }}</span>
+          {% if wh.is_closed %}
+            <span class="text-danger">Закрыто</span>
+          {% else %}
+            <span>{{ wh.open_time|time:"H:i" }} – {{ wh.close_time|time:"H:i" }}</span>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p class="text-muted small">Часы работы не указаны.</p>
+        {% endfor %}
+
+        <div class="mt-4 pt-3 border-top">
+          <i class="bi bi-geo-alt-fill text-info me-1"></i>
+          <small class="text-muted">{{ club.address }}</small>
+        </div>
+        <div class="mt-2">
+          <i class="bi bi-telephone-fill text-info me-1"></i>
+          <small class="text-muted">{{ club.phone }}</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     BOOKING MODAL
+     ============================================================ -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title fw-bold" id="bookingModalLabel">Забронировать место</h5>
+          <p class="mb-0 small" style="color: #8b949e;">{{ club.name }}</p>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body p-4">
+        <!-- Selected plan preview -->
+        <div class="plan-preview-badge" id="planPreviewBadge" style="background:#00A3AD;">
+          <i class="bi bi-pc-display" id="planPreviewIcon"></i>
+          <span id="planPreviewName">—</span>
+          <span id="planPreviewPrice" class="ms-auto opacity-75"></span>
+        </div>
+
+        <!-- Error -->
+        <div class="alert alert-danger alert-booking-error d-none" id="bookingError"></div>
+
+        <form id="bookingForm">
+          {% csrf_token %}
+          <input type="hidden" id="hiddenPlanId" name="plan_id">
+
+          <!-- Date -->
+          <div class="mb-3">
+            <label class="form-label">Дата</label>
+            <input type="date" class="form-control" name="date" id="bookDate" required>
+          </div>
+
+          <!-- Time -->
+          <div class="mb-3">
+            <label class="form-label">Время начала</label>
+            <input type="time" class="form-control" name="time" id="bookTime" value="10:00" required>
+          </div>
+
+          <!-- Hours -->
+          <div class="mb-3">
+            <label class="form-label">Количество часов</label>
+            <div class="qty-control" id="hoursControl">
+              <button type="button" onclick="adjustHours(-1)">−</button>
+              <input type="number" id="bookHours" name="hours" value="1" min="1" max="12" readonly>
+              <button type="button" onclick="adjustHours(1)">+</button>
+            </div>
+          </div>
+
+          <!-- Players (quantity of PCs) -->
+          <div class="mb-3">
+            <label class="form-label">Количество мест (ПК)</label>
+            <div class="qty-control" id="qtyControl">
+              <button type="button" onclick="adjustQty(-1)">−</button>
+              <input type="number" id="bookQty" name="quantity" value="1" min="1" max="{{ club.total_pcs }}" readonly>
+              <button type="button" onclick="adjustQty(1)">+</button>
+            </div>
+          </div>
+
+          <!-- Comment -->
+          <div class="mb-3">
+            <label class="form-label">Комментарий <span class="text-muted fw-normal">(необязательно)</span></label>
+            <textarea class="form-control" name="comment" rows="2" placeholder="Пожелания, ник, команда..."></textarea>
+          </div>
+
+          <!-- Cost summary -->
+          <div class="cost-summary">
+            <div class="d-flex justify-content-between mb-1">
+              <span>Тариф</span>
+              <span id="sumPlan">—</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>Часов</span>
+              <span id="sumHours">1</span>
+            </div>
+            <div class="d-flex justify-content-between mb-1">
+              <span>Мест</span>
+              <span id="sumQty">1</span>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between">
+              <span class="fw-bold">Итого</span>
+              <span class="total" id="sumTotal">—</span>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="modal-footer border-0 px-4 pb-4 pt-0">
+        <button type="button" class="btn-confirm-booking" id="confirmBookingBtn" onclick="submitBooking()">
+          Подтвердить бронирование
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Success toast -->
+<div class="booking-toast" id="bookingToast">
+  <i class="bi bi-check-circle me-2"></i> Бронирование отправлено!
+</div>
+
+<!-- Photo lightbox modal -->
+<div class="modal fade" id="photoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark border-0">
+      <div class="modal-header border-0 py-2">
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0 text-center">
+        <img id="photoModalImg" src="" alt=""
+             style="max-width:100%;max-height:80vh;object-fit:contain;">
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const BOOK_URL   = "{% url 'pc_clubs:book' club.pk %}";
+const CSRF_TOKEN = "{{ csrf_token }}";
+
+let selectedPlan = null;
+
+// Set today as min date
+document.addEventListener('DOMContentLoaded', function () {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('bookDate').min = today;
+  document.getElementById('bookDate').value = today;
+});
+
+// ── Plan selection ──────────────────────────────────────────────
+function selectPlan(el) {
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+
+  selectedPlan = {
+    id    : el.dataset.planId,
+    name  : el.dataset.planName,
+    price : parseFloat(el.dataset.planPrice),
+    color : el.dataset.planColor,
+    icon  : el.dataset.planIcon,
+  };
+
+  // Update modal preview
+  document.getElementById('hiddenPlanId').value  = selectedPlan.id;
+  document.getElementById('planPreviewBadge').style.background = selectedPlan.color;
+  document.getElementById('planPreviewIcon').className = selectedPlan.icon;
+  document.getElementById('planPreviewName').textContent = selectedPlan.name;
+  document.getElementById('sumPlan').textContent = selectedPlan.name;
+
+  updateCost();
+
+  // Open modal
+  new bootstrap.Modal(document.getElementById('bookingModal')).show();
+}
+
+// ── Qty / Hours controls ────────────────────────────────────────
+function adjustHours(delta) {
+  const el = document.getElementById('bookHours');
+  el.value = Math.max(1, Math.min(12, parseInt(el.value) + delta));
+  updateCost();
+}
+
+function adjustQty(delta) {
+  const el  = document.getElementById('bookQty');
+  const max = parseInt(el.max) || 20;
+  el.value  = Math.max(1, Math.min(max, parseInt(el.value) + delta));
+  updateCost();
+}
+
+function updateCost() {
+  const hours = parseInt(document.getElementById('bookHours').value) || 1;
+  const qty   = parseInt(document.getElementById('bookQty').value)   || 1;
+
+  document.getElementById('sumHours').textContent = hours;
+  document.getElementById('sumQty').textContent   = qty;
+
+  if (selectedPlan) {
+    const total = selectedPlan.price * hours * qty;
+    document.getElementById('planPreviewPrice').textContent = formatSum(selectedPlan.price) + '/ч';
+    document.getElementById('sumTotal').textContent = formatSum(total) + ' сум';
+  }
+}
+
+function formatSum(n) {
+  return Math.round(n).toLocaleString('ru-RU');
+}
+
+// Sync cost when hours/qty inputs change manually
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('bookHours').addEventListener('change', updateCost);
+  document.getElementById('bookQty').addEventListener('change', updateCost);
+});
+
+// ── Submit booking ──────────────────────────────────────────────
+async function submitBooking() {
+  const btn = document.getElementById('confirmBookingBtn');
+  const err = document.getElementById('bookingError');
+  err.classList.add('d-none');
+
+  {% if not user.is_authenticated %}
+  window.location.href = '/accounts/login/?next=' + encodeURIComponent(window.location.pathname);
+  return;
+  {% endif %}
+
+  if (!selectedPlan) {
+    showError('Выберите тариф.');
+    return;
+  }
+
+  const form = document.getElementById('bookingForm');
+  const data = new FormData(form);
+
+  btn.disabled = true;
+  btn.textContent = 'Отправляем...';
+
+  try {
+    const res  = await fetch(BOOK_URL, {
+      method : 'POST',
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      body   : data,
+    });
+    const json = await res.json();
+
+    if (json.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+      showToast();
+      setTimeout(() => { window.location.href = json.redirect; }, 1800);
+    } else {
+      showError(json.error || 'Ошибка. Попробуйте ещё раз.');
+    }
+  } catch (e) {
+    showError('Сетевая ошибка. Проверьте подключение.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Подтвердить бронирование';
+  }
+}
+
+function showError(msg) {
+  const err = document.getElementById('bookingError');
+  err.textContent = msg;
+  err.classList.remove('d-none');
+}
+
+function showToast() {
+  const t = document.getElementById('bookingToast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function openPhotoModal(src) {
+  document.getElementById('photoModalImg').src = src;
+  new bootstrap.Modal(document.getElementById('photoModal')).show();
+}
+</script>
+{% endblock %}

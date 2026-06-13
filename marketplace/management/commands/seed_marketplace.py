@@ -28,9 +28,10 @@ from django.utils.text import slugify
 from faker import Faker
 
 from marketplace.models import (
-    Category, Salon, Service, Master, SalonWorkingHours,
+    Category, Salon, SalonPhoto, Service, Master, SalonWorkingHours,
     Address, Appointment,
 )
+from pc_clubs.models import PCClub, PCPhoto, PCPlan, PCAddress, PCWorkingHours
 
 
 # ---------------------------------------------------------------------------
@@ -51,7 +52,7 @@ BEAUTY_HIERARCHY = [
 
 VENUES = [
     # ------------------------------------------------------------------
-    # 🎾 PADDLE TENNIS
+    #  PADDLE TENNIS
     # ------------------------------------------------------------------
     {
         "slug": "paddle-tennis",
@@ -78,7 +79,7 @@ VENUES = [
     },
 
     # ------------------------------------------------------------------
-    # 🎾 BIG TENNIS
+    #  BIG TENNIS
     # ------------------------------------------------------------------
     {
         "slug": "big-tennis",
@@ -105,36 +106,7 @@ VENUES = [
     },
 
     # ------------------------------------------------------------------
-    # 💻 COMPUTER CAFE / PC CLUB
-    # ------------------------------------------------------------------
-    {
-        "slug": "computer-cafe",
-        "name_ru": "Компьютерный клуб",
-        "name_en": "Computer Cafe",
-        "name_uz": "Kompyuter klubi",
-        "icon": "bi bi-pc-display",
-        "sub": [
-            ("Игровые ПК",  "Gaming PCs",   "O'yin kompyuterlari"),
-            ("VIP-кабины",  "VIP Booths",   "VIP kabinalari"),
-            ("PS5 станции", "PS5 Stations", "PS5 stantsiyalari"),
-            ("Обычные ПК",  "Standard PCs", "Oddiy kompyuterlar"),
-        ],
-        "resource_prefix": ("ПК", "PC", "PC"),
-        "resource_count": 15,
-        "services": [
-            ("1 час игры (Standard)", "1 hour play (Standard)", "1 soat o'yin (Standard)", 60,  15_000),
-            ("3 часа игры (Standard)", "3 hours play (Standard)", "3 soat o'yin (Standard)", 180, 40_000),
-            ("Пакет Ночь (Standard)", "Night Pack (Standard)", "Tungi paket (Standard)", 480, 80_000),
-            ("1 час игры (VIP)", "1 hour play (VIP)", "1 soat o'yin (VIP)", 60, 25_000),
-            ("3 часа игры (VIP)", "3 hours play (VIP)", "3 soat o'yin (VIP)", 180, 65_000),
-        ],
-        "open":  time(0, 0),
-        "close": time(23, 59),
-        "brand_pool": ["CyberZone", "GameHub", "PixelPlay", "NeoGaming", "LanArena", "Cyberia"],
-    },
-
-    # ------------------------------------------------------------------
-    # 🎱 BILLIARD
+    #  BILLIARD
     # ------------------------------------------------------------------
     {
         "slug": "billiard",
@@ -160,7 +132,7 @@ VENUES = [
     },
 
     # ------------------------------------------------------------------
-    # 🍽️ RESTAURANT
+    #  RESTAURANT
     # ------------------------------------------------------------------
     {
         "slug": "restaurant",
@@ -192,6 +164,64 @@ VENUES = [
 TASHKENT_DISTRICTS = [
     "Mirzo Ulug'bek", "Chilonzor", "Yunusobod", "Shayxontohur",
     "Yashnobod", "Yakkasaroy", "Olmazor", "Mirobod", "Sergeli", "Bektemir",
+]
+
+
+# ---------------------------------------------------------------------------
+# PC CLUB DEFINITIONS  (seeded into the pc_clubs app, not as Salon objects)
+# ---------------------------------------------------------------------------
+
+PC_CLUBS_DATA = [
+    {
+        "name": "Cyberia Pro Gaming",
+        "district": "Yunusobod",
+        "total_pcs": 30,
+        "plans": [
+            {"name": "Standard",     "price": 10_000, "color": "#00A3AD", "icon": "bi bi-pc-display",          "sort": 0},
+            {"name": "VIP",          "price": 20_000, "color": "#6f42c1", "icon": "bi bi-stars",               "sort": 1},
+            {"name": "Stream Room",  "price": 35_000, "color": "#e63946", "icon": "bi bi-broadcast",           "sort": 2},
+        ],
+    },
+    {
+        "name": "NeoArena",
+        "district": "Chilonzor",
+        "total_pcs": 25,
+        "plans": [
+            {"name": "Economy",   "price":  8_000, "color": "#198754", "icon": "bi bi-pc-display-horizontal", "sort": 0},
+            {"name": "Bootcamp",  "price": 15_000, "color": "#fd7e14", "icon": "bi bi-controller",            "sort": 1},
+            {"name": "Pro Zone",  "price": 25_000, "color": "#0d6efd", "icon": "bi bi-trophy",               "sort": 2},
+        ],
+    },
+    {
+        "name": "LanArena",
+        "district": "Mirzo Ulug'bek",
+        "total_pcs": 20,
+        "plans": [
+            {"name": "Standard", "price": 12_000, "color": "#00A3AD", "icon": "bi bi-pc-display",   "sort": 0},
+            {"name": "VIP",      "price": 22_000, "color": "#9c27b0", "icon": "bi bi-gem",           "sort": 1},
+            {"name": "PS5 Zone", "price": 40_000, "color": "#e91e63", "icon": "bi bi-joystick",      "sort": 2},
+        ],
+    },
+    {
+        "name": "PixelPlay Shayxontohur",
+        "district": "Shayxontohur",
+        "total_pcs": 15,
+        "plans": [
+            {"name": "Обычные ПК", "price":  8_000, "color": "#607d8b", "icon": "bi bi-pc-display-horizontal", "sort": 0},
+            {"name": "Gaming ПК",  "price": 15_000, "color": "#00A3AD", "icon": "bi bi-pc-display",             "sort": 1},
+            {"name": "VIP Кабина", "price": 30_000, "color": "#ff5722", "icon": "bi bi-door-closed",            "sort": 2},
+        ],
+    },
+    {
+        "name": "GameHub Pro",
+        "district": "Yashnobod",
+        "total_pcs": 18,
+        "plans": [
+            {"name": "Standard",  "price": 10_000, "color": "#2196f3", "icon": "bi bi-pc-display",   "sort": 0},
+            {"name": "VIP",       "price": 18_000, "color": "#ff9800", "icon": "bi bi-stars",         "sort": 1},
+            {"name": "Night Pack","price": 50_000, "color": "#212121", "icon": "bi bi-moon-stars",    "sort": 2},
+        ],
+    },
 ]
 
 
@@ -238,15 +268,23 @@ class Command(BaseCommand):
 
         # ------- 1. OPTIONAL RESET -------
         if opts["reset"]:
-            self.stdout.write(self.style.WARNING("--reset: wiping marketplace data..."))
+            self.stdout.write("--reset: wiping all data...")
             Appointment.objects.all().delete()
             Service.objects.all().delete()
             Master.objects.all().delete()
             SalonWorkingHours.objects.all().delete()
+            SalonPhoto.objects.all().delete()
             Address.objects.all().delete()
             Salon.objects.all().delete()
             Category.objects.all().delete()
-            self.stdout.write(self.style.WARNING("Wipe complete."))
+            from pc_clubs.models import PCBooking as _PCBooking, PCWorkingHours as _PCWh, PCAddress as _PCAdr
+            _PCBooking.objects.all().delete()
+            PCPhoto.objects.all().delete()
+            PCPlan.objects.all().delete()
+            _PCWh.objects.all().delete()
+            _PCAdr.objects.all().delete()
+            PCClub.objects.all().delete()
+            self.stdout.write("Wipe complete.")
 
         # ------- 2. OWNERS + CLIENTS -------
         self.stdout.write("Setting up users...")
@@ -277,12 +315,17 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS("\n=== Seeding BEAUTY categories ==="))
             self._seed_beauty(fake, owner, clients, salons_per_sub)
 
-        # ------- 4. SEED VENUES (tennis, billiard, PC clubs, restaurants) -------
+        # ------- 4. SEED VENUES (tennis, billiard, restaurants) -------
         if not opts["skip_venues"]:
             self.stdout.write(self.style.SUCCESS("\n=== Seeding VENUE categories ==="))
             self._seed_venues(fake, demo_owner, salons_per_sub)
 
-        self.stdout.write(self.style.SUCCESS("\n✅ Database seeded successfully!"))
+        # ------- 5. SEED PC CLUBS (separate app, always runs unless --skip-venues) -------
+        if not opts["skip_venues"]:
+            self.stdout.write("=== Seeding PC CLUBS ===")
+            self._seed_pc_clubs(fake, demo_owner)
+
+        self.stdout.write(self.style.SUCCESS("\nDatabase seeded successfully!"))
 
     # =====================================================================
     # BEAUTY SEEDING
@@ -299,7 +342,7 @@ class Command(BaseCommand):
                     "is_pc_club": False,
                 },
             )
-            self.stdout.write(self.style.SUCCESS(f"📂 {parent.name_ru}"))
+            self.stdout.write(self.style.SUCCESS(f" {parent.name_ru}"))
 
             for s_name in subs:
                 child_slug = self._unique_slug(slugify(f"{p_slug}-{s_name}", allow_unicode=False) or f"{p_slug}-sub")
@@ -313,19 +356,24 @@ class Command(BaseCommand):
                     },
                 )
                 leaf_categories.append(child)
-                self.stdout.write(f"   └─ {child.name_ru}")
+                self.stdout.write(f"    {child.name_ru}")
 
         # Create salons for subcategories
         for cat in leaf_categories:
             for _ in range(salons_per_sub):
+                salon_name = f"{fake.company()} ({cat.name_ru})"
+                h = abs(hash(salon_name))
                 salon = Salon.objects.create(
                     owner=owner,
                     category=cat,
-                    name=f"{fake.company()} ({cat.name_ru})",
+                    name=salon_name,
                     address=fake.address(),
                     phone=self._random_phone(fake),
                     qr_token=generate_qr_token(),
+                    logo_url=f"https://picsum.photos/seed/{h % 500}/200/200",
+                    cover_url=f"https://picsum.photos/seed/{(h + 500) % 1000}/1200/450",
                 )
+                self._seed_salon_photos(salon_name, salon)
 
                 for day in range(7):
                     SalonWorkingHours.objects.create(
@@ -371,7 +419,7 @@ class Command(BaseCommand):
                 is_pc_club=False, # Now False for PC Club
             )
             self.stdout.write(self.style.SUCCESS(
-                f"📂 Parent: {parent.name_ru} ({parent.slug})"
+                f" Parent: {parent.name_ru} ({parent.slug})"
             ))
 
             for sub_ru, sub_en, sub_uz in venue["sub"]:
@@ -384,7 +432,7 @@ class Command(BaseCommand):
                     parent=parent,
                     is_pc_club=False, # Now False for PC Club
                 )
-                self.stdout.write(f"   └─ {sub.name_ru}")
+                self.stdout.write(f"    {sub.name_ru}")
 
                 for _ in range(salons_per_sub):
                     salon = self._create_salon(
@@ -398,6 +446,85 @@ class Command(BaseCommand):
                     self._create_working_hours(salon, venue)
                     # All venues now use Services
                     self._create_services(salon, venue)
+
+    # =====================================================================
+    # PC CLUBS SEEDING
+    # =====================================================================
+
+    def _seed_pc_clubs(self, fake, owner):
+        # Ensure parent PC club category
+        parent_cat, _ = Category.objects.get_or_create(
+            slug="computer-cafe",
+            defaults={
+                "name_ru": "Компьютерный клуб",
+                "name_en": "Computer Cafe",
+                "name_uz": "Kompyuter klubi",
+                "icon_class": "bi bi-pc-display",
+                "is_pc_club": True,
+            },
+        )
+        parent_cat.is_pc_club = True
+        parent_cat.save(update_fields=["is_pc_club"])
+
+        for data in PC_CLUBS_DATA:
+            district = data["district"]
+            club_name = data["name"]
+
+            if PCClub.objects.filter(name=club_name).exists():
+                self.stdout.write(f"    {club_name} already exists, skipping.")
+                continue
+
+            h = abs(hash(club_name))
+            club = PCClub.objects.create(
+                name=club_name,
+                owner=owner,
+                category=parent_cat,
+                description_ru=f"{club_name} — лучший игровой клуб в районе {district}. Высокоскоростные ПК, комфортные кресла, 24/7.",
+                description_en=f"{club_name} — top gaming club in {district}. High-speed PCs, comfortable chairs, 24/7.",
+                description_uz=f"{club_name} — {district} tumanidagi eng yaxshi o'yin klubi. Tezkor kompyuterlar, qulay kreslolar, 24/7.",
+                address=f"{district}, {fake.street_address()}",
+                phone=f"+998{random.randint(70, 99)}{random.randint(1000000, 9999999)}",
+                total_pcs=data["total_pcs"],
+                logo_url=f"https://picsum.photos/seed/{h % 500}/200/200",
+                cover_url=f"https://picsum.photos/seed/{(h + 500) % 1000}/1200/450",
+            )
+            for i in range(4):
+                PCPhoto.objects.create(
+                    pc_club=club,
+                    photo_url=f"https://picsum.photos/seed/{(h + 100 + i * 100) % 1000}/800/600",
+                    is_main=(i == 0),
+                )
+
+            PCAddress.objects.create(
+                pc_club=club,
+                full_address=club.address,
+                latitude=Decimal(f"{41.2 + random.uniform(-0.1, 0.15):.6f}"),
+                longitude=Decimal(f"{69.2 + random.uniform(-0.1, 0.15):.6f}"),
+            )
+
+            for day in range(7):
+                PCWorkingHours.objects.create(
+                    pc_club=club,
+                    weekday=day,
+                    is_closed=False,
+                    open_time=time(0, 0),
+                    close_time=time(23, 59),
+                )
+
+            for p in data["plans"]:
+                PCPlan.objects.create(
+                    pc_club=club,
+                    name=p["name"],
+                    price_per_hour=Decimal(p["price"]),
+                    color=p["color"],
+                    icon_class=p["icon"],
+                    sort_order=p["sort"],
+                    is_active=True,
+                )
+
+            self.stdout.write(self.style.SUCCESS(
+                f"    {club_name} ({data['total_pcs']} PCs, {len(data['plans'])} plans)"
+            ))
 
     # =====================================================================
     # HELPERS
@@ -438,6 +565,7 @@ class Command(BaseCommand):
         brand = random.choice(venue.get("brand_pool", ["Club"]))
         salon_name = f"{brand} {district}"
 
+        h = abs(hash(salon_name))
         salon = Salon.objects.create(
             name=salon_name,
             owner=owner,
@@ -448,7 +576,10 @@ class Command(BaseCommand):
             address=f"{district}, {fake.street_address()}",
             phone=f"+998{random.randint(70, 99)}{random.randint(1000000, 9999999)}",
             qr_token=generate_qr_token(),
+            logo_url=f"https://picsum.photos/seed/{h % 500}/200/200",
+            cover_url=f"https://picsum.photos/seed/{(h + 500) % 1000}/1200/450",
         )
+        self._seed_salon_photos(salon_name, salon)
 
         Address.objects.create(
             salon=salon,
@@ -504,6 +635,15 @@ class Command(BaseCommand):
                     "open_time": open_t,
                     "close_time": close_t,
                 },
+            )
+
+    def _seed_salon_photos(self, name, salon):
+        h = abs(hash(name))
+        for i in range(4):
+            SalonPhoto.objects.create(
+                salon=salon,
+                photo_url=f"https://picsum.photos/seed/{(h + 100 + i * 100) % 1000}/800/600",
+                is_main=(i == 0),
             )
 
     def _random_phone(self, fake):

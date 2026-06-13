@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PC Клубы{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+  --pc-teal: #00A3AD;
+  --pc-dark: #101928;
+  --pc-gray: #75767A;
+  --bg-dark: #0d1117;
+}
+
+body { background: #f7f7f9; }
+
+.page-hero {
+  background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%);
+  padding: 48px 0 40px;
+  color: #fff;
+}
+
+.page-hero h1 { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 2rem; }
+.page-hero p  { color: #8b949e; margin: 0; }
+
+/* Club card */
+.club-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
+}
+
+.club-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.10);
+  color: inherit;
+}
+
+.club-card-banner {
+  height: 160px;
+  background: linear-gradient(135deg, #0d1117 0%, #1a2744 100%);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.club-card-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.55) 100%);
+  pointer-events: none;
+}
+
+.club-logo-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.25);
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(4px);
+}
+
+.club-logo-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.club-card-body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.club-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  color: #101928;
+}
+
+.club-address {
+  font-size: 0.8rem;
+  color: #75767A;
+  margin-bottom: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.plan-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.plan-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.btn-visit {
+  width: 100%;
+  background: #101928;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 12px;
+  transition: background 0.2s;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+}
+
+.btn-visit:hover { background: var(--pc-teal); color: #fff; }
+
+.total-pcs-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 999px;
+  z-index: 2;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <div class="container">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <i class="bi bi-pc-display fs-2 text-info"></i>
+      <h1 class="mb-0">Компьютерные клубы</h1>
+    </div>
+    <p>Выберите клуб и забронируйте место онлайн</p>
+  </div>
+</div>
+
+<div class="container py-5">
+  {% if clubs %}
+  <div class="row g-4">
+    {% for club in clubs %}
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+      <a href="{% url 'pc_clubs:detail' club.pk %}" class="club-card">
+        <div class="club-card-banner"
+             style="{% if club.cover %}background-image: url('{{ club.cover.url }}');{% elif club.cover_url %}background-image: url('{{ club.cover_url }}');{% else %}background: linear-gradient(135deg, {{ club.plans.first.color|default:'#0d1117' }}33 0%, #0d1117 100%);{% endif %}">
+          <div class="club-logo-circle">
+            {% if club.logo %}
+              <img src="{{ club.logo.url }}" alt="{{ club.name }}">
+            {% elif club.logo_url %}
+              <img src="{{ club.logo_url }}" alt="{{ club.name }}">
+            {% else %}
+              {{ club.name|first|upper }}
+            {% endif %}
+          </div>
+          <span class="total-pcs-badge"><i class="bi bi-pc-display me-1"></i>{{ club.total_pcs }} ПК</span>
+        </div>
+
+        <div class="club-card-body">
+          <div class="club-name">{{ club.name }}</div>
+          <div class="club-address"><i class="bi bi-geo-alt me-1"></i>{{ club.address|truncatechars:50 }}</div>
+
+          <div class="plan-chips">
+            {% for plan in club.plans.all|slice:":3" %}
+            <span class="plan-chip" style="background: {{ plan.color }};">
+              <i class="{{ plan.icon_class }}"></i>
+              {{ plan.name }}
+            </span>
+            {% endfor %}
+          </div>
+
+          <span class="btn-visit">Выбрать место <i class="bi bi-arrow-right ms-1"></i></span>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-pc-display fs-1 text-muted mb-3 d-block"></i>
+    <h4 class="text-muted">Клубы пока не добавлены</h4>
+    <p class="text-muted small">Запустите <code>python manage.py seed_marketplace</code> для заполнения данными</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
