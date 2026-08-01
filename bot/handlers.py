@@ -2,18 +2,18 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 
-from bot.config import config
-from bot.database import (
+from config import config
+from database import (
     get_or_create_user,
     update_user_language,
     get_user_language,
 )
-from bot.keyboards import (
+from keyboards import (
     language_keyboard,
     main_menu_keyboard,
     website_inline_keyboard,
 )
-from bot.locales import get_text, TEXTS
+from locales import get_text, TEXTS
 
 router = Router()
 

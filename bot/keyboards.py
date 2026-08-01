@@ -5,7 +5,7 @@ from aiogram.types import (
     InlineKeyboardButton,
 )
 
-from bot.locales import get_text
+from locales import get_text
 
 
 def language_keyboard() -> InlineKeyboardMarkup:

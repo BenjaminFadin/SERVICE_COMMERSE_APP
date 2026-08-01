@@ -1,4 +1,5 @@
 import os
+import secrets
 from dataclasses import dataclass
 from dotenv import load_dotenv
 
@@ -10,6 +11,12 @@ class Config:
     bot_token: str
     website_url: str
     db_url: str
+    # Webhook settings
+    webhook_url: str    # e.g. https://ibron.uz/bot/webhook
+    webhook_path: str   # e.g. /bot/webhook
+    webhook_secret: str # random token for request validation
+    host: str           # local bind address for the bot's aiohttp server
+    port: int           # local port for the bot's aiohttp server
 
 
 def load_config() -> Config:
@@ -25,10 +32,18 @@ def load_config() -> Config:
     if not bot_token:
         raise ValueError("TELEGRAM_BOT_TOKEN is not set in .env file")
 
+    domain = os.getenv("DOMAIN_NAME", "ibron.uz").rstrip("/")
+    webhook_path = os.getenv("BOT_WEBHOOK_PATH", "/bot/webhook")
+
     return Config(
         bot_token=bot_token,
-        website_url=os.getenv("WEBSITE_URL", "http://170.168.6.169/"),
+        website_url=os.getenv("WEBSITE_URL", f"https://{domain}/"),
         db_url=db_url,
+        webhook_url=f"https://{domain}{webhook_path}",
+        webhook_path=webhook_path,
+        webhook_secret=os.getenv("BOT_WEBHOOK_SECRET", secrets.token_hex(32)),
+        host=os.getenv("BOT_HOST", "127.0.0.1"),
+        port=int(os.getenv("BOT_PORT", "8080")),
     )
 
 
