@@ -1,6 +1,7 @@
 import math
+import os
 from datetime import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.db.models import Q, Exists, OuterRef, Prefetch, Min
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST
@@ -8,6 +9,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.translation import get_language
 from django.views.decorators.http import require_GET
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
@@ -829,3 +831,33 @@ def appointment_change_status(request, appointment_id):
         "status_display": appt.get_status_display(),
         "appointment_id": appt.id,
     })
+
+ALLOWED_DOCS = {"oferta", "booking_rules"}
+
+def serve_doc(request, doc_type):
+    if doc_type not in ALLOWED_DOCS:
+        raise Http404
+
+    lang = get_language() or "ru"
+    if lang not in ("ru", "en", "uz"):
+        lang = "ru"
+
+    filename = f"{doc_type}_{lang}.docx"
+    path = os.path.join(settings.BASE_DIR, "static", "docs", filename)
+
+    if not os.path.exists(path):
+        # Fallback to Russian if this language file is missing
+        path = os.path.join(settings.BASE_DIR, "static", "docs", f"{doc_type}_ru.docx")
+
+    if not os.path.exists(path):
+        raise Http404
+
+    with open(path, "rb") as f:
+        data = f.read()
+
+    response = HttpResponse(
+        data,
+        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+    response["Content-Disposition"] = f'inline; filename="{filename}"'
+    return response

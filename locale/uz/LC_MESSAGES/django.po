@@ -751,3 +751,18 @@ msgstr "Kompyuter klublar"
 
 msgid "Choose a club and book a seat online"
 msgstr "Klub tanlang va o'rningizni onlayn band qiling"
+
+msgid "Публичная оферта"
+msgstr "Ommaviy oferta"
+
+msgid "Правила бронирования"
+msgstr "Bron qilish qoidalari"
+
+msgid "Пользователям"
+msgstr "Foydalanuvchilar uchun"
+
+msgid "Блог для клиентов"
+msgstr "Mijozlar blogi"
+
+msgid "Центр помощи"
+msgstr "Yordam markazi"

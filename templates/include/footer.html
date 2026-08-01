@@ -1,3 +1,4 @@
+{% load i18n %}
 <footer class="footer mt-5 border-top bg-white">
     <div class="container py-5">
         <div class="row g-5">
@@ -25,12 +26,20 @@
             </div>
             
             <div class="col-6 col-lg-3 col-md-4">
-                <h6 class="text-uppercase fw-bold mb-4 small">Пользователям</h6>
+                <h6 class="text-uppercase fw-bold mb-4 small">{% trans "Пользователям" %}</h6>
                 <ul class="list-unstyled">
-                    <li class="mb-2"><a href="#" class="footer-nav-link">Блог для клиентов</a></li>
-                    <li class="mb-2"><a href="#" class="footer-nav-link">Центр помощи</a></li>
-                    <li class="mb-2"><a href="#" class="footer-nav-link">Конфиденциальность</a></li>
-                    <li class="mb-2"><a href="#" class="footer-nav-link">Условия использования</a></li>
+                    <li class="mb-2"><a href="#" class="footer-nav-link">{% trans "Блог для клиентов" %}</a></li>
+                    <li class="mb-2"><a href="#" class="footer-nav-link">{% trans "Центр помощи" %}</a></li>
+                    <li class="mb-2">
+                        <a href="{% url 'marketplace:serve_doc' 'oferta' %}" target="_blank" class="footer-nav-link">
+                            {% trans "Публичная оферта" %}
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{% url 'marketplace:serve_doc' 'booking_rules' %}" target="_blank" class="footer-nav-link">
+                            {% trans "Правила бронирования" %}
+                        </a>
+                    </li>
                 </ul>
             </div>
 

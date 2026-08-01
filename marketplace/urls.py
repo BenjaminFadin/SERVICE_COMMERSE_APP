@@ -30,4 +30,6 @@ urlpatterns = [
     path('ajax/booking-form/<int:salon_id>/<int:service_id>/', views.ajax_booking_form, name='ajax_booking_form'),
     path('search/', views.search_view, name='salon_search'),
     path("business-lead/", views.submit_business_lead, name="submit_business_lead"),
+
+    path("docs/<str:doc_type>/", views.serve_doc, name="serve_doc"),
 ]
