@@ -842,22 +842,11 @@ def serve_doc(request, doc_type):
     if lang not in ("ru", "en", "uz"):
         lang = "ru"
 
-    filename = f"{doc_type}_{lang}.docx"
-    path = os.path.join(settings.BASE_DIR, "static", "docs", filename)
+    template_name = f"marketplace/legal/{doc_type}_{lang}.html"
+    # Fallback to Russian if template for this language is missing
+    import os as _os
+    tpl_path = _os.path.join(settings.BASE_DIR, "templates", template_name)
+    if not _os.path.exists(tpl_path):
+        template_name = f"marketplace/legal/{doc_type}_ru.html"
 
-    if not os.path.exists(path):
-        # Fallback to Russian if this language file is missing
-        path = os.path.join(settings.BASE_DIR, "static", "docs", f"{doc_type}_ru.docx")
-
-    if not os.path.exists(path):
-        raise Http404
-
-    with open(path, "rb") as f:
-        data = f.read()
-
-    response = HttpResponse(
-        data,
-        content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    )
-    response["Content-Disposition"] = f'inline; filename="{filename}"'
-    return response
+    return render(request, template_name)

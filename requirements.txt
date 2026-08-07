@@ -17,3 +17,4 @@ whitenoise==6.7.0
 xlsxwriter==3.2.9
 qrcode[pil]>=7.4.2
 PyJWT==2.9.0
+cryptography==46.0.4

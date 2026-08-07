@@ -204,3 +204,61 @@ html {
   margin-top: 4px;
   display: block;
 }
+
+/* ── Legal document pages ─────────────────────────────────── */
+.legal-page {
+  font-family: inherit;
+}
+
+.legal-body {
+  color: #1a1a1a;
+  line-height: 1.75;
+}
+
+.legal-body .doc-main-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #000;
+  padding-bottom: 0.75rem;
+}
+
+.legal-body .doc-section-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+  color: #111;
+}
+
+.legal-body .doc-sub-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.25rem;
+  color: #222;
+}
+
+.legal-body .doc-num {
+  color: #555;
+  margin-right: 0.25rem;
+}
+
+.legal-body p {
+  margin-bottom: 0.6rem;
+  color: #333;
+}
+
+.legal-body .doc-list {
+  padding-left: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-body .doc-list li {
+  margin-bottom: 0.25rem;
+  color: #333;
+}
+
+.legal-footer {
+  color: #888;
+}

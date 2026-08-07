@@ -41,7 +41,7 @@ def main():
     dp.include_router(router)
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
-
+        
     app = web.Application()
     SimpleRequestHandler(
         dispatcher=dp,
