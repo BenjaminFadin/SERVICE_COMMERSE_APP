@@ -88,7 +88,6 @@
         /* --- Hero Section --- */
         .hero-section {
             position: relative;
-            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&q=80&w=1920');
             background-size: cover;
             background-position: center;
             height: 500px;
@@ -403,7 +402,7 @@
     </style>
     {% endblock extra_css %}
 {% block content %}
-    <section class="hero-section">
+    <section class="hero-section" style="background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url('{% static "images/banner.avif" %}');">
         <div class="container">
             <h1 class="hero-title">Будьте собой.<br>Записывайтесь к лучшим мастерам.</h1>
 

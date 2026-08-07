@@ -55,7 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    # 'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "django.middleware.locale.LocaleMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -146,7 +146,7 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 
 # STATICFILES_DIRS = [BASE_DIR / 'static']
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # STATIC_ROOT = f'/var/www/{DOMAIN_NAME}/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'

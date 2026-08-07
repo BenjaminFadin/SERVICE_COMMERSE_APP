@@ -17,41 +17,44 @@
                     {% endif %}
         <li class="nav-item dropdown ms-lg-2">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                {% if request.LANGUAGE_CODE == 'ru' %}
-                    <span class="fs-5 lh-1">🇷🇺</span> <span class="small fw-bold">RU</span>
-                {% elif request.LANGUAGE_CODE == 'uz' %}
-                    <span class="fs-5 lh-1">🇺🇿</span> <span class="small fw-bold">UZ</span>
-                {% else %}
-                    <span class="fs-5 lh-1">🇺🇸</span> <span class="small fw-bold">EN</span>
-                {% endif %}
+                <i class="bi bi-globe2"></i>
+                <span class="small fw-bold">
+                    {% if request.LANGUAGE_CODE == 'ru' %}RU
+                    {% elif request.LANGUAGE_CODE == 'uz' %}UZ
+                    {% else %}EN
+                    {% endif %}
+                </span>
             </a>
 
-    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width: 160px;">
+    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm" style="min-width: 170px;">
         <form action="{% url 'accounts:set_language' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            
+
             <li>
-                <button type="submit" name="language" value="ru" class="dropdown-item d-flex align-items-center gap-2 {% if request.LANGUAGE_CODE == 'ru' %}active{% endif %}">
-                    <span class="fs-5 lh-1">🇷🇺</span>
-                    <span class="fw-bold small">RU</span>
-                    <span class="text-muted small ms-auto">Русский</span>
+                <button type="submit" name="language" value="ru"
+                        class="dropdown-item d-flex align-items-center gap-2 py-2 {% if request.LANGUAGE_CODE == 'ru' %}active{% endif %}">
+                    <span style="font-size:1.3rem;line-height:1;">🇷🇺</span>
+                    <span class="fw-semibold">Русский</span>
+                    <span class="ms-auto small text-muted">RU</span>
                 </button>
             </li>
 
             <li>
-                <button type="submit" name="language" value="en" class="dropdown-item d-flex align-items-center gap-2 {% if request.LANGUAGE_CODE == 'en' %}active{% endif %}">
-                    <span class="fs-5 lh-1">🇺🇸</span>
-                    <span class="fw-bold small">EN</span>
-                    <span class="text-muted small ms-auto">English</span>
+                <button type="submit" name="language" value="en"
+                        class="dropdown-item d-flex align-items-center gap-2 py-2 {% if request.LANGUAGE_CODE == 'en' %}active{% endif %}">
+                    <span style="font-size:1.3rem;line-height:1;">🇺🇸</span>
+                    <span class="fw-semibold">English</span>
+                    <span class="ms-auto small text-muted">EN</span>
                 </button>
             </li>
 
             <li>
-                <button type="submit" name="language" value="uz" class="dropdown-item d-flex align-items-center gap-2 {% if request.LANGUAGE_CODE == 'uz' %}active{% endif %}">
-                    <span class="fs-5 lh-1">🇺🇿</span>
-                    <span class="fw-bold small">UZ</span>
-                    <span class="text-muted small ms-auto">O'zbekcha</span>
+                <button type="submit" name="language" value="uz"
+                        class="dropdown-item d-flex align-items-center gap-2 py-2 {% if request.LANGUAGE_CODE == 'uz' %}active{% endif %}">
+                    <span style="font-size:1.3rem;line-height:1;">🇺🇿</span>
+                    <span class="fw-semibold">O'zbekcha</span>
+                    <span class="ms-auto small text-muted">UZ</span>
                 </button>
             </li>
         </form>
