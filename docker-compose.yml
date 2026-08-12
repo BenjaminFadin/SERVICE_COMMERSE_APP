@@ -42,6 +42,18 @@ services:
     depends_on:
       - web
 
+  bot:
+    build: .
+    restart: always
+    env_file: .env
+    working_dir: /app/bot
+    command: python main.py
+    expose:
+      - "8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
   certbot:
     image: certbot/certbot
     restart: unless-stopped
