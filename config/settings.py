@@ -213,3 +213,10 @@ DEFAULT_FROM_EMAIL = config.get('DEFAULT_FROM_EMAIL')
 TELEGRAM_BOT_TOKEN = config.get('TELEGRAM_BOT_TOKEN')
 
 BUSINESS_LEADS_TELEGRAM_ID = config.get('BUSINESS_LEADS_TELEGRAM_ID')
+
+# ── Eskiz SMS ──────────────────────────────────────────────────────────
+SMS_BACKEND      = config.get('SMS_BACKEND', '')
+ESKIZ_TOKEN      = config.get('ESKIZ_TOKEN', '')
+ESKIZ_EMAIL      = config.get('ESKIZ_EMAIL', '')
+ESKIZ_PASSWORD   = config.get('ESKIZ_PASSWORD', '')
+ESKIZ_SENDER     = config.get('ESKIZ_SENDER', '4546')

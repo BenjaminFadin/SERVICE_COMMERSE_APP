@@ -152,35 +152,82 @@ def send_telegram_message(chat_id: str, text: str):
         return False
 
 
+def _eskiz_get_token() -> str:
+    """Login to Eskiz and return a fresh token."""
+    email    = getattr(settings, "ESKIZ_EMAIL", "")
+    password = getattr(settings, "ESKIZ_PASSWORD", "")
+    if not email or not password:
+        return ""
+    try:
+        r = requests.post(
+            "https://notify.eskiz.uz/api/auth/login",
+            data={"email": email, "password": password},
+            timeout=10,
+        )
+        token = r.json().get("data", {}).get("token", "")
+        if token:
+            # Patch the live settings object so subsequent calls in this process use it
+            settings.ESKIZ_TOKEN = token
+            print(f"[SMS] Eskiz token refreshed via login.")
+        return token
+    except Exception as e:
+        print(f"[SMS] Eskiz login error: {e}")
+        return ""
+
+
+def _eskiz_send(token: str, phone: str, text: str, sender: str) -> requests.Response:
+    return requests.post(
+        "https://notify.eskiz.uz/api/message/sms/send",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"mobile_phone": phone, "message": text, "from": sender},
+        timeout=10,
+    )
+
+
 def send_sms(phone: str, text: str) -> bool:
-    """Send SMS notification. Set SMS_BACKEND='eskiz' in settings to enable."""
+    """Send SMS via Eskiz. Requires SMS_BACKEND=eskiz in settings/.env."""
     phone = (phone or "").strip().replace(" ", "")
     if not phone:
+        print("[SMS] No phone number provided, skipping.")
         return False
 
-    backend = getattr(settings, "SMS_BACKEND", None)
+    backend = getattr(settings, "SMS_BACKEND", "")
+    print(f"[SMS] backend='{backend}'  phone={phone}")
 
-    if backend == "eskiz":
-        token = getattr(settings, "ESKIZ_TOKEN", "")
+    if backend != "eskiz":
+        print(f"[SMS] stub (set SMS_BACKEND=eskiz in .env to enable real sending)")
+        print(f"[SMS] message: {text}")
+        return False
+
+    token  = getattr(settings, "ESKIZ_TOKEN", "").strip()
+    sender = getattr(settings, "ESKIZ_SENDER", "4546")
+
+    if not token:
+        print("[SMS] No ESKIZ_TOKEN — attempting login ...")
+        token = _eskiz_get_token()
         if not token:
-            print(f"SMS [eskiz]: no ESKIZ_TOKEN, skipping {phone}")
-            return False
-        try:
-            resp = requests.post(
-                "https://notify.eskiz.uz/api/message/sms/send",
-                headers={"Authorization": f"Bearer {token}"},
-                json={"mobile_phone": phone, "message": text, "from": "4546"},
-                timeout=6,
-            )
-            print(f"SMS [eskiz]: {resp.status_code} → {phone}")
-            return resp.status_code == 200
-        except Exception as e:
-            print(f"SMS [eskiz] error: {e}")
+            print("[SMS] Could not obtain token. SMS not sent.")
             return False
 
-    # Stub – log only (configure SMS_BACKEND in settings to activate)
-    print(f"SMS [stub] → {phone}: {text[:100]}")
-    return False
+    try:
+        resp = _eskiz_send(token, phone, text, sender)
+        print(f"[SMS] Eskiz response: {resp.status_code} → {resp.text[:200]}")
+
+        # Token expired — refresh and retry once
+        if resp.status_code == 401:
+            print("[SMS] Token expired, refreshing ...")
+            token = _eskiz_get_token()
+            if not token:
+                print("[SMS] Token refresh failed. SMS not sent.")
+                return False
+            resp = _eskiz_send(token, phone, text, sender)
+            print(f"[SMS] Eskiz retry: {resp.status_code} → {resp.text[:200]}")
+
+        return resp.status_code == 200
+
+    except Exception as e:
+        print(f"[SMS] Request error: {e}")
+        return False
 
 
 

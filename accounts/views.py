@@ -1,8 +1,11 @@
+import re
+import time
 import random
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils import timezone
@@ -23,11 +26,34 @@ from .forms import (
     ProfileUpdateForm
 )
 
-
 from marketplace.forms import WorkingHoursFormSet
 from marketplace.models import SalonWorkingHours
+from marketplace.utils import send_sms
+from .models import PasswordResetCode, Profile
 
-from .models import PasswordResetCode
+OTP_EXPIRY_SECONDS = 10 * 60  # 10 minutes
+OTP_RESEND_SECONDS = 60        # 1 minute
+
+
+def _normalize_phone(phone: str) -> str:
+    return re.sub(r'\D', '', phone)
+
+
+def _mask_phone(phone: str) -> str:
+    d = re.sub(r'\D', '', phone)
+    if len(d) >= 11:
+        return f"+{d[:3]} {d[3:5]} *** {d[-4:]}"
+    return phone
+
+
+def _send_registration_otp(phone: str, code: str) -> bool:
+    # code is always 6 digits — pad with leading zeros just in case
+    code = str(code).zfill(6)
+    message = f"Siz iBron ilovasida ro'yxatdan o'tmoqdasiz. Kodni hech kimga bermang: {code}"
+    print(f"[OTP] phone={phone}  code={code}  message='{message}'")
+    result = send_sms(phone, message)
+    print(f"[OTP] send_sms result → {result}")
+    return result
 
 
 User = get_user_model()
@@ -119,17 +145,30 @@ def auth_view(request):
             else:
                 messages.error(request, "Invalid username or password.")
 
-        # --- REGISTER LOGIC (User) ---
+        # --- REGISTER LOGIC ---
         elif 'register_submit' in request.POST:
             active_section = 'register'
             register_form = UserSignUpForm(request.POST)
             if register_form.is_valid():
-                user = register_form.save()
-                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                return redirect("marketplace:home")
+                cd = register_form.cleaned_data
+                phone = _normalize_phone(cd['phone_number'])
+                code = str(random.randint(100000, 999999))
+                now = time.time()
+
+                request.session['reg_pending'] = {
+                    'first_name': cd['first_name'],
+                    'last_name':  cd['last_name'],
+                    'email':      cd['email'],
+                    'phone':      phone,
+                    'password':   make_password(cd['password1']),
+                }
+                request.session['reg_otp']         = code
+                request.session['reg_otp_expires'] = now + OTP_EXPIRY_SECONDS
+                request.session['reg_otp_sent_at'] = now
+
+                _send_registration_otp(phone, code)
+                return redirect('accounts:verify_phone')
             else:
-                # Show the actual errors so user knows what went wrong
-                print("REGISTRATION ERRORS:", register_form.errors.as_json())
                 for field, errs in register_form.errors.items():
                     for err in errs:
                         messages.error(request, f"{field}: {err}")
@@ -141,6 +180,75 @@ def auth_view(request):
         "active_section": active_section, 
     }
     return render(request, "accounts/auth_combined.html", context)
+
+def verify_phone(request):
+    reg = request.session.get('reg_pending')
+    if not reg:
+        return redirect('accounts:login_register')
+
+    now = time.time()
+    otp_expires = request.session.get('reg_otp_expires', 0)
+    sent_at     = request.session.get('reg_otp_sent_at', 0)
+
+    if request.method == 'POST':
+
+        # ── Resend request ────────────────────────────────────────────
+        if 'resend' in request.POST:
+            if now - sent_at >= OTP_RESEND_SECONDS:
+                code = str(random.randint(100000, 999999))
+                request.session['reg_otp']         = code
+                request.session['reg_otp_expires'] = now + OTP_EXPIRY_SECONDS
+                request.session['reg_otp_sent_at'] = now
+                _send_registration_otp(reg['phone'], code)
+                messages.success(request, _('Новый код отправлен.'))
+            else:
+                wait = int(OTP_RESEND_SECONDS - (now - sent_at))
+                messages.error(request, _(f'Подождите ещё {wait} сек.'))
+            return redirect('accounts:verify_phone')
+
+        # ── Verify code ───────────────────────────────────────────────
+        entered  = request.POST.get('code', '').strip()
+        expected = request.session.get('reg_otp', '')
+
+        if now > otp_expires:
+            messages.error(request, _('Код истёк. Запросите новый.'))
+        elif len(entered) != 6 or not entered.isdigit():
+            messages.error(request, _('Введите 6-значный код.'))
+        elif entered != expected:
+            messages.error(request, _('Неверный код. Попробуйте ещё раз.'))
+        else:
+            # ── Create user ───────────────────────────────────────────
+            user = User(
+                username=reg['email'],
+                email=reg['email'],
+                first_name=reg['first_name'],
+                last_name=reg['last_name'],
+            )
+            user.password = reg['password']  # already hashed
+            user.save()
+
+            profile = Profile.objects.get_or_create(user=user)[0]
+            profile.full_name = f"{reg['first_name']} {reg['last_name']}".strip()
+            profile.phone     = reg['phone']
+            profile.role      = 'customer'
+            profile.save()
+
+            for key in ('reg_pending', 'reg_otp', 'reg_otp_expires', 'reg_otp_sent_at'):
+                request.session.pop(key, None)
+
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(request, _('Регистрация завершена! Добро пожаловать.'))
+            return redirect('marketplace:home')
+
+    resend_in  = max(0, int(OTP_RESEND_SECONDS - (now - sent_at)))
+    can_resend = resend_in == 0
+
+    return render(request, 'accounts/verify_phone.html', {
+        'phone_masked': _mask_phone(reg['phone']),
+        'can_resend':   can_resend,
+        'resend_in':    resend_in,
+    })
+
 
 def password_reset_request(request):
     if request.method == 'POST':
