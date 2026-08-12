@@ -35,11 +35,22 @@ def load_config() -> Config:
     domain = os.getenv("DOMAIN_NAME", "ibron.uz").rstrip("/")
     webhook_path = os.getenv("BOT_WEBHOOK_PATH", "/bot/webhook")
 
+    # Prefer an explicit BOT_WEBHOOK_URL (e.g. an ngrok tunnel used for local
+    # testing) over the one derived from DOMAIN_NAME. Previously this value
+    # was defined in .env but never read here, so the bot always registered
+    # its webhook against DOMAIN_NAME even when a tunnel URL was set.
+    explicit_webhook_base = os.getenv("BOT_WEBHOOK_URL", "").rstrip("/")
+    webhook_url = (
+        f"{explicit_webhook_base}{webhook_path}"
+        if explicit_webhook_base
+        else f"https://{domain}{webhook_path}"
+    )
+
     return Config(
         bot_token=bot_token,
         website_url=os.getenv("WEBSITE_URL", f"https://{domain}/"),
         db_url=db_url,
-        webhook_url=f"https://{domain}{webhook_path}",
+        webhook_url=webhook_url,
         webhook_path=webhook_path,
         webhook_secret=os.getenv("BOT_WEBHOOK_SECRET", secrets.token_hex(32)),
         host=os.getenv("BOT_HOST", "127.0.0.1"),
