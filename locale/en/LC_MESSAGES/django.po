@@ -1,825 +1,757 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: iBron
-"
+"Project-Id-Version: iBron\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-05-29 10:49+0500\n"
-"PO-Revision-Date: 2026-06-28 00:00+0500
-"
-"Last-Translator: iBron Team
-"
-"Language-Team: Uzbek
-"
-"Language: uz
-"
+"PO-Revision-Date: 2026-08-12 00:00+0500\n"
+"Last-Translator: iBron Team\n"
+"Language-Team: English\n"
+"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
-"(n%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: accounts/forms.py:180
+#: accounts/forms.py:148
 msgid "Passwords do not match."
-msgstr "Parollar mos kelmadi."
+msgstr "Passwords do not match."
 
-#: accounts/forms.py:190
+#: accounts/forms.py:158
 msgid "Verification Code"
-msgstr "Tasdiqlash kodi"
+msgstr "Verification Code"
 
-#: accounts/views.py:79
+#: accounts/views.py:80
 msgid "Welcome back! You are now logged in."
-msgstr "Xush kelibsiz! Hisobingizga muvaffaqiyatli kirdingiz."
+msgstr "Welcome back! You are now logged in."
 
-#: accounts/views.py:82
+#: accounts/views.py:84
 msgid "Invalid credentials. Please check your username/email and password."
-msgstr "Login yoki parol noto‘g‘ri. Ma’lumotlarni tekshirib qayta urinib ko‘ring."
+msgstr "Invalid credentials. Please check your username/email and password."
 
-#: accounts/views.py:85
+#: accounts/views.py:88
 msgid "Username or Email"
-msgstr "Foydalanuvchi nomi yoki email"
+msgstr "Username or Email"
 
-#: accounts/views.py:195
+#: accounts/views.py:192
 msgid "Invalid code. Please try again."
-msgstr "Kod noto‘g‘ri. Qayta urinib ko‘ring."
+msgstr "Invalid code. Please try again."
 
-#: accounts/views.py:214
+#: accounts/views.py:211
 msgid "User session lost."
-msgstr "Sessiya yakunlandi. Iltimos, qayta kiring."
+msgstr "User session lost."
 
-#: accounts/views.py:241
+#: accounts/views.py:238
 msgid "Password updated. Please log in."
-msgstr "Parol yangilandi. Iltimos, qayta kiring."
+msgstr "Password updated. Please log in."
 
-#: accounts/views.py:247
+#: accounts/views.py:244
 msgid "Reset code expired or already used."
-msgstr "Tiklash kodi muddati tugagan yoki allaqachon ishlatilgan."
+msgstr "Reset code expired or already used."
+
+#: accounts/views.py:310
+msgid "Settings updated successfully!"
+msgstr "Settings updated successfully!"
 
 #: accounts/views.py:313
-msgid "Settings updated successfully!"
-msgstr "Sozlamalar muvaffaqiyatli saqlandi."
-
-#: accounts/views.py:316
 msgid "Please fix the errors below."
-msgstr "Quyidagi xatolarni tuzatib, qayta urinib ko‘ring."
+msgstr "Please fix the errors below."
 
-#: config/settings.py:131
+#: config/settings.py:138
 msgid "Russian"
-msgstr "Rus tili"
+msgstr "Russian"
 
-#: config/settings.py:132
+#: config/settings.py:139
 msgid "English"
-msgstr "Ingliz tili"
+msgstr "English"
 
-#: config/settings.py:133
+#: config/settings.py:140
 msgid "Uzbek"
-msgstr "O‘zbek tili"
+msgstr "Uzbek"
 
-#: marketplace/forms.py:55
-msgid "This venue has no PCs configured."
-msgstr "Bu kompyuter klubida o‘yin joylari hali sozlanmagan."
-
-#: marketplace/forms.py:58
-#, python-format
-msgid "Quantity must be between 1 and %(n)d."
-msgstr "Miqdor 1 dan %(n)d gacha bo‘lishi kerak."
-
-#: marketplace/models.py:158 templates/marketplace/booking_success.html:213
-#: templates/marketplace/my_bookings.html:96
+#: marketplace/models.py:142 templates/marketplace/booking_success.html:213
+#: templates/marketplace/my_bookings.html:121
 msgid "Salon"
-msgstr "Joy"
+msgstr "Salon"
 
-#: marketplace/models.py:161
+#: marketplace/models.py:145
 msgid "Full Address"
-msgstr "To‘liq manzil"
+msgstr "Full Address"
 
-#: marketplace/models.py:165
+#: marketplace/models.py:149
 msgid "Latitude"
-msgstr "Kenglik"
+msgstr "Latitude"
 
-#: marketplace/models.py:168
+#: marketplace/models.py:152
 msgid "Longitude"
-msgstr "Uzunlik"
+msgstr "Longitude"
 
-#: marketplace/models.py:172
+#: marketplace/models.py:156
 msgid "Map Link"
-msgstr "Xarita havolasi"
+msgstr "Map Link"
 
-#: marketplace/models.py:175
+#: marketplace/models.py:159
 msgid "Address"
-msgstr "Manzil"
+msgstr "Address"
 
-#: marketplace/models.py:176
+#: marketplace/models.py:160
 msgid "Addresses"
-msgstr "Manzillar"
+msgstr "Addresses"
 
-#: marketplace/models.py:276
+#: marketplace/models.py:260
 msgid "Monday"
-msgstr "Dushanba"
+msgstr "Monday"
 
-#: marketplace/models.py:277
+#: marketplace/models.py:261
 msgid "Tuesday"
-msgstr "Seshanba"
+msgstr "Tuesday"
 
-#: marketplace/models.py:278
+#: marketplace/models.py:262
 msgid "Wednesday"
-msgstr "Chorshanba"
+msgstr "Wednesday"
 
-#: marketplace/models.py:279
+#: marketplace/models.py:263
 msgid "Thursday"
-msgstr "Payshanba"
+msgstr "Thursday"
 
-#: marketplace/models.py:280
+#: marketplace/models.py:264
 msgid "Friday"
-msgstr "Juma"
+msgstr "Friday"
 
-#: marketplace/models.py:281
+#: marketplace/models.py:265
 msgid "Saturday"
-msgstr "Shanba"
+msgstr "Saturday"
 
-#: marketplace/models.py:282
+#: marketplace/models.py:266
 msgid "Sunday"
-msgstr "Yakshanba"
+msgstr "Sunday"
 
-#: marketplace/models.py:287 templates/accounts/settings.html:277
+#: marketplace/models.py:271 templates/accounts/settings.html:249
 #: templates/include/working_hours_loop.html:19
-#: templates/marketplace/salon_detail.html:575
-#: templates/marketplace/salon_detail.html:703
+#: templates/marketplace/salon_detail.html:583
+#: templates/marketplace/salon_detail.html:730
 msgid "Closed"
-msgstr "Dam olish kuni"
+msgstr "Closed"
 
-#: marketplace/models.py:288
+#: marketplace/models.py:272
 msgid "Open time"
-msgstr "Ochilish vaqti"
+msgstr "Open time"
 
-#: marketplace/models.py:289
+#: marketplace/models.py:273
 msgid "Close time"
-msgstr "Yopilish vaqti"
+msgstr "Close time"
 
-#: marketplace/models.py:293 marketplace/models.py:294
+#: marketplace/models.py:277 marketplace/models.py:278
 msgid "Salon working hours"
-msgstr "Ish vaqti"
+msgstr "Salon working hours"
 
-#: marketplace/models.py:300
+#: marketplace/models.py:284
 msgid "If not closed, open_time and close_time are required."
-msgstr "Agar kun dam olish kuni bo‘lmasa, ochilish va yopilish vaqtini kiriting."
+msgstr "If not closed, open_time and close_time are required."
 
-#: marketplace/models.py:302
+#: marketplace/models.py:286
 msgid "Open time must be earlier than close time."
-msgstr "Ochilish vaqti yopilish vaqtidan oldin bo‘lishi kerak."
+msgstr "Open time must be earlier than close time."
 
 #: marketplace/templatetags/venue_labels.py:36
 #: marketplace/templatetags/venue_labels.py:37
 msgid "Court"
-msgstr "Kort"
+msgstr "Court"
 
 #: marketplace/templatetags/venue_labels.py:36
 #: marketplace/templatetags/venue_labels.py:37
 msgid "Courts"
-msgstr "Kortlar"
+msgstr "Courts"
 
 #: marketplace/templatetags/venue_labels.py:38
 msgid "Station"
-msgstr "Joy"
+msgstr "Station"
 
 #: marketplace/templatetags/venue_labels.py:38
 msgid "Stations"
-msgstr "Joylar"
+msgstr "Stations"
 
 #: marketplace/templatetags/venue_labels.py:39
 #: marketplace/templatetags/venue_labels.py:40
 msgid "Table"
-msgstr "Stol"
+msgstr "Table"
 
 #: marketplace/templatetags/venue_labels.py:39
 #: marketplace/templatetags/venue_labels.py:40
 msgid "Tables"
-msgstr "Stollar"
+msgstr "Tables"
 
 #: marketplace/templatetags/venue_labels.py:70
 msgid "Master"
-msgstr "Usta"
+msgstr "Master"
 
 #: marketplace/templatetags/venue_labels.py:76
 msgid "Masters"
-msgstr "Ustalar"
+msgstr "Masters"
 
-#: templates/accounts/settings.html:198 templates/include/navbar.html:76
+#: templates/accounts/settings.html:170 templates/include/navbar.html:76
 #: templates/include/navbar.html:91
 msgid "Settings"
-msgstr "Sozlamalar"
+msgstr "Settings"
 
-#: templates/accounts/settings.html:199
+#: templates/accounts/settings.html:171
 msgid "Manage your profile and business"
-msgstr "Profilingiz va biznesingizni boshqaring"
+msgstr "Manage your profile and business"
 
-#: templates/accounts/settings.html:222
+#: templates/accounts/settings.html:194
 msgid "Personal Information"
-msgstr "Shaxsiy ma’lumotlar"
+msgstr "Personal Information"
 
-#: templates/accounts/settings.html:226
+#: templates/accounts/settings.html:198
 msgid "Upload Photo"
-msgstr "Rasm yuklash"
+msgstr "Upload Photo"
 
-#: templates/accounts/settings.html:232
+#: templates/accounts/settings.html:204
+msgid "Full Name"
+msgstr "Full Name"
+
+#: templates/accounts/settings.html:208
 msgid "Phone Number"
-msgstr "Telefon raqami"
+msgstr "Phone Number"
 
-#: templates/accounts/settings.html:236
+#: templates/accounts/settings.html:212
 msgid "First Name"
-msgstr "Ism"
+msgstr "First Name"
 
-#: templates/accounts/settings.html:240
+#: templates/accounts/settings.html:216
 msgid "Last Name"
-msgstr "Familiya"
+msgstr "Last Name"
 
-#: templates/accounts/settings.html:244
-msgid "Gender"
-msgstr "Jinsi"
-
-#: templates/accounts/settings.html:259
+#: templates/accounts/settings.html:231
 msgid "Working Hours"
-msgstr "Ish vaqti"
+msgstr "Working Hours"
 
-#: templates/accounts/settings.html:265
+#: templates/accounts/settings.html:237
 msgid "Set your salon's weekly opening hours. Toggle 'Closed' for days off."
-msgstr "Joyingizning haftalik ish vaqtini belgilang. Dam olish kunlari uchun «Dam olish kuni»ni yoqing."
+msgstr "Set your salon's weekly opening hours. Toggle 'Closed' for days off."
 
-#: templates/accounts/settings.html:324
-msgid "How to get your Telegram ID"
-msgstr "Telegram ID’ni qanday topish mumkin"
+#: templates/accounts/settings.html:274
+msgid "No salon yet"
+msgstr "No salon yet"
 
-#: templates/accounts/settings.html:328
-msgid ""
-"To receive booking notifications in Telegram, you need to enter your "
-"Telegram ID in the field above. Follow these simple steps:"
-msgstr "Telegram orqali bron xabarnomalarini olish uchun yuqoridagi maydonga Telegram ID’ingizni kiriting. Quyidagi oddiy bosqichlarni bajaring:"
+#: templates/accounts/settings.html:276
+msgid "Once you have a salon, you'll be able to set its working hours here."
+msgstr "Once you have a salon, you'll be able to set its working hours here."
 
-#: templates/accounts/settings.html:335
-msgid "Open Telegram and start the bot"
-msgstr "Telegram’ni oching va botni ishga tushiring"
+#: templates/accounts/settings.html:288
+msgid "App Preferences"
+msgstr "App Preferences"
 
-#: templates/accounts/settings.html:338
-msgid "(click the link or search for it)."
-msgstr "(havolani bosing yoki qidiruv orqali toping)."
-
-#: templates/accounts/settings.html:344
-msgid "Press"
-msgstr "Bosing"
-
-#: templates/accounts/settings.html:345
-msgid "(or send"
-msgstr "(yoki yuboring"
-
-#: templates/accounts/settings.html:345
-msgid ")."
-msgstr ")."
-
-#: templates/accounts/settings.html:351
-msgid "The bot will reply with your info. Copy the number next to"
-msgstr "Bot sizga ma’lumotlaringizni yuboradi. Quyidagi yonidagi raqamni nusxalang:"
-
-#: templates/accounts/settings.html:353
-msgid "(example: 123456789)."
-msgstr "(masalan: 123456789)."
-
-#: templates/accounts/settings.html:359
-msgid "Paste that number into the"
-msgstr "Ushbu raqamni"
-
-#: templates/accounts/settings.html:360 templates/accounts/settings.html:385
+#: templates/accounts/settings.html:292
 msgid "Telegram ID"
 msgstr "Telegram ID"
 
-#: templates/accounts/settings.html:361
-msgid "field above and click"
-msgstr "maydoniga kiriting va bosing:"
-
-#: templates/accounts/settings.html:362 templates/accounts/settings.html:414
-msgid "Save Settings"
-msgstr "Sozlamalarni saqlash"
-
-#: templates/accounts/settings.html:370
-msgid "Open @userinfobot"
-msgstr "@userinfobot’ni ochish"
-
-#: templates/accounts/settings.html:381
-msgid "App Preferences"
-msgstr "Ilova sozlamalari"
-
-#: templates/accounts/settings.html:389
+#: templates/accounts/settings.html:296
 msgid "System Language"
-msgstr "Tizim tili"
+msgstr "System Language"
 
-#: templates/accounts/settings.html:398
+#: templates/accounts/settings.html:305
 msgid "Professional Details"
-msgstr "Biznes ma’lumotlari"
+msgstr "Professional Details"
 
-#: templates/accounts/settings.html:401
+#: templates/accounts/settings.html:308
 msgid "Company Name"
-msgstr "Kompaniya nomi"
+msgstr "Company Name"
 
-#: templates/accounts/settings.html:405
+#: templates/accounts/settings.html:312
 msgid "Bio"
-msgstr "Tavsif"
+msgstr "Bio"
+
+#: templates/accounts/settings.html:321
+msgid "Save Settings"
+msgstr "Save Settings"
 
 #: templates/business/dashboard.html:7
 msgid "Business Dashboard"
-msgstr "Biznes boshqaruv paneli"
+msgstr "Business Dashboard"
 
 #: templates/business/dashboard.html:133
 msgid "Owner Management"
-msgstr "Egani boshqarish"
+msgstr "Owner Management"
 
 #: templates/business/dashboard.html:137
 msgid "Exit to Market"
-msgstr "Marketplace’ni ochish"
+msgstr "Exit to Market"
 
 #: templates/business/dashboard.html:149
 msgid "No Active Salon"
-msgstr "Faol joy topilmadi"
+msgstr "No Active Salon"
 
 #: templates/business/dashboard.html:150
 msgid "It seems you haven't linked a business profile to your account yet."
-msgstr "Hisobingizga biznes profili hali biriktirilmagan ko‘rinadi."
+msgstr "It seems you haven't linked a business profile to your account yet."
 
-#: templates/business/dashboard.html:191
+#: templates/business/dashboard.html:190
 msgid "Schedule Overview"
-msgstr "Bronlar sharhi"
+msgstr "Schedule Overview"
 
-#: templates/business/dashboard.html:198
+#: templates/business/dashboard.html:197
+#: templates/include/booking_table.html:80
+#: templates/include/booking_table.html:163
 msgid "Pending"
-msgstr "Tasdiq kutilmoqda"
+msgstr "Pending"
 
-#: templates/business/dashboard.html:205
+#: templates/business/dashboard.html:204
 msgid "Today"
-msgstr "Bugun"
+msgstr "Today"
 
-#: templates/business/dashboard.html:208
-#: templates/marketplace/my_bookings.html:50
+#: templates/business/dashboard.html:207
+#: templates/marketplace/my_bookings.html:94
 msgid "Upcoming"
-msgstr "Kutilayotgan"
+msgstr "Upcoming"
 
-#: templates/business/dashboard.html:211
+#: templates/business/dashboard.html:210
 msgid "History"
-msgstr "Tarix"
+msgstr "History"
 
-#: templates/business/dashboard.html:236
+#: templates/business/dashboard.html:233
 msgid "Performance Stats"
-msgstr "Biznes ko‘rsatkichlari"
+msgstr "Performance Stats"
 
-#: templates/business/dashboard.html:244
+#: templates/business/dashboard.html:241
 msgid "Bookings Today"
-msgstr "Bugungi bronlar"
+msgstr "Bookings Today"
 
-#: templates/business/dashboard.html:254
+#: templates/business/dashboard.html:251
 msgid "Scheduled Future"
-msgstr "Kelgusi bronlar"
+msgstr "Scheduled Future"
 
-#: templates/business/dashboard.html:274
+#: templates/business/dashboard.html:271
 msgid "Primary Business Owner"
-msgstr "Asosiy biznes egasi"
+msgstr "Primary Business Owner"
 
-#: templates/business/dashboard.html:301
-msgid "Accept this booking?"
-msgstr "Ushbu bronni tasdiqlaysizmi?"
-
-#: templates/business/dashboard.html:302
-msgid "Cancel this booking?"
-msgstr "Ushbu bronni bekor qilasizmi?"
-
-#: templates/business/dashboard.html:303
-msgid "Mark as completed?"
-msgstr "Yakunlangan deb belgilaysizmi?"
-
-#: templates/include/booking_table.html:11
-#: templates/marketplace/my_bookings.html:97
-msgid "Time"
-msgstr "Vaqt"
-
-#: templates/include/booking_table.html:13
-msgid "Date"
-msgstr "Sana"
-
-#: templates/include/booking_table.html:15
-msgid "Client"
-msgstr "Mijoz"
-
-#: templates/include/booking_table.html:16
-#: templates/marketplace/my_bookings.html:95
-msgid "Service"
-msgstr "Xizmat"
-
-#: templates/include/booking_table.html:17
-#: templates/marketplace/booking_success.html:217
-#: templates/marketplace/my_bookings.html:98
-msgid "Status"
-msgstr "Holati"
-
-#: templates/include/booking_table.html:19
-msgid "Actions"
-msgstr "Amallar"
-
-#: templates/include/booking_table.html:56
+#: templates/include/booking_table.html:64
+#: templates/include/booking_table.html:147
 msgid "Accept"
-msgstr "Tasdiqlash"
+msgstr "Accept"
 
-#: templates/include/booking_table.html:60
-#: templates/include/booking_table.html:69
-msgid "Cancel"
-msgstr "Bekor qilish"
+#: templates/include/booking_table.html:70
+#: templates/include/booking_table.html:153
+msgid "Are you sure you want to decline this booking?"
+msgstr "Are you sure you want to decline this booking?"
 
-#: templates/include/booking_table.html:65
-msgid "Complete"
-msgstr "Yakunlash"
+#: templates/include/booking_table.html:73
+#: templates/include/booking_table.html:156
+msgid "Decline"
+msgstr "Decline"
 
-#: templates/include/booking_table.html:81
-msgid "No records found in this section."
-msgstr "Bu bo‘limda hozircha yozuvlar yo‘q."
+#: templates/include/booking_table.html:78
+#: templates/include/booking_table.html:161
+msgid "Confirmed"
+msgstr "Confirmed"
+
+#: templates/include/booking_table.html:82
+#: templates/include/booking_table.html:165
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: templates/include/booking_table.html:84
+#: templates/include/booking_table.html:167
+msgid "Completed"
+msgstr "Completed"
+
+#: templates/include/booking_table.html:93
+#: templates/include/booking_table.html:177
+msgid "No records found for this section."
+msgstr "No records found for this section."
+
+#: templates/include/booking_table.html:106
+msgid "Client"
+msgstr "Client"
+
+#: templates/include/booking_table.html:107
+msgid "Service / Master"
+msgstr "Service / Master"
+
+#: templates/include/booking_table.html:108
+#: templates/marketplace/my_bookings.html:122
+msgid "Time"
+msgstr "Time"
+
+#: templates/include/booking_table.html:110
+#: templates/marketplace/my_bookings.html:124
+msgid "Action"
+msgstr "Action"
+
+#: templates/include/booking_table.html:110
+#: templates/marketplace/booking_success.html:217
+#: templates/marketplace/my_bookings.html:123
+msgid "Status"
+msgstr "Status"
 
 #: templates/include/navbar.html:15
 msgid "Для бизнеса"
-msgstr "Biznes uchun"
+msgstr "For Business"
 
 #: templates/include/navbar.html:62
 msgid "Войти"
-msgstr "Kirish"
+msgstr "Log In"
 
 #: templates/include/navbar.html:77
 msgid "My Booking"
-msgstr "Mening bronim"
+msgstr "My Booking"
 
-#: templates/include/navbar.html:94 templates/marketplace/my_bookings.html:5
-#: templates/marketplace/my_bookings.html:45
+#: templates/include/navbar.html:94 templates/marketplace/my_bookings.html:3
+#: templates/marketplace/my_bookings.html:91
 msgid "My Bookings"
-msgstr "Mening bronlarim"
+msgstr "My Bookings"
 
 #: templates/include/navbar.html:98
 msgid "Logout"
-msgstr "Chiqish"
+msgstr "Logout"
 
 #: templates/include/working_hours_loop.html:27
 msgid "Opening hours not specified."
-msgstr "Ish vaqti ko‘rsatilmagan."
+msgstr "Opening hours not specified."
 
 #: templates/marketplace/booking_success.html:5
 msgid "Booking Confirmed"
-msgstr "Bron tasdiqlandi"
+msgstr "Booking Confirmed"
 
 #: templates/marketplace/booking_success.html:198
 msgid "Booked successfully!"
-msgstr "Bron muvaffaqiyatli yaratildi!"
+msgstr "Booked successfully!"
 
 #: templates/marketplace/booking_success.html:200
 msgid "Awaiting Salon Confirmation"
-msgstr "Joy tasdig‘i kutilmoqda"
+msgstr "Awaiting Salon Confirmation"
 
 #: templates/marketplace/booking_success.html:203
 #, python-format
 msgid ""
 "\n"
-"            Your booking request has been sent to <strong>%(salon_name)s</"
-"strong>. \n"
+"            Your booking request has been sent to <strong>%(salon_name)s</strong>. \n"
 "        "
 msgstr ""
 "\n"
-"            Bron so‘rovingiz <strong>%(salon_name)s</strong> joyiga yuborildi. \n"
+"            Your booking request has been sent to <strong>%(salon_name)s</strong>. \n"
 "        "
 
 #: templates/marketplace/booking_success.html:206
 msgid "You will receive a notification once they confirm your time."
-msgstr "Vaqtingiz tasdiqlangach, sizga xabarnoma yuboriladi."
+msgstr "You will receive a notification once they confirm your time."
 
 #: templates/marketplace/booking_success.html:219
 msgid "Pending Approval"
-msgstr "Tasdiq kutilmoqda"
+msgstr "Pending Approval"
 
 #: templates/marketplace/booking_success.html:228
 msgid "Done"
-msgstr "Tayyor"
+msgstr "Done"
 
 #: templates/marketplace/booking_success.html:231
 msgid "Go to Home"
-msgstr "Bosh sahifaga qaytish"
+msgstr "Go to Home"
 
 #: templates/marketplace/booking_success.html:238
 msgid "You can manage this booking in your profile."
-msgstr "Ushbu bronni profilingiz orqali boshqarishingiz mumkin."
+msgstr "You can manage this booking in your profile."
 
-#: templates/marketplace/category_list.html:435
+#: templates/marketplace/category_list.html:243
 msgid "Будьте собой."
-msgstr "O‘zingiz bo‘ling."
+msgstr "Be yourself."
 
-#: templates/marketplace/category_list.html:436
+#: templates/marketplace/category_list.html:244
 msgid "Записывайтесь к лучшим мастерам."
-msgstr "Eng yaxshi ustalarga oson bron qiling."
+msgstr "Book with the best specialists."
 
-#: templates/marketplace/category_list.html:442
+#: templates/marketplace/category_list.html:248
 msgid "ЧТО ВЫ ИЩЕТЕ?"
-msgstr "Nimani qidiryapsiz?"
+msgstr "WHAT ARE YOU LOOKING FOR?"
 
-#: templates/marketplace/category_list.html:447
+#: templates/marketplace/category_list.html:252
 msgid "Напр. стрижка, маникюр, спа..."
-msgstr "Masalan: soch olish, manikyur, massaj..."
+msgstr "E.g. haircut, manicure, spa..."
 
-#: templates/marketplace/category_list.html:452
-msgid "Популярные категории"
-msgstr "Ommabop kategoriyalar"
+#: templates/marketplace/category_list.html:257
+msgid "ГДЕ?"
+msgstr "WHERE?"
 
-#: templates/marketplace/category_list.html:465
-msgid "Найти салоны рядом"
-msgstr "Yaqin joylarni topish"
+#: templates/marketplace/category_list.html:261
+msgid "Город или адрес"
+msgstr "City or address"
 
-#: templates/marketplace/category_list.html:467
-msgid "Рядом со мной"
-msgstr "Menga yaqin"
+#: templates/marketplace/category_list.html:265
+msgid "Найти?"
+msgstr "Search"
 
-#: templates/marketplace/category_list.html:468
-msgid "Рядом"
-msgstr "Yaqin"
-
-#: templates/marketplace/category_list.html:470
-msgid "Найти"
-msgstr "Topish"
-
-#: templates/marketplace/category_list.html:490
+#: templates/marketplace/category_list.html:283
 msgid "No categories yet!"
-msgstr "Kategoriyalar hali qo‘shilmagan."
+msgstr "No categories yet!"
 
-#: templates/marketplace/category_list.html:498
+#: templates/marketplace/category_list.html:291
 msgid "Почему ebook?"
-msgstr "Nega iBron?"
+msgstr "Why iBron?"
 
-#: templates/marketplace/category_list.html:502
+#: templates/marketplace/category_list.html:295
 msgid "Находите"
-msgstr "Toping"
+msgstr "Discover"
 
-#: templates/marketplace/category_list.html:503
+#: templates/marketplace/category_list.html:296
 msgid "ebook поможет найти лучших мастеров красоты и здоровья рядом с вами."
-msgstr "iBron sizga yaqin atrofdagi eng yaxshi joylar va ustalarni topishga yordam beradi."
+msgstr ""
+"iBron helps you find the best beauty and wellness specialists near you."
 
-#: templates/marketplace/category_list.html:507
+#: templates/marketplace/category_list.html:300
 msgid "Записывайтесь"
-msgstr "Bron qiling"
+msgstr "Book"
 
-#: templates/marketplace/category_list.html:508
+#: templates/marketplace/category_list.html:301
 msgid ""
 "Смотрите свободное время в календаре мастера и записывайтесь мгновенно 24/7."
-msgstr "Bo‘sh vaqtlarni ko‘ring va istalgan vaqtda online bron qiling."
+msgstr ""
+"Check availability in the specialist's calendar and book instantly, 24/7."
 
-#: templates/marketplace/category_list.html:512
+#: templates/marketplace/category_list.html:305
 msgid "Управляйте"
-msgstr "Boshqaring"
+msgstr "Manage"
 
-#: templates/marketplace/category_list.html:513
+#: templates/marketplace/category_list.html:306
 msgid "Переносите визиты и управляйте своим расписанием в приложении."
-msgstr "Bronlaringizni ko‘ring, o‘zgartiring va jadvalingizni bir joyda boshqaring."
+msgstr "Reschedule visits and manage your schedule right in the app."
 
-#: templates/marketplace/category_list.html:524
+#: templates/marketplace/category_list.html:317
 msgid "Новинка"
-msgstr "Yangilik"
+msgstr "New"
 
-#: templates/marketplace/category_list.html:527
+#: templates/marketplace/category_list.html:320
 msgid "Записывайтесь мгновенно через"
-msgstr "Tezkor bron qiling:"
+msgstr "Book instantly via"
 
-#: templates/marketplace/category_list.html:531
+#: templates/marketplace/category_list.html:324
 msgid ""
 "Никаких загрузок и обновлений. Запускайте ibron прямо в любимом мессенджере "
 "и бронируйте услуги за 10 секунд."
-msgstr "Yuklab olish va yangilash shart emas. iBron’ni sevimli messenjeringizda oching va xizmatlarni bir necha soniyada bron qiling."
+msgstr ""
+"No downloads or updates needed. Open iBron right in your favorite messenger "
+"and book services in seconds."
 
-#: templates/marketplace/category_list.html:540
+#: templates/marketplace/category_list.html:333
 msgid "Открыть в"
-msgstr "Ochish:"
+msgstr "Open in"
 
-#: templates/marketplace/category_list.html:541
+#: templates/marketplace/category_list.html:334
 msgid "Telegram Bot"
-msgstr "Telegram bot"
+msgstr "Telegram Bot"
 
-#: templates/marketplace/category_list.html:634
-msgid "Определяем..."
-msgstr "Aniqlanmoqda..."
-
-#: templates/marketplace/category_list.html:647
-msgid "Ваш браузер не поддерживает геолокацию"
-msgstr "Brauzeringiz geolokatsiyani qo‘llab-quvvatlamaydi"
-
-#: templates/marketplace/category_list.html:655
-msgid "Геолокация работает только на HTTPS"
-msgstr "Geolokatsiya faqat HTTPS orqali ishlaydi"
-
-#: templates/marketplace/category_list.html:675
-msgid "Разрешите доступ к геолокации в настройках браузера"
-msgstr "Brauzer sozlamalarida geolokatsiyaga ruxsat bering"
-
-#: templates/marketplace/category_list.html:678
-msgid "Местоположение недоступно. Проверьте GPS / интернет"
-msgstr "Joylashuv aniqlanmadi. GPS yoki internetni tekshiring"
-
-#: templates/marketplace/category_list.html:681
-msgid "Время ожидания истекло. Попробуйте ещё раз"
-msgstr "Kutish vaqti tugadi. Qayta urinib ko‘ring"
-
-#: templates/marketplace/category_list.html:684
-msgid "Не удалось определить местоположение"
-msgstr "Joylashuvni aniqlab bo‘lmadi"
-
-#: templates/marketplace/my_bookings.html:55
+#: templates/marketplace/my_bookings.html:95
 msgid "Past"
-msgstr "O‘tgan"
+msgstr "Past"
 
-#: templates/marketplace/my_bookings.html:74
-msgid "ПК клуб"
-msgstr "Kompyuter klubi"
-
-#: templates/marketplace/my_bookings.html:82
+#: templates/marketplace/my_bookings.html:109
 msgid "View Details"
-msgstr "Bronni ko‘rish"
+msgstr "View Details"
 
-#: templates/marketplace/my_bookings.html:86
+#: templates/marketplace/my_bookings.html:112
 msgid "No upcoming bookings."
-msgstr "Hozircha kutilayotgan bronlar yo‘q."
+msgstr "No upcoming bookings."
 
-#: templates/marketplace/my_bookings.html:99
-msgid "Action"
-msgstr "Amal"
+#: templates/marketplace/my_bookings.html:120
+msgid "Service"
+msgstr "Service"
 
-#: templates/marketplace/my_bookings.html:115
+#: templates/marketplace/my_bookings.html:134
 msgid "View"
-msgstr "Ko‘rish"
-
-#: templates/marketplace/my_bookings.html:141
-msgid "No past bookings."
-msgstr "Hozircha o‘tgan bronlar yo‘q."
+msgstr "View"
 
 #: templates/marketplace/salon_detail.html:12
 msgid "Salons"
-msgstr "Joylar"
+msgstr "Salons"
 
 #: templates/marketplace/salon_detail.html:499
 msgid "Photos"
-msgstr "Rasmlar"
+msgstr "Photos"
 
 #: templates/marketplace/salon_detail.html:531
 msgid "Your reservation will be held for 30 minutes. Please arrive on time."
-msgstr "Broningiz 30 daqiqa davomida saqlanadi. Iltimos, o‘z vaqtida keling."
+msgstr "Your reservation will be held for 30 minutes. Please arrive on time."
 
 #: templates/marketplace/salon_detail.html:540
-#: templates/marketplace/salon_detail.html:755
+#: templates/marketplace/salon_detail.html:782
 msgid "Reservation"
-msgstr "Band qilish"
+msgstr "Reservation"
 
 #: templates/marketplace/salon_detail.html:541
-#: templates/marketplace/salon_detail.html:756
+#: templates/marketplace/salon_detail.html:783
 msgid "Rental"
-msgstr "Ijara"
+msgstr "Rental"
 
 #: templates/marketplace/salon_detail.html:542
 msgid "Services"
-msgstr "Xizmatlar"
+msgstr "Services"
 
-#: templates/marketplace/salon_detail.html:552
-#: templates/marketplace/salon_detail.html:672
-msgid "Venue Info"
-msgstr "Joy haqida"
-
-#: templates/marketplace/salon_detail.html:570
-#: templates/marketplace/salon_detail.html:698
-msgid "Opening Hours"
-msgstr "Ish vaqti"
-
-#: templates/marketplace/salon_detail.html:586
+#: templates/marketplace/salon_detail.html:551
+#: templates/marketplace/salon_detail.html:679
 msgid "About"
-msgstr "Haqida"
+msgstr "About"
 
-#: templates/marketplace/salon_detail.html:589
-msgid "No description provided."
-msgstr "Tavsif hali qo‘shilmagan."
+#: templates/marketplace/salon_detail.html:560
+#: templates/marketplace/salon_detail.html:699
+msgid "Venue Info"
+msgstr "Venue Info"
+
+#: templates/marketplace/salon_detail.html:578
+#: templates/marketplace/salon_detail.html:725
+msgid "Opening Hours"
+msgstr "Opening Hours"
 
 #: templates/marketplace/salon_detail.html:595
-msgid "View on Map"
-msgstr "Xaritada ko‘rish"
-
-#: templates/marketplace/salon_detail.html:603
 msgid "Reservation Options"
-msgstr "Band qilish variantlari"
+msgstr "Reservation Options"
 
-#: templates/marketplace/salon_detail.html:604
+#: templates/marketplace/salon_detail.html:596
 msgid "Rental Options"
-msgstr "Ijara variantlari"
+msgstr "Rental Options"
 
-#: templates/marketplace/salon_detail.html:605
+#: templates/marketplace/salon_detail.html:597
 msgid "Featured Services"
-msgstr "Tavsiya etilgan xizmatlar"
+msgstr "Featured Services"
 
-#: templates/marketplace/salon_detail.html:620
+#: templates/marketplace/salon_detail.html:612
 msgid "Hold time"
-msgstr "Saqlash vaqti"
+msgstr "Hold time"
 
-#: templates/marketplace/salon_detail.html:620
-#: templates/marketplace/salon_detail.html:626
+#: templates/marketplace/salon_detail.html:612
+#: templates/marketplace/salon_detail.html:618
 msgid "min"
-msgstr "daq"
+msgstr "min"
 
-#: templates/marketplace/salon_detail.html:623
+#: templates/marketplace/salon_detail.html:615
 msgid "h"
-msgstr "soat"
+msgstr "h"
 
-#: templates/marketplace/salon_detail.html:634
+#: templates/marketplace/salon_detail.html:626
 msgid "Free"
-msgstr "Bepul"
+msgstr "Free"
 
-#: templates/marketplace/salon_detail.html:636
-#: templates/marketplace/salon_detail.html:640
+#: templates/marketplace/salon_detail.html:628
+#: templates/marketplace/salon_detail.html:632
 msgid "sum"
-msgstr "so‘m"
+msgstr "sum"
 
-#: templates/marketplace/salon_detail.html:650
+#: templates/marketplace/salon_detail.html:642
 msgid "Reserve"
-msgstr "Band qilish"
+msgstr "Reserve"
 
-#: templates/marketplace/salon_detail.html:651
+#: templates/marketplace/salon_detail.html:643
 msgid "Rent"
-msgstr "Ijaraga olish"
+msgstr "Rent"
 
-#: templates/marketplace/salon_detail.html:652
+#: templates/marketplace/salon_detail.html:644
 #: templates/marketplace/salon_list.html:381
 msgid "Book"
-msgstr "Bron qilish"
+msgstr "Book"
 
-#: templates/marketplace/salon_detail.html:658
+#: templates/marketplace/salon_detail.html:650
 msgid "No reservation options yet."
-msgstr "Band qilish variantlari hali qo‘shilmagan."
+msgstr "No reservation options yet."
 
-#: templates/marketplace/salon_detail.html:659
+#: templates/marketplace/salon_detail.html:651
 msgid "No rental options yet."
-msgstr "Ijara variantlari hali qo‘shilmagan."
+msgstr "No rental options yet."
 
-#: templates/marketplace/salon_detail.html:660
+#: templates/marketplace/salon_detail.html:652
 msgid "No services yet."
-msgstr "Xizmatlar hali qo‘shilmagan."
+msgstr "No services yet."
 
-#: templates/marketplace/salon_detail.html:691
+#: templates/marketplace/salon_detail.html:682
+msgid "No description provided."
+msgstr "No description provided."
+
+#: templates/marketplace/salon_detail.html:688
+msgid "View on Map"
+msgstr "View on Map"
+
+#: templates/marketplace/salon_detail.html:718
 msgid "Available for booking"
-msgstr "Bron qilish mumkin"
+msgstr "Available for booking"
 
-#: templates/marketplace/salon_detail.html:757
+#: templates/marketplace/salon_detail.html:784
 msgid "Booking"
-msgstr "Bron"
+msgstr "Booking"
 
-#: templates/marketplace/salon_detail.html:777
+#: templates/marketplace/salon_detail.html:804
 msgid "Loading..."
-msgstr "Yuklanmoqda..."
+msgstr "Loading..."
 
-#: templates/marketplace/salon_detail.html:788
+#: templates/marketplace/salon_detail.html:815
 msgid "Failed to load booking form."
-msgstr "Bron qilish formasini yuklab bo‘lmadi."
+msgstr "Failed to load booking form."
 
-#: templates/marketplace/salon_detail.html:810
+#: templates/marketplace/salon_detail.html:837
 msgid "Checking availability..."
-msgstr "Bo‘sh vaqtlar tekshirilmoqda..."
+msgstr "Checking availability..."
 
-#: templates/marketplace/salon_detail.html:820
+#: templates/marketplace/salon_detail.html:847
 msgid "No free slots for this date."
-msgstr "Bu sanada bo‘sh vaqt yo‘q."
+msgstr "No free slots for this date."
 
-#: templates/marketplace/salon_detail.html:824
+#: templates/marketplace/salon_detail.html:851
 msgid "Select a time:"
-msgstr "Vaqtni tanlang:"
+msgstr "Select a time:"
 
-#: templates/marketplace/salon_detail.html:842
+#: templates/marketplace/salon_detail.html:869
 msgid "Error loading slots."
-msgstr "Bo‘sh vaqtlarni yuklashda xatolik yuz berdi."
+msgstr "Error loading slots."
 
 #: templates/marketplace/salon_list.html:317
 msgid "places found"
-msgstr "ta joy topildi"
+msgstr "places found"
 
 #: templates/marketplace/salon_list.html:386
 msgid "No services listed yet."
-msgstr "Xizmatlar hali ko‘rsatilmagan."
+msgstr "No services listed yet."
 
 #: templates/marketplace/salon_list.html:393
 msgid "VIEW MORE SERVICES"
-msgstr "Ko‘proq xizmatlarni ko‘rish"
+msgstr "VIEW MORE SERVICES"
 
 #: templates/marketplace/salon_list.html:404
 msgid "No results found"
-msgstr "Natija topilmadi"
+msgstr "No results found"
 
 #: templates/marketplace/salon_list.html:405
 msgid "Try adjusting your filters or location."
-msgstr "Filtrlar yoki joylashuvni o‘zgartirib ko‘ring."
+msgstr "Try adjusting your filters or location."
 
 #: templates/marketplace/salon_list.html:406
 msgid "Show All"
-msgstr "Barchasini ko‘rsatish"
+msgstr "Show All"
+
+msgid "Cheapest first"
+msgstr "Cheapest first"
+
+msgid "Most expensive first"
+msgstr "Most expensive first"
+
+msgid "Open now"
+msgstr "Open now"
+
+msgid "Nearest"
+msgstr "Nearest"
+
+msgid "Locating..."
+msgstr "Locating..."
+
+msgid "Geolocation is not supported by your browser."
+msgstr "Geolocation is not supported by your browser."
+
+msgid "Could not get your location. Please allow location access."
+msgstr "Could not get your location. Please allow location access."
+
+msgid "PC Clubs"
+msgstr "PC Clubs"
+
+msgid "Computer clubs"
+msgstr "Computer clubs"
+
+msgid "Choose a club and book a seat online"
+msgstr "Choose a club and book a seat online"
+
 msgid "Публичная оферта"
 msgstr "Public Offer"
 
